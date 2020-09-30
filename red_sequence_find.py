@@ -43,8 +43,8 @@ lMC = np.log10(M0 * (Lambda/40.)**Fl * ((1. + z_c)/(1. + 0.35))**Gz)
 
 # DISTRIBUTIONS
 
-mc = (z_c > 0.2)*(z_c < 0.7)
-mh = (z_h > 0.2)*(z_h < 0.7)*(lMH > 14.)
+mc = (z_c > 0.2)*(z_c < 0.65)
+mh = (z_h > 0.2)*(z_h < 0.65)*(lMH > 14.05)
 
 mz35_c = (z_c >= 0.35)
 mz35_h = (z_h >= 0.35)
@@ -62,13 +62,13 @@ plt.legend()
 plt.xlabel('log(M)')  
 
 plt.figure()
-plt.hist(z_c[mc],np.linspace(0.2,0.7,20),histtype='step', label = 'redMaPPer')  
-plt.hist(z_h[mh],np.linspace(0.2,0.7,20),histtype='step',label = 'MICE')
+plt.hist(z_c[mc],np.linspace(0.2,0.65,20),histtype='step', label = 'redMaPPer')  
+plt.hist(z_h[mh],np.linspace(0.2,0.65,20),histtype='step',label = 'MICE')
 plt.legend()
 plt.xlabel('z')  
 
 
-for j in range(50):
+for j in range(45):
 
     zmin = 0.2+0.01*j
     print(str('%.2f' % zmin))
@@ -79,7 +79,7 @@ for j in range(50):
     plt.figure()
     plt.plot(mr_h[mz_h],color_h[mz_h],'C7.',label = 'MICE')
     plt.plot(mr_c[mz_c],color_c[mz_c],'.', label = 'redMaPPer')  
-    plt.plot(mr_h[mz_h*mh],color_h[mz_h*mh],'.',label = 'MICE - lMH > 14')
+    plt.plot(mr_h[mz_h*mh],color_h[mz_h*mh],'.',label = 'MICE - log(MH) > 14')
     plt.legend()
     plt.xlabel('mag_r')
     if zmin < 0.35:

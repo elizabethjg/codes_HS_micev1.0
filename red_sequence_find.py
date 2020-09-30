@@ -81,7 +81,7 @@ def gauss(x, a,mu,sigma):
 mz_h = (z_h > 0.2)*(z_h < 0.21)
 mz_c = (z_c > 0.2)*(z_c < 0.21)
     
-color2 = (mg_h-mr_h)[mz_h*mh]
+color2 = (mg_h-mr_h)[mz_h]
 n,c    = np.histogram(color2,15)      
 c      = (c+(c[1]-c[0])*0.5)[:-1]
 
@@ -97,7 +97,7 @@ n_c,c_c    = np.histogram(color_c,15)
 c_c      = (c_c+(c_c[1]-c_c[0])*0.5)[:-1]
 
 plt.figure()
-plt.plot(mr_h[mz_h*mh],color2,'.')
+plt.plot(mr_h[mz_h],color2,'C7.')
 plt.plot(mr_c[mz_c*mc],color_c,'.')
 
 

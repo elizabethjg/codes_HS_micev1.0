@@ -24,8 +24,8 @@ WHERE `dec` < 56.5 AND `log_m` > 13 AND `flag` == 0
 # READ CATALOGS
 # ----------------------
 
-folder_RM = '/home/eli/Documentos/Astronomia/proyectos/DES-Y1/catalogs/'
-folder_Mice = '/home/eli/Documentos/Astronomia/proyectos/MICEv1.0/catalogs/'
+folder_RM = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/DES-Y1/catalogs/'
+folder_Mice = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICEv1.0/catalogs/'
 
 clusters = fits.open(folder_RM+'redmapper_y1a1_public_v6.4_catalog.fits')[1].data
 halos    = fits.open(folder_Mice+'MICEv1.0_halo_cat.fits')[1].data

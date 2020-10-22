@@ -28,6 +28,7 @@ class MICE(Survey):
 		# Somehow we load the data and save it in cls.data
 		f      = fits.open(path)
 		dl = Table(f[1].data).to_pandas()  
+		dl.rename(columns = {'ra': 'RAJ2000', 'dec': 'DECJ2000'}, inplace = True)
 		catid = np.arange(dl.shape[0]).astype(np.int32)
 		catid = pd.DataFrame({'CATID': catid})
 		cls.data = pd.concat([catid,dl], axis=1)

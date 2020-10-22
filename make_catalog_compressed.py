@@ -7,7 +7,7 @@ from lensing37 import LensCat, gentools
 from astropy.io import fits
 from astropy.table import Table
 from astropy.cosmology import LambdaCDM
-import mice
+from mice import MICE
 cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 
 f = fits.open('/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/MICEv1.0_halo_cat.fits')

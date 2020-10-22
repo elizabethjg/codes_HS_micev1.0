@@ -14,7 +14,7 @@ f = fits.open('/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/MICEv1.0_halo
 ft = Table(f[1].data)
 df = ft.to_pandas()
 mregion = ((df.dec < 1.5) + (df.dec > 40.))*(df.ra < 80.)   
-df2 = df[mregion]
+df = df[mregion]
 
 z_min = df['z_v'].min()
 

@@ -13,7 +13,9 @@ cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 f = fits.open('/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/MICEv1.0_halo_cat.fits')
 ft = Table(f[1].data)
 df = ft.to_pandas()
-      
+mregion = ((df.dec < 1.5) + (df.dec > 40.))*(df.ra < 80.)   
+df2 = df[mregion]
+
 z_min = df['z_v'].min()
 
 R_Mpc = 10.

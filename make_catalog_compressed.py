@@ -22,7 +22,7 @@ folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/'
 f = fits.open(folder+'MICEv1.0_halo_cat.fits')
 ft = Table(f[1].data)
 df = ft.to_pandas()
-mregion = ((df.dec < 1.5) + (df.dec > 40.))&(df.ra < 80.)   
+mregion = ((df.dec < 1.5) | (df.dec > 40.))&(df.ra < 80.)   
 df = df[mregion]
 
 z_min = df['z_v'].min()
@@ -38,8 +38,8 @@ print( 'Number of Lenses to Search: {}'.format(Nlenses))
 MICE.load()
 print('masking...')
 mask = (MICE.data['z_v']>z_min)&(MICE.data['z_v']<1.3)
-mregion = ((MICE.data['dec'] < 1.5) + (MICE.data['dec'] > 40.))&(MICE.data['ra'] < 80.)   
-MICE.data = MICE.data[mask*mregion]
+mregion = ((MICE.data['dec'] < 1.5) | (MICE.data['dec'] > 40.))&(MICE.data['ra'] < 80.)   
+MICE.data = MICE.data[mask & mregion]
 print('selecting neighbors...')
 
 def find_patch(lpar):
@@ -91,7 +91,7 @@ for l in range(len(RA)):
         print('TIME SLICE')
         print(ts)
         print('Estimated ramaining time')
-        print(np.mean(tslice)*(len(Lsplit)-(l+1)))
+        print(np.mean(tslice)*(len(RA)-(l+1)))
 
 
 

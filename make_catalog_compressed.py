@@ -28,8 +28,15 @@ print( 'Number of Lenses to Search: {}'.format(df.shape[0]))
 MICE.load()
 print('masking...')
 mask = (MICE.data['z_v']>z_min)*(MICE.data['z_v']<1.3)
-MICE.data = MICE.data[mask]
+MICE.data = MICE.data[mask*mregion]
 print('selecting neighbors...')
+
+def find_patch(RA0,DEC0,delta):
+        
+        mask = (MICE.RAJ2000 < (RA0+delta))*(MICE.RAJ2000 > (RA0-delta))*(MICE.DECJ2000 > (DEC0-delta))*(MICE.DECJ2000 < (DEC0+delta))
+        MICE.
+        
+
 cat = MICE.find_neighbors(centre=df[['ra','dec']],upper_radii=R_deg, append_data=df, compressed=True, njobs=1)
 print('saving cat...')
 cat.write_to('{}/gx_{}_{}.fits'.format(folder, cat.name, lensname), overwrite=True)

@@ -15,7 +15,7 @@ import itertools
 cosmo = LambdaCDM(H0=100, Om0=0.3, Ode0=0.7)
 
 R_Mpc = 10.
-ncores = 40
+ncores = 56
 
 folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/'
 

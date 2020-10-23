@@ -42,14 +42,14 @@ mregion = ((MICE.data['dec'] < 1.5) | (MICE.data['dec'] > 40.))&(MICE.data['ra']
 MICE.data = MICE.data[mask & mregion]
 print('selecting neighbors...')
 
+ra    = MICE.data.ra
+dec   = MICE.data.dec
+catid = MICE.data.CATID
+
 def find_patch(lpar):
         RA0,DEC0,delta = lpar
-        mask = (MICE.data.ra < (RA0+delta))&(MICE.data.ra > (RA0-delta))&(MICE.data.dec > (DEC0-delta))&(MICE.data.dec < (DEC0+delta))
-        
-        if mask.sum() == 0:
-                print(lpar)
-        
-        return np.array(MICE.data.CATID[mask])
+        mask = (ra < (RA0+delta))&(ra > (RA0-delta))&(dec > (DEC0-delta))&(dec < (DEC0+delta))
+        return np.array(catid[mask])
 
 # SPLIT LENSING CAT
 
@@ -90,8 +90,10 @@ for l in range(len(RA)):
         tslice = np.append(tslice,ts)
         print('TIME SLICE')
         print(ts)
-        print('Estimated ramaining time')
+        print('Estimated ramaining time - minutes')
         print(np.mean(tslice)*(len(RA)-(l+1)))
+        print('Estimated ramaining time - hours')
+        print(np.mean(tslice)*(1./60.)*(len(RA)-(l+1)))
 
 
 

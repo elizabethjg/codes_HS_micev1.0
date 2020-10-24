@@ -47,8 +47,12 @@ dec   = MICE.data.dec
 catid = MICE.data.CATID
 
 def find_patch(lpar):
+        t1 = time.time()
         RA0,DEC0,delta = lpar
         mask = (ra < (RA0+delta))&(ra > (RA0-delta))&(dec > (DEC0-delta))&(dec < (DEC0+delta))
+        t2 = time.time()
+        ts = (t2-t1)/60.
+        print('t per mask',ts)        
         return np.array(catid[mask])
 
 # SPLIT LENSING CAT
@@ -63,14 +67,14 @@ delta = np.split(R_deg,slices)
 ii = []
 tslice = np.array([])
 
-for l in range(len(RA)):
-
+for l in range(100):
+        print('########################')
         print('RUN ',l+1,' OF ',len(RA))
 
         t1 = time.time()
 
         num = len(RA[l])
-              
+        print(num)
         if num == 1:
                 entrada = [RA[0],DEC[0],delta[0]]
                 
@@ -82,18 +86,23 @@ for l in range(len(RA)):
                 salida = pool.map(find_patch, entrada)
                 pool.terminate()
         
-        
+        t10 = time.time()
         ii = ii + salida
+        t20 = time.time()
+        ts = (t20-t10)/60.
+        print('t per add',ts)        
         
         t2 = time.time()
         ts = (t2-t1)/60.
         tslice = np.append(tslice,ts)
+        print('########################')
         print('TIME SLICE')
         print(ts)
         print('Estimated ramaining time - minutes')
         print(np.mean(tslice)*(len(RA)-(l+1)))
         print('Estimated ramaining time - hours')
         print(np.mean(tslice)*(1./60.)*(len(RA)-(l+1)))
+        print('########################')
 
 
 

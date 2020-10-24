@@ -47,12 +47,8 @@ dec   = MICE.data.dec
 catid = MICE.data.CATID
 
 def find_patch(lpar):
-        t1 = time.time()
         RA0,DEC0,delta = lpar
         mask = (ra < (RA0+delta))&(ra > (RA0-delta))&(dec > (DEC0-delta))&(dec < (DEC0+delta))
-        t2 = time.time()
-        ts = (t2-t1)/60.
-        print('t per mask',ts)        
         return np.array(catid[mask])
 
 # SPLIT LENSING CAT
@@ -64,10 +60,10 @@ RA    = np.split(df.ra[:],slices)
 DEC   = np.split(df.dec[:],slices)
 delta = np.split(R_deg,slices)
 
-ii = []
+ii = np.array([])
 tslice = np.array([])
 
-for l in range(100):
+for l in range(len(RA)):
         print('########################')
         print('RUN ',l+1,' OF ',len(RA))
 
@@ -87,7 +83,7 @@ for l in range(100):
                 pool.terminate()
         
         t10 = time.time()
-        ii = ii + salida
+        ii = np.append(ii,salida)
         t20 = time.time()
         ts = (t20-t10)/60.
         print('t per add',ts)        
@@ -95,7 +91,7 @@ for l in range(100):
         t2 = time.time()
         ts = (t2-t1)/60.
         tslice = np.append(tslice,ts)
-        print('########################')
+        print('------------------------')
         print('TIME SLICE')
         print(ts)
         print('Estimated ramaining time - minutes')
@@ -104,10 +100,12 @@ for l in range(100):
         print(np.mean(tslice)*(1./60.)*(len(RA)-(l+1)))
         print('########################')
 
-
+print('MAKING CAT...')
 
 # One catalog, two data frames, one for galaxies and one for groups
 cat = CompressedCatalog(name = MICE.name, LensID='id')
+
+print('Adding lenses')
 
 # Lenses data
 src_per_lens = np.fromiter(map(len, ii), dtype=np.int32)
@@ -121,6 +119,8 @@ ii_data = pd.DataFrame(dic)
 
 df.reset_index(drop=True, inplace=True)
 cat.data_L = pd.concat([df, ii_data], axis=1)[mask_nsrc]
+
+print('Adding sources')
 
 # Sources data
 ii = list(itertools.chain.from_iterable(ii))

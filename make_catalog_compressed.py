@@ -130,8 +130,6 @@ extra_data = pd.DataFrame({'CATNAME': np.tile([MICE.name], len(iu)),
 mid = np.in1d(MICE.data.CATID,iu)
 iu_data = MICE.data[mid].reset_index(drop=True)
 cat.data_S = pd.concat([iu_data, extra_data], axis=1).reset_index(drop=True)
-# CHANGE Z_B PRECISION TO DOUBLE
-cat.data_S['z_v'] = cat.data_S['z_v'].astype(np.float64)
 
 print('saving cat...')
 cat.write_to('{}/gx_{}_matched_sources.fits'.format(folder, 'MICE'), overwrite=True)

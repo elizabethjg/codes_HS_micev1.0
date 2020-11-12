@@ -7,7 +7,6 @@ import numpy as np
 from astropy.io import fits
 from astropy.table import Table
 from astropy.cosmology import LambdaCDM
-import pandas as pd
 from maria_func import *
 from profiles_fit import *
 from astropy.stats import bootstrap
@@ -15,12 +14,13 @@ from astropy.utils import NumpyRNGContext
 from multiprocessing import Pool
 from multiprocessing import Process
 import argparse
+from astropy.constants import G,c,M_sun,pc
 
 #parameters
-cvel = 299792458;   # Speed of light (m.s-1)
-G    = 6.670e-11;   # Gravitational constant (m3.kg-1.s-2)
-pc   = 3.085678e16; # 1 pc (m)
-Msun = 1.989e30 # Solar mass (kg)
+cvel = c.value;   # Speed of light (m.s-1)
+G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
+pc   = pc.value # 1 pc (m)
+Msun = M_sun.value # Solar mass (kg)
 
 folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/'
 S      = fits.open(folder+'MICE_sources.fits')[1].data

@@ -11,7 +11,7 @@
 . /etc/profile
 source $HOME/.bashrc
 
-cd /mnt/clemente/lensing/RodriguezGroups/codes_RGroups/
+cd /mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/codes_HS_micev1.0/
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK

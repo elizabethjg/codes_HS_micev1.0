@@ -422,8 +422,8 @@ if __name__ == '__main__':
         
         parser = argparse.ArgumentParser()
         parser.add_argument('-sample', action='store', dest='sample',default='pru')
-        parser.add_argument('-lM_min', action='store', dest='l_min', default=14.)
-        parser.add_argument('-lM_max', action='store', dest='l_max', default=14.2)
+        parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
+        parser.add_argument('-lM_max', action='store', dest='lM_max', default=14.2)
         parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
         parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
         parser.add_argument('-RIN', action='store', dest='RIN', default=400.)

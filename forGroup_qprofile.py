@@ -65,8 +65,11 @@ def partial_profile(RA0,DEC0,Z,angles,
         e1     = catdata.gamma1
         e2     = -1.*catdata.gamma2
         
+        #Correct polar angle for e1, e2
+        theta = theta+np.pi/2.
+        
         #get tangential ellipticities 
-        et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c
+        et = (e1*np.cos(2*theta)+e2*np.sin(2*theta))*sigma_c
         #get cross ellipticities
         ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c
         
@@ -152,8 +155,8 @@ h=1.0
 
 def main(sample='pru',lM_min=14.,lM_max=14.2,
                 z_min = 0.1, z_max = 0.4,
-                RIN = 100., ROUT =5000.,
-                ndots= 10, ncores=10, h=1.0):
+                RIN = 400., ROUT =5000.,
+                ndots= 40, ncores=10, h=1.0):
 
         '''
         
@@ -225,7 +228,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                         mra  = (ra  >= ramin + a*dra)*(ra < ramin + (a+1)*dra) 
                         mdec = (dec >= decmin + d*ddec)*(dec < decmin + (d+1)*ddec) 
         
-                        kmask[c] = mra*mdec 
+                        kmask[c] = ~(mra*mdec)
                         c += 1
 
         
@@ -419,34 +422,26 @@ if __name__ == '__main__':
         
         parser = argparse.ArgumentParser()
         parser.add_argument('-sample', action='store', dest='sample',default='pru')
-        parser.add_argument('-l_min', action='store', dest='l_min', default=20)
-        parser.add_argument('-l_max', action='store', dest='l_max', default=150)
+        parser.add_argument('-lM_min', action='store', dest='l_min', default=14.)
+        parser.add_argument('-lM_max', action='store', dest='l_max', default=14.2)
         parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
         parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
-        parser.add_argument('-RIN', action='store', dest='RIN', default=100.)
+        parser.add_argument('-RIN', action='store', dest='RIN', default=400.)
         parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000.)
-        parser.add_argument('-theta', action='store', dest='theta', default='theta_sat_w1')
-        parser.add_argument('-plim', action='store', dest='plim', default=0)
-        parser.add_argument('-Rn_min', action='store', dest='Rn_min', default=0)
-        parser.add_argument('-Rn_max', action='store', dest='Rn_max', default=1000)
-        parser.add_argument('-nbins', action='store', dest='nbins', default=10)
+        parser.add_argument('-nbins', action='store', dest='nbins', default=40)
         parser.add_argument('-ncores', action='store', dest='ncores', default=10)
-        parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=0.7)
+        parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
         args = parser.parse_args()
         
         sample     = args.sample
-        l_min      = float(args.l_min) 
-        l_max      = float(args.l_max) 
+        l_min      = float(args.lM_min) 
+        l_max      = float(args.lM_max) 
         z_min      = float(args.z_min) 
         z_max      = float(args.z_max) 
         RIN        = float(args.RIN)
         ROUT       = float(args.ROUT)
-        theta      = args.theta
-        plim       = float(args.plim)
-        Rn_min     = float(args.Rn_min)
-        Rn_max     = float(args.Rn_max)
         nbins      = int(args.nbins)
         ncores     = int(args.ncores)
         h          = float(args.h_cosmo)
         
-        main(sample,l_min,l_max, z_min, z_max, RIN, ROUT,theta,plim,Rn_min,Rn_max,nbins,ncores,h)
+        main(sample,lM_min,lM_max,z_min,z_max,RIN,ROUT,nbins,ncores,h)

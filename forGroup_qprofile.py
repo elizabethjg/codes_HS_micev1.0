@@ -71,7 +71,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         #get tangential ellipticities 
         et = (e1*np.cos(2*theta)+e2*np.sin(2*theta))*sigma_c
         #get cross ellipticities
-        ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c
+        ex = (e1*np.sin(2*theta)-e2*np.cos(2*theta))*sigma_c
         
         del(e1)
         del(e2)

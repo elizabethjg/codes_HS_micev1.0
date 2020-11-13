@@ -32,6 +32,15 @@ roc_mpc  = roc*((pc*1.0e6)**3.0)
 
 ndots = p.shape[0]
 
+
+GT  = p.GAMMA_Tcos
+GTr = p.GAMMA_Tcos_reduced
+GTc = p.GAMMA_Tcos_control
+
+GX  = p.GAMMA_Xsin
+GXr = p.GAMMA_Xsin_reduced
+GXc = p.GAMMA_Xsin_control
+
 DS_k     = np.zeros((100,ndots))
 
 GT_k     = np.zeros((100,ndots))
@@ -48,12 +57,13 @@ for k in range(100):
     DS_k[k,:]     = p['DSigma_T_K'+str(k+1)]
     
     GT_k[k,:]     = p['GAMMA_Tcos_K'+str(k+1)]
-    GT_kr[k,:]    = p['GAMMA_Tcos_reduced_K'+str(k+1)]
-    GT_kc[k,:]    = p['GAMMA_Tcos_control_K'+str(k+1)]
+    GTr_k[k,:]    = p['GAMMA_Tcos_K_reduced'+str(k+1)]
+    GTc_k[k,:]    = p['GAMMA_Tcos_control_K'+str(k+1)]
 
-    GX_k[k,:]     = p['GAMMA_Xsin_K'+str(k+1)]
-    GX_kr[k,:]    = p['GAMMA_Xsin_reduced_K'+str(k+1)]
-    GX_kc[k,:]    = p['GAMMA_Xsin_control_K'+str(k+1)]
+    GX_k[k,:]     = p['GAMMA_Tcos_K'+str(k+1)]
+    GXr_k[k,:]    = p['GAMMA_Tcos_K_reduced'+str(k+1)]
+    GXc_k[k,:]    = p['GAMMA_Tcos_control_K'+str(k+1)]
+
 
 
 DS_kmean = np.mean(DS_k,axis=0)
@@ -88,14 +98,14 @@ for k in range(100):
     CovGT += np.outer(dif,dif)        
     dif = (p['GAMMA_Tcos_K_reduced'+str(k+1)]-GTr_kmean)
     CovGTr += np.outer(dif,dif)        
-    dif = (p['GAMMA_Tcos_K_control'+str(k+1)]-GTc_kmean)
+    dif = (p['GAMMA_Tcos_control_K'+str(k+1)]-GTc_kmean)
     CovGTc += np.outer(dif,dif)        
     
-    dif = (p['GAMMA_Xsin_K'+str(k+1)]-GT_kmean)
+    dif = (p['GAMMA_Tcos_K'+str(k+1)]-GT_kmean)
     CovGX += np.outer(dif,dif)        
-    dif = (p['GAMMA_Xsin_K_reduced'+str(k+1)]-GTr_kmean)
+    dif = (p['GAMMA_Tcos_K_reduced'+str(k+1)]-GTr_kmean)
     CovGXr += np.outer(dif,dif)        
-    dif = (p['GAMMA_Xsin_K_control'+str(k+1)]-GTc_kmean)
+    dif = (p['GAMMA_Tcos_control_K'+str(k+1)]-GTc_kmean)
     CovGXc += np.outer(dif,dif)        
         
     difw = (p['DSigma_T_K'+str(k+1)]-DS_kmean)/DS_kstd
@@ -113,4 +123,6 @@ CovGXc *= 99/100.
 
 Corr /= 100.
 
-nfw = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(Cov),zmean,cosmo)
+nfw = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo)
+
+gt,gx = GAMMA_components(p.Rp,zmean,ellip=0.25,M200 =nfw.M200,c200 = None,cosmo=cosmo)

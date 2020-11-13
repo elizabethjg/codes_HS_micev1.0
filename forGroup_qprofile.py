@@ -387,7 +387,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 table_hdu += [fits.Column(name='DSigma_T_K'+str(j), format='D', array=DSigma_T[j])]
                 table_hdu += [fits.Column(name='GAMMA_Tcos_control_K'+str(j), format='D', array=GAMMA_Tcos[j,:,0])]
                 table_hdu += [fits.Column(name='GAMMA_Tcos_K'+str(j), format='D', array=GAMMA_Tcos[j,:,1])]
-                table_hdu += [fits.Column(name='GAMMA_Tcos_K_reduced'+str(j), format='D', array=GAMMA_Tcos[j,:,2])]
+                table_hdu += [fits.Column(name='GAMMA_Tcos_reduced_K'+str(j), format='D', array=GAMMA_Tcos[j,:,2])]
         
         
         tbhdu = fits.BinTableHDU.from_columns(table_hdu)

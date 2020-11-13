@@ -291,7 +291,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 for j in range(len(salida)):
                         
                         profilesums = salida[j]
-                        km          = np.tile(Ksplit[l][j],(3,20,1)).T
+                        km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
                                                 
                         DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]
                         DSIGMAwsum_X += np.tile(profilesums['DSIGMAwsum_X'],(101,1))*km[:,:,0]

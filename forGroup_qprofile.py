@@ -71,8 +71,8 @@ def partial_profile(RA0,DEC0,Z,angles,
         #get tangential ellipticities 
         et = (e1*np.cos(2*theta)+e2*np.sin(2*theta))*sigma_c
         #get cross ellipticities
-        ex = (e1*np.sin(2*theta)-e2*np.cos(2*theta))*sigma_c
-        
+        ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c      
+          
         del(e1)
         del(e2)
         
@@ -110,7 +110,7 @@ def partial_profile(RA0,DEC0,Z,angles,
                 DSIGMAwsum_X = np.append(DSIGMAwsum_X,ex[mbin].sum())
 
                 GAMMATcos_wsum[nbin,:] = np.sum((np.tile(et[mbin],(3,1))*np.cos(2.*at[mbin]).T),axis=1)
-                GAMMAXsin_wsum[nbin,:] = np.sum((np.tile(et[mbin],(3,1))*np.sin(2.*at[mbin]).T),axis=1)
+                GAMMAXsin_wsum[nbin,:] = np.sum((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T),axis=1)
                                
                 N_inbin = np.append(N_inbin,len(et[mbin]))
                 

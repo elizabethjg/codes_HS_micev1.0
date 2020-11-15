@@ -17,7 +17,7 @@ h = 1.0
 cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
 
 
-p_name = 'profile_bin14.fits'
+p_name = 'profile_bin14_rot.fits'
 profile = fits.open('../profiles/'+p_name)
 
 h = profile[1].header
@@ -57,12 +57,12 @@ for k in range(100):
     DS_k[k,:]     = p['DSigma_T_K'+str(k+1)]
     
     GT_k[k,:]     = p['GAMMA_Tcos_K'+str(k+1)]
-    GTr_k[k,:]    = p['GAMMA_Tcos_K_reduced'+str(k+1)]
+    GTr_k[k,:]    = p['GAMMA_Tcos_reduced_K'+str(k+1)]
     GTc_k[k,:]    = p['GAMMA_Tcos_control_K'+str(k+1)]
 
-    GX_k[k,:]     = p['GAMMA_Tcos_K'+str(k+1)]
-    GXr_k[k,:]    = p['GAMMA_Tcos_K_reduced'+str(k+1)]
-    GXc_k[k,:]    = p['GAMMA_Tcos_control_K'+str(k+1)]
+    GX_k[k,:]     = p['GAMMA_Xsin_K'+str(k+1)]
+    GXr_k[k,:]    = p['GAMMA_Xsin_reduced_K'+str(k+1)]
+    GXc_k[k,:]    = p['GAMMA_Xsin_control_K'+str(k+1)]
 
 
 
@@ -96,16 +96,16 @@ for k in range(100):
 
     dif = (p['GAMMA_Tcos_K'+str(k+1)]-GT_kmean)
     CovGT += np.outer(dif,dif)        
-    dif = (p['GAMMA_Tcos_K_reduced'+str(k+1)]-GTr_kmean)
+    dif = (p['GAMMA_Tcos_reduced_K'+str(k+1)]-GTr_kmean)
     CovGTr += np.outer(dif,dif)        
     dif = (p['GAMMA_Tcos_control_K'+str(k+1)]-GTc_kmean)
     CovGTc += np.outer(dif,dif)        
     
-    dif = (p['GAMMA_Tcos_K'+str(k+1)]-GT_kmean)
+    dif = (p['GAMMA_Xsin_K'+str(k+1)]-GT_kmean)
     CovGX += np.outer(dif,dif)        
-    dif = (p['GAMMA_Tcos_K_reduced'+str(k+1)]-GTr_kmean)
+    dif = (p['GAMMA_Xsin_reduced_K'+str(k+1)]-GTr_kmean)
     CovGXr += np.outer(dif,dif)        
-    dif = (p['GAMMA_Tcos_control_K'+str(k+1)]-GTc_kmean)
+    dif = (p['GAMMA_Xsin_control_K'+str(k+1)]-GTc_kmean)
     CovGXc += np.outer(dif,dif)        
         
     difw = (p['DSigma_T_K'+str(k+1)]-DS_kmean)/DS_kstd

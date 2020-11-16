@@ -395,13 +395,13 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 
                 table_hdu += [fits.Column(name='DSigma_T_K'+str(j), format='D', array=DSigma_T[j])]
                 
-                table_hdu += [fits.Column(name='GAMMA_Tcos_control_K'+str(j), format='D', array=GAMMA_Tcos[j,:,0])]
-                table_hdu += [fits.Column(name='GAMMA_Tcos_K'+str(j), format='D', array=GAMMA_Tcos[j,:,1])]
-                table_hdu += [fits.Column(name='GAMMA_Tcos_reduced_K'+str(j), format='D', array=GAMMA_Tcos[j,:,2])]
+                table_hdu += [fits.Column(name='GAMMA_Tcos_control_K'+str(j), format='D', array=GAMMA_Tcos[:,0,j])]
+                table_hdu += [fits.Column(name='GAMMA_Tcos_K'+str(j), format='D', array=GAMMA_Tcos[:,1,j])]
+                table_hdu += [fits.Column(name='GAMMA_Tcos_reduced_K'+str(j), format='D', array=GAMMA_Tcos[:,2,j])]
                 
-                table_hdu += [fits.Column(name='GAMMA_Xsin_control_K'+str(j), format='D', array=GAMMA_Xsin[j,:,0])]
-                table_hdu += [fits.Column(name='GAMMA_Xsin_K'+str(j), format='D', array=GAMMA_Xsin[j,:,1])]
-                table_hdu += [fits.Column(name='GAMMA_Xsin_reduced_K'+str(j), format='D', array=GAMMA_Xsin[j,:,2])]
+                table_hdu += [fits.Column(name='GAMMA_Xsin_control_K'+str(j), format='D', array=GAMMA_Xsin[:,0,j])]
+                table_hdu += [fits.Column(name='GAMMA_Xsin_K'+str(j), format='D', array=GAMMA_Xsin[:,1,j])]
+                table_hdu += [fits.Column(name='GAMMA_Xsin_reduced_K'+str(j), format='D', array=GAMMA_Xsin[:,2,j])]
         
         
         tbhdu = fits.BinTableHDU.from_columns(table_hdu)

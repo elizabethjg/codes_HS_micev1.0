@@ -118,6 +118,10 @@ def partial_profile(RA0,DEC0,Z,angles,
         
         BOOTwsum_Tcos  = np.zeros((nboot,ndots,3))
         BOOTwsum_Xsin  = np.zeros((nboot,ndots,3))
+        
+        COS2_2theta = np.zeros((ndots,3))
+        SIN2_2theta = np.zeros((ndots,3))
+        
                
         for nbin in range(ndots):
                 mbin = dig == nbin+1              
@@ -127,6 +131,9 @@ def partial_profile(RA0,DEC0,Z,angles,
 
                 GAMMATcos_wsum[nbin,:] = np.sum((np.tile(et[mbin],(3,1))*np.cos(2.*at[mbin]).T),axis=1)
                 GAMMAXsin_wsum[nbin,:] = np.sum((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T),axis=1)
+                
+                COS2_2theta[nbin,:] = np.sum((np.cos(2.*at[mbin]).T)**2,axis=1)
+                SIN2_2theta[nbin,:] = np.sum((np.sin(2.*at[mbin]).T)**2,axis=1)
                                
                 N_inbin = np.append(N_inbin,len(et[mbin]))
                 
@@ -136,11 +143,11 @@ def partial_profile(RA0,DEC0,Z,angles,
                 else:
                         with NumpyRNGContext(1):
                                 bootresult = bootstrap(index, nboot)
+                                
                         INDEX=bootresult.astype(int)
                         BOOTwsum_T[:,nbin] = np.sum(np.array(et[mbin])[INDEX],axis=1)
                         BOOTwsum_X[:,nbin] = np.sum(np.array(ex[mbin])[INDEX],axis=1)
 
-                        
                         BOOTwsum_Tcos[:,nbin,:] = np.sum(((np.tile(et[mbin],(3,1))*np.cos(2.*at[mbin]).T))[:,INDEX],axis=2).T
                         BOOTwsum_Xsin[:,nbin,:] = np.sum(((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T))[:,INDEX],axis=2).T
 
@@ -148,6 +155,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         output = {'DSIGMAwsum_T':DSIGMAwsum_T,'DSIGMAwsum_X':DSIGMAwsum_X,
                    'BOOTwsum_T':BOOTwsum_T, 'BOOTwsum_X':BOOTwsum_X, 
                    'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
+                   'COS2_2theta_wsum':COS2_2theta,'SIN2_2theta_wsum':SIN2_2theta,
                    'BOOTwsum_Tcos':BOOTwsum_Tcos, 'BOOTwsum_Xsin':BOOTwsum_Xsin, 
                    'N_inbin':N_inbin,'Ntot':Ntot}
         
@@ -323,8 +331,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                         GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
                         GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
 
-                        COS2_2theta_wsum += np.tile((np.cos(2.*Tsplit[l][j]))**2,(101,1,1))*km
-                        SIN2_2theta_wsum += np.tile((np.sin(2.*Tsplit[l][j]))**2,(101,1,1))*km
+                        COS2_2theta_wsum += np.tile(profilesums['COS2_2theta_wsum'],(101,1,1))*km
+                        SIN2_2theta_wsum += np.tile(profilesums['SIN2_2theta_wsum'],(101,1,1))*km
                                                 
                         BOOTwsum_Tcos  += profilesums['BOOTwsum_Tcos']
                         BOOTwsum_Xsin  += profilesums['BOOTwsum_Xsin']
@@ -349,6 +357,10 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
         eDSigma_T =  np.std((BOOTwsum_T/np.tile(Ninbin[0],(100,1))),axis=0)
         eDSigma_X =  np.std((BOOTwsum_X/np.tile(Ninbin[0],(100,1))),axis=0)
+        
+        GAMMA_Tcos2 = (GAMMATcos_wsum/np.tile(Ninbin,(3,1,1)).transpose(1,2,0))
+        GAMMA_Xsin2 = (GAMMAXsin_wsum/np.tile(Ninbin,(3,1,1)).transpose(1,2,0))
+
         
         GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
         GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0)

@@ -17,7 +17,7 @@ h = 1.0
 cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
 
 
-p_name = 'profile_bin14_rot.fits'
+p_name = 'profile_bin14.fits'
 profile = fits.open('../profiles/'+p_name)
 
 h = profile[1].header

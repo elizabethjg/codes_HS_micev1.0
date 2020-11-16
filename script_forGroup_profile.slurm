@@ -20,4 +20,4 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 conda activate py3env
 
 ##srun python -u forGroup_qprofile.py -sample $SLURM_JOB-NAME -lM_min $SLURM_lm_min -lM_max $SLURM_lm_min+0.2 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample $SLURM_JOB-NAME -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin14' -ncores $SLURM_CPUS_PER_TASK

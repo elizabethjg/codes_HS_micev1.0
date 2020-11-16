@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=pMice
+#SBATCH --job-name='bin14'
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=6:00:00

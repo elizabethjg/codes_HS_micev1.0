@@ -68,12 +68,8 @@ def partial_profile(RA0,DEC0,Z,angles,
         #Correct polar angle for e1, e2
         # theta = theta+np.pi/2.
         
-        #get tangential ellipticities 
-        # et = (e1*np.cos(2*theta)+e2*np.sin(2*theta))*sigma_c
-        #get cross ellipticities
-        # ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c      
         
-                #get tangential ellipticities 
+        #get tangential ellipticities 
         et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c
         #get cross ellipticities
         ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c
@@ -258,6 +254,9 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
         GAMMATcos_wsum = np.zeros((101,ndots,3))
         GAMMAXsin_wsum = np.zeros((101,ndots,3))
+
+        COS2_2theta_wsum = np.zeros((101,ndots,3))
+        SIN2_2theta_wsum = np.zeros((101,ndots,3))
                                    
         BOOTwsum_Tcos  = np.zeros((100,ndots,3))
         BOOTwsum_Xsin  = np.zeros((100,ndots,3))
@@ -310,6 +309,9 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                         
                         GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
                         GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
+
+                        COS2_2theta_wsum += np.tile((np.cos(2.*Tsplit[l][j]))**2,(101,1,1))*km
+                        SIN2_2theta_wsum += np.tile((np.sin(2.*Tsplit[l][j]))**2,(101,1,1))*km
                                                 
                         BOOTwsum_Tcos  += profilesums['BOOTwsum_Tcos']
                         BOOTwsum_Xsin  += profilesums['BOOTwsum_Xsin']
@@ -335,8 +337,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         eDSigma_T =  np.std((BOOTwsum_T/np.tile(Ninbin[0],(100,1))),axis=0)
         eDSigma_X =  np.std((BOOTwsum_X/np.tile(Ninbin[0],(100,1))),axis=0)
         
-        GAMMA_Tcos = (GAMMATcos_wsum/np.tile(Ninbin,(3,1,1)).transpose(1,2,0))
-        GAMMA_Xsin = (GAMMAXsin_wsum/np.tile(Ninbin,(3,1,1)).transpose(1,2,0))
+        GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0))
+        GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0))
         
         eGAMMA_Tcos =  np.std((BOOTwsum_Tcos/np.tile(Ninbin[0],(100,3,1)).transpose(0,2,1)),axis=0)
         eGAMMA_Xsin =  np.std((BOOTwsum_Xsin/np.tile(Ninbin[0],(100,3,1)).transpose(0,2,1)),axis=0)

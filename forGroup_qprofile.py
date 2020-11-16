@@ -65,6 +65,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         e1     = catdata.gamma1
         e2     = -1.*catdata.gamma2
         
+        '''
         #rot
         #Correct polar angle for e1, e2
         theta = theta+np.pi/2.
@@ -85,7 +86,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c
         #get cross ellipticities
         ex = (e1*np.sin(2*theta)-e2*np.cos(2*theta))*sigma_c
-        '''
+        # '''
         
           
         del(e1)

@@ -358,9 +358,6 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         eDSigma_T =  np.std((BOOTwsum_T/np.tile(Ninbin[0],(100,1))),axis=0)
         eDSigma_X =  np.std((BOOTwsum_X/np.tile(Ninbin[0],(100,1))),axis=0)
         
-        GAMMA_Tcos2 = (GAMMATcos_wsum/np.tile(Ninbin,(3,1,1)).transpose(1,2,0))
-        GAMMA_Xsin2 = (GAMMAXsin_wsum/np.tile(Ninbin,(3,1,1)).transpose(1,2,0))
-
         
         GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
         GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0)
@@ -403,15 +400,15 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 fits.Column(name='error_DSigma_T', format='D', array=eDSigma_T),
                 fits.Column(name='DSigma_X', format='D', array=DSigma_X[0]),
                 fits.Column(name='error_DSigma_X', format='D', array=eDSigma_X),
-                fits.Column(name='GAMMA_Tcos_control', format='D', array=GAMMA_Tcos[0,:,0]),
-                fits.Column(name='GAMMA_Tcos', format='D', array=GAMMA_Tcos[0,:,1]),
-                fits.Column(name='GAMMA_Tcos_reduced', format='D', array=GAMMA_Tcos[0,:,2]),
+                fits.Column(name='GAMMA_Tcos_control', format='D', array=GAMMA_Tcos[:,0,0]),
+                fits.Column(name='GAMMA_Tcos', format='D', array=GAMMA_Tcos[:,1,0]),
+                fits.Column(name='GAMMA_Tcos_reduced', format='D', array=GAMMA_Tcos[:,2,0]),
                 fits.Column(name='error_GAMMA_Tcos_control', format='D', array=eGAMMA_Tcos[:,0]),
                 fits.Column(name='error_GAMMA_Tcos', format='D', array=eGAMMA_Tcos[:,1]),
                 fits.Column(name='error_GAMMA_Tcos_reduced', format='D', array=eGAMMA_Tcos[:,2]),
-                fits.Column(name='GAMMA_Xsin_control', format='D', array=GAMMA_Xsin[0,:,0]),
-                fits.Column(name='GAMMA_Xsin', format='D', array=GAMMA_Xsin[0,:,1]),
-                fits.Column(name='GAMMA_Xsin_reduced', format='D', array=GAMMA_Xsin[0,:,2]),
+                fits.Column(name='GAMMA_Xsin_control', format='D', array=GAMMA_Xsin[:,0,0]),
+                fits.Column(name='GAMMA_Xsin', format='D', array=GAMMA_Xsin[:,1,0]),
+                fits.Column(name='GAMMA_Xsin_reduced', format='D', array=GAMMA_Xsin[:,2,0]),
                 fits.Column(name='error_GAMMA_Xsin_control', format='D', array=eGAMMA_Xsin[:,0]),
                 fits.Column(name='error_GAMMA_Xsin', format='D', array=eGAMMA_Xsin[:,1]),
                 fits.Column(name='error_GAMMA_Xsin_reduced', format='D', array=eGAMMA_Xsin[:,2])]

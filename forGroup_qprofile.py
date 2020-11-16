@@ -337,8 +337,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         eDSigma_T =  np.std((BOOTwsum_T/np.tile(Ninbin[0],(100,1))),axis=0)
         eDSigma_X =  np.std((BOOTwsum_X/np.tile(Ninbin[0],(100,1))),axis=0)
         
-        GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0))
-        GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0))
+        GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
+        GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0)
         
         eGAMMA_Tcos =  np.std((BOOTwsum_Tcos/np.tile(Ninbin[0],(100,3,1)).transpose(0,2,1)),axis=0)
         eGAMMA_Xsin =  np.std((BOOTwsum_Xsin/np.tile(Ninbin[0],(100,3,1)).transpose(0,2,1)),axis=0)

@@ -454,7 +454,7 @@ if __name__ == '__main__':
         args = parser.parse_args()
         
         sample     = args.sample
-        lM_min     = float(args.lM_min) 
+        lM_min     = float(args.lM_min)
         lM_max     = float(args.lM_max) 
         z_min      = float(args.z_min) 
         z_max      = float(args.z_max) 

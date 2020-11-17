@@ -17,13 +17,18 @@ h = 1.0
 cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
 
 
-p_name = 'profile_bin14_2.fits'
+p_name = 'profile_bin14.fits'
 profile = fits.open('../profiles/'+p_name)
 
 h = profile[1].header
 p = profile[1].data
 
 zmean = h['z_mean']
+q  = h['q2d_mean']
+qr = h['q2dr_mean']
+
+e = (1-q)/(1+q)
+er = (1-qr)/(1+qr)
 
 H        = cosmo.H(zmean).value/(1.0e3*pc) #H at z_pair s-1 
 roc      = (3.0*(H**2.0))/(8.0*np.pi*G) #critical density at z_pair (kg.m-3)
@@ -125,4 +130,5 @@ Corr /= 100.
 
 nfw = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo)
 
-gt,gx = GAMMA_components(p.Rp,zmean,ellip=0.25,M200 =nfw.M200,c200 = None,cosmo=cosmo)
+gt,gx   = GAMMA_components(p.Rp,zmean,ellip=e,M200 =nfw.M200,c200 = None,cosmo=cosmo)
+gtr,gxr = GAMMA_components(p.Rp,zmean,ellip=er,M200 =nfw.M200,c200 = None,cosmo=cosmo)

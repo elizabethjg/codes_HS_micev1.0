@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name='bin_138'
+#SBATCH --job-name='bin1'
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
-#SBATCH --time=1-00:00
+#SBATCH --time=2-00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
 #SBATCH --mail-type=FAIL,END
@@ -19,4 +19,13 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample $SLURM_JOB_NAME -lM_min 13.8 -lM_max 14.0 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin_148' -lM_min 14.8 -lM_max 20.0 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'bin_146' -lM_min 14.6 -lM_max 14.8 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin_144' -lM_min 14.4 -lM_max 14.6 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'bin_142' -lM_min 14.2 -lM_max 14.4 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin_140' -lM_min 14.0 -lM_max 14.2 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'bin_138' -lM_min 13.8 -lM_max 14.0 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin_136' -lM_min 13.6 -lM_max 13.8 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.6 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin_132' -lM_min 13.2 -lM_max 13.4 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'bin_130' -lM_min 13.0 -lM_max 13.2 -h_cosmo 0.7 -ncores $SLURM_CPUS_PER_TASK

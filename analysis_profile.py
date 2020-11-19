@@ -14,7 +14,8 @@ pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
 h = 1.0
-cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
+# cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
+cosmo = LambdaCDM(H0=70, Om0=0.25, Ode0=0.75)
 
 
 RM = np.loadtxt('/home/elizabeth/Documentos/posdoc/halo-elongation/redMapper/member_distribution/profiles/profile_total.cat').T
@@ -140,17 +141,17 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     
     mass = str(np.round(np.log10(nfw.M200),1))
     
-    rplot = np.arange(0.01,5,0.1)
+    rplot = np.arange(0.1,5,0.1)
     
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = None,cosmo=cosmo)
     gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = None,cosmo=cosmo)
     
-    gt_RM,gx_RM   = GAMMA_components(RM[0]*0.7,z=0.25,ellip=0.22,M200 =2.e14*0.7,c200 = None,cosmo=cosmo)
+    gt_RM,gx_RM   = GAMMA_components(RM[0],z=0.25,ellip=0.22,M200 =2.e14,c200 = None,cosmo=cosmo)
     
-    ax.plot(1000,1000,'w.' ,label='\log $M_{200}=$'+mass)
-    ax1.plot(1000,1000,'w.',label='\log $M_{200}=$'+mass)
-    ax2.plot(1000,1000,'w.',label='\log $M_{200}=$'+mass)
-    ax3.plot(1000,1000,'w.',label='\log $M_{200}=$'+mass)
+    ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
+    ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
+    ax2.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
+    ax3.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
 
     ax.legend()
     ax1.legend()
@@ -222,10 +223,12 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
 
 
 
-# f, ax = plt.subplots()
-# f1, ax1 = plt.subplots()
-# f2, ax2 = plt.subplots()
-# f3, ax3 = plt.subplots()
+f, ax = plt.subplots()
+f1, ax1 = plt.subplots()
+f2, ax2 = plt.subplots()
+f3, ax3 = plt.subplots()
+
+
 
 ft, axt  = plt.subplots(2,4, figsize=(12,6), sharey=True)
 ft1, axt1 = plt.subplots(2,4, figsize=(12,6), sharey=True)

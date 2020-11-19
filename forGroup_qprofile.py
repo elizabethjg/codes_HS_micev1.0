@@ -73,15 +73,15 @@ def partial_profile(RA0,DEC0,Z,angles,
         # '''
         
           
-        del(e1)
-        del(e2)
+        # del(e1)
+        # del(e2)
         
         r=np.rad2deg(rads)*3600*KPCSCALE
         del(rads)
         
         
         Ntot = len(catdata)
-        del(catdata)    
+        # del(catdata)    
         
         bines = np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1)
         dig = np.digitize(r,bines)
@@ -216,7 +216,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         L = L[mlenses]
         
         theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T
-
+        mt = theta < 0
+        theta[mt] = np.pi/2. + theta[mt]
         # Define K masks
         
         ra = L.ra

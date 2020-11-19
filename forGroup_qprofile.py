@@ -8,7 +8,7 @@ from astropy.io import fits
 from astropy.table import Table
 from astropy.cosmology import LambdaCDM
 from maria_func import *
-from profiles_fit import *
+from fit_profiles_curvefit import *
 from astropy.stats import bootstrap
 from astropy.utils import NumpyRNGContext
 from multiprocessing import Pool
@@ -367,54 +367,37 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         s3d_mean     = np.average(L.s3d,weights=Ntot)
         s3dr_mean    = np.average(L.s3dr,weights=Ntot)
         
-        # FITING AN NFW MODEL
         
-        H        = cosmo.H(zmean).value/(1.0e3*pc) #H at z_pair s-1 
-        roc      = (3.0*(H**2.0))/(8.0*np.pi*G) #critical density at z_pair (kg.m-3)
-        roc_mpc  = roc*((pc*1.0e6)**3.0)
-        
-        try:
-                nfw        = NFW_stack_fit(R,DSigma_T[0],eDSigma_T,zmean,roc)
-        except:
-                nfw          = [0.01,0.,100.,[0.,0.],[0.,0.],-999.,0.]
-
-        M200_NFW   = (800.0*np.pi*roc_mpc*(nfw[0]**3))/(3.0*Msun)
-        e_M200_NFW =((800.0*np.pi*roc_mpc*(nfw[0]**2))/(Msun))*nfw[1]
-        le_M200    = (np.log(10.)/M200_NFW)*e_M200_NFW
- 
         # WRITING OUTPUT FITS FILE
         
-        table_hdu = [fits.Column(name='Rp', format='E', array=R),
+        table_pro = [fits.Column(name='Rp', format='E', array=R),
                 fits.Column(name='DSigma_T', format='E', array=DSigma_T[0]),
-                fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
                 fits.Column(name='DSigma_X', format='E', array=DSigma_X[0]),
-                fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
                 fits.Column(name='GAMMA_Tcos_control', format='E', array=GAMMA_Tcos[:,0,0]),
-                fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
                 fits.Column(name='GAMMA_Tcos', format='E', array=GAMMA_Tcos[:,1,0]),
-                fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
                 fits.Column(name='GAMMA_Tcos_reduced', format='E', array=GAMMA_Tcos[:,2,0]),
-                fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),
                 fits.Column(name='GAMMA_Xsin_control', format='E', array=GAMMA_Xsin[:,0,0]),
-                fits.Column(name='COV_GX_control', format='E', array=COV_Gxc.flatten()),
                 fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
-                fits.Column(name='COV_GX', format='E', array=COV_Gx.flatten()),
-                fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0]),
-                fits.Column(name='COV_GX_reduced', format='E', array=COV_Gxr.flatten())]
+                fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0])]
                 
+        table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
+                    fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
+                    fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
+                    fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
+                    fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),
+                    fits.Column(name='COV_GX_control', format='E', array=COV_Gxc.flatten()),
+                    fits.Column(name='COV_GX', format='E', array=COV_Gx.flatten()),
+                    fits.Column(name='COV_GX_reduced', format='E', array=COV_Gxr.flatten())]
         
+        tbhdu_pro = fits.BinTableHDU.from_columns(fits.ColDefs(table_pro))
+        tbhdu_cov = fits.BinTableHDU.from_columns(fits.ColDefs(table_cov))
         
-        tbhdu = fits.BinTableHDU.from_columns(table_hdu)
-        
-        h = tbhdu.header
+        h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
         h.append(('lM_min',np.int(lM_min)))
         h.append(('lM_max',np.int(lM_max)))
         h.append(('z_min',np.round(z_min,4)))
         h.append(('z_max',np.round(z_max,4)))
-        h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
-        h.append(('elM200_NFW',np.round(le_M200,4)))
-        h.append(('CHI2_NFW',np.round(nfw[2],4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
         h.append(('z_mean',np.round(zmean,4)))
         h.append(('q2d_mean',np.round(q2d_mean,4)))
@@ -424,7 +407,11 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         h.append(('s3d_mean',np.round(s3d_mean,4)))        
         h.append(('s3dr_mean',np.round(s3dr_mean,4))) 
         
-        tbhdu.writeto(folder+'profile_'+sample+'.fits',overwrite=True)
+        primary_hdu = fits.PrimaryHDU(header=h)
+        
+        hdul = fits.HDUList([primary_hdu, tbhdu_pro, tbhdu_cov])
+        
+        hdul.writeto(folder+'profile_'+sample+'.fits',overwrite=True)
                 
         tfin = time.time()
         

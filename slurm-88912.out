@@ -1,0 +1,63 @@
+Sample  bin_146
+Selecting groups with:
+14.6  <= log(M) <  14.8
+0.1  <= z <  0.4
+Profile has  40 bins
+from  400.0 kpc to  5000.0 kpc
+h  0.7
+Nlenses 77
+CORRIENDO EN  56  CORES
+RUN  1  OF  2
+TIME SLICE
+4.048785463968913
+Estimated ramaining time
+4.048785463968913
+RUN  2  OF  2
+TIME SLICE
+1.3030710736910502
+Estimated ramaining time
+0.0
+WARNING: VerifyWarning: Keyword name 'q2dr_mean' is greater than 8 characters or contains characters not allowed by the FITS standard; a HIERARCH card will be created. [astropy.io.fits.card]
+WARNING: VerifyWarning: Keyword name 'q3dr_mean' is greater than 8 characters or contains characters not allowed by the FITS standard; a HIERARCH card will be created. [astropy.io.fits.card]
+WARNING: VerifyWarning: Keyword name 's3dr_mean' is greater than 8 characters or contains characters not allowed by the FITS standard; a HIERARCH card will be created. [astropy.io.fits.card]
+TOTAL TIME  5.3625168800354
+Sample  bin_142
+Selecting groups with:
+14.2  <= log(M) <  14.4
+0.1  <= z <  0.4
+Profile has  40 bins
+from  400.0 kpc to  5000.0 kpc
+h  0.7
+Nlenses 570
+CORRIENDO EN  56  CORES
+RUN  1  OF  11
+TIME SLICE
+1.4397127191225687
+Estimated ramaining time
+14.397127191225687
+RUN  2  OF  11
+TIME SLICE
+2.2129000703493755
+Estimated ramaining time
+16.43675755262375
+RUN  3  OF  11
+TIME SLICE
+2.848881494998932
+Estimated ramaining time
+17.337318091922338
+RUN  4  OF  11
+TIME SLICE
+3.2532463868459067
+Estimated ramaining time
+17.07079617480437
+RUN  5  OF  11
+TIME SLICE
+3.5183191259702045
+Estimated ramaining time
+15.927671756744385
+RUN  6  OF  11
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: got SIGCONT
+slurmstepd: error: *** STEP 88912.1 ON clemente03 CANCELLED AT 2020-11-19T17:43:51 ***
+slurmstepd: error: *** JOB 88912 ON clemente03 CANCELLED AT 2020-11-19T17:43:51 ***
+srun: forcing job termination

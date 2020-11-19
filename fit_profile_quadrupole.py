@@ -11,10 +11,10 @@ import time
 from multiprocessing import Pool
 import argparse
 
+folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/profiles/'
+
 parser = argparse.ArgumentParser()
-parser.add_argument('-folder', action='store', dest='folder',default='./')
 parser.add_argument('-file', action='store', dest='file_name', default='profile.cat')
-parser.add_argument('-ang', action='store', dest='angle', default='twl')
 parser.add_argument('-ncores', action='store', dest='ncores', default=4)
 parser.add_argument('-misscentred', action='store', dest='miss', default=0)
 parser.add_argument('-component', action='store', dest='component', default='both')

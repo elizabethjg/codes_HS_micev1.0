@@ -228,8 +228,6 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         L = L[mlenses]
         
         theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T
-        mt = theta < 0
-        theta[mt] = np.pi/2. + theta[mt]
         # Define K masks
         
         ra = L.ra
@@ -379,6 +377,10 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 fits.Column(name='GAMMA_Xsin_control', format='E', array=GAMMA_Xsin[:,0,0]),
                 fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
                 fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0])]
+                
+        for k in range(100):
+            table_pro += [fits.Column(name='DSigma_T_K'+str(k+1), format='E', array=DSigma_T[k+1])]
+        
                 
         table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
                     fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),

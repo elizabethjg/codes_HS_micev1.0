@@ -161,16 +161,16 @@ def cov_matrix(array):
         
         
 '''
-sample='pru'
-lM_min=14.
-lM_max=14.2
+sample='bin_148'
+lM_min=14.8
+lM_max=20.
 z_min = 0.1
 z_max = 0.4
-RIN = 100.
+RIN = 400.
 ROUT =5000.
-ndots= 20
-ncores=30
-h=1.0
+ndots= 40
+ncores=40
+h=0.7
 '''
 
 def main(sample='pru',lM_min=14.,lM_max=14.2,
@@ -350,9 +350,9 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         COV_Gt  = cov_matrix(GAMMA_Tcos[:,1,1:].T)
         COV_Gtr = cov_matrix(GAMMA_Tcos[:,2,1:].T)
         
-        COV_Gxc = cov_matrix(GAMMA_Xsin[:,0,1:])
-        COV_Gx  = cov_matrix(GAMMA_Xsin[:,1,1:])
-        COV_Gxr = cov_matrix(GAMMA_Xsin[:,2,1:])
+        COV_Gxc = cov_matrix(GAMMA_Xsin[:,0,1:].T)
+        COV_Gx  = cov_matrix(GAMMA_Xsin[:,1,1:].T)
+        COV_Gxr = cov_matrix(GAMMA_Xsin[:,2,1:].T)
         
         
         # AVERAGE LENS PARAMETERS
@@ -399,7 +399,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 fits.Column(name='COV_GX_control', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gxc),
                 fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
                 fits.Column(name='COV_GX', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gx),
-                fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,2,0]),
+                fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0]),
                 fits.Column(name='COV_GX_reduced', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gxr)]
                 
         

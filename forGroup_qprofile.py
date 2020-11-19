@@ -93,16 +93,10 @@ def partial_profile(RA0,DEC0,Z,angles,
         DSIGMAwsum_T = []
         DSIGMAwsum_X = []
         N_inbin = []
-        
-        BOOTwsum_T   = np.zeros((nboot,ndots))
-        BOOTwsum_X   = np.zeros((nboot,ndots))
-        
+              
         GAMMATcos_wsum = np.zeros((ndots,3))
         GAMMAXsin_wsum = np.zeros((ndots,3))
-        
-        BOOTwsum_Tcos  = np.zeros((nboot,ndots,3))
-        BOOTwsum_Xsin  = np.zeros((nboot,ndots,3))
-        
+                
         COS2_2theta = np.zeros((ndots,3))
         SIN2_2theta = np.zeros((ndots,3))
         
@@ -122,6 +116,7 @@ def partial_profile(RA0,DEC0,Z,angles,
                 N_inbin = np.append(N_inbin,len(et[mbin]))
                 
                 index = np.arange(mbin.sum())
+                '''
                 if mbin.sum() == 0:
                         continue
                 else:
@@ -135,18 +130,35 @@ def partial_profile(RA0,DEC0,Z,angles,
                         BOOTwsum_Tcos[:,nbin,:] = np.sum(((np.tile(et[mbin],(3,1))*np.cos(2.*at[mbin]).T))[:,INDEX],axis=2).T
                         BOOTwsum_Xsin[:,nbin,:] = np.sum(((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T))[:,INDEX],axis=2).T
 
-        
+                '''
+                
         output = {'DSIGMAwsum_T':DSIGMAwsum_T,'DSIGMAwsum_X':DSIGMAwsum_X,
-                   'BOOTwsum_T':BOOTwsum_T, 'BOOTwsum_X':BOOTwsum_X, 
                    'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
                    'COS2_2theta_wsum':COS2_2theta,'SIN2_2theta_wsum':SIN2_2theta,
-                   'BOOTwsum_Tcos':BOOTwsum_Tcos, 'BOOTwsum_Xsin':BOOTwsum_Xsin, 
                    'N_inbin':N_inbin,'Ntot':Ntot}
         
         return output
 
 def partial_profile_unpack(minput):
 	return partial_profile(*minput)
+
+def cov_matrix(array):
+        
+        K = len(array)
+        Kmean = np.average(array,axis=0)
+        bins = array.shape[1]
+        
+        COV = np.zeros((bins,bins))
+        
+        for k in range(K):
+            dif = (array[k]- Kmean)
+            COV += np.outer(dif,dif)        
+        
+        COV *= (K-1)/K
+        return COV
+
+            
+        
         
 '''
 sample='pru'
@@ -254,19 +266,13 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
         DSIGMAwsum_T = np.zeros((101,ndots)) 
         DSIGMAwsum_X = np.zeros((101,ndots))
-        
-        BOOTwsum_T   = np.zeros((100,ndots))
-        BOOTwsum_X   = np.zeros((100,ndots))
-        
+              
         GAMMATcos_wsum = np.zeros((101,ndots,3))
         GAMMAXsin_wsum = np.zeros((101,ndots,3))
 
         COS2_2theta_wsum = np.zeros((101,ndots,3))
         SIN2_2theta_wsum = np.zeros((101,ndots,3))
                                    
-        BOOTwsum_Tcos  = np.zeros((100,ndots,3))
-        BOOTwsum_Xsin  = np.zeros((100,ndots,3))
-        
         Ninbin = np.zeros((101,ndots))
         
         Ntot         = np.array([])
@@ -310,19 +316,11 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                         
                         Ninbin += np.tile(profilesums['N_inbin'],(101,1))*km[:,:,0]
                         
-                        BOOTwsum_T   += profilesums['BOOTwsum_T']
-                        BOOTwsum_X   += profilesums['BOOTwsum_X']
-                        
                         GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
                         GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
 
                         COS2_2theta_wsum += np.tile(profilesums['COS2_2theta_wsum'],(101,1,1))*km
                         SIN2_2theta_wsum += np.tile(profilesums['SIN2_2theta_wsum'],(101,1,1))*km
-                                                
-                        BOOTwsum_Tcos  += profilesums['BOOTwsum_Tcos']
-                        BOOTwsum_Xsin  += profilesums['BOOTwsum_Xsin']
-                        
-                        
                         
                         Ntot         = np.append(Ntot,profilesums['Ntot'])
                 
@@ -340,16 +338,22 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         DSigma_T  = (DSIGMAwsum_T/Ninbin)
         DSigma_X  = (DSIGMAwsum_X/Ninbin)
         
-        eDSigma_T =  np.std((BOOTwsum_T/np.tile(Ninbin[0],(100,1))),axis=0)
-        eDSigma_X =  np.std((BOOTwsum_X/np.tile(Ninbin[0],(100,1))),axis=0)
-        
-        
         GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
         GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0)
         
-        eGAMMA_Tcos =  np.std((BOOTwsum_Tcos/np.tile(Ninbin[0],(100,3,1)).transpose(0,2,1)),axis=0)
-        eGAMMA_Xsin =  np.std((BOOTwsum_Xsin/np.tile(Ninbin[0],(100,3,1)).transpose(0,2,1)),axis=0)
+        # COMPUTE COVARIANCE
 
+        COV_St  = cov_matrix(DSigma_T[1:,:])
+        COV_Sx  = cov_matrix(DSigma_X[1:,:])
+        
+        COV_Gtc = cov_matrix(GAMMA_Tcos[:,0,1:].T)
+        COV_Gt  = cov_matrix(GAMMA_Tcos[:,1,1:].T)
+        COV_Gtr = cov_matrix(GAMMA_Tcos[:,2,1:].T)
+        
+        COV_Gxc = cov_matrix(GAMMA_Xsin[:,0,1:])
+        COV_Gx  = cov_matrix(GAMMA_Xsin[:,1,1:])
+        COV_Gxr = cov_matrix(GAMMA_Xsin[:,2,1:])
+        
         
         # AVERAGE LENS PARAMETERS
         
@@ -380,35 +384,24 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
  
         # WRITING OUTPUT FITS FILE
         
-        table_hdu = [fits.Column(name='Rp', format='D', array=R),
-                fits.Column(name='DSigma_T', format='D', array=DSigma_T[0]),
-                fits.Column(name='error_DSigma_T', format='D', array=eDSigma_T),
-                fits.Column(name='DSigma_X', format='D', array=DSigma_X[0]),
-                fits.Column(name='error_DSigma_X', format='D', array=eDSigma_X),
-                fits.Column(name='GAMMA_Tcos_control', format='D', array=GAMMA_Tcos[:,0,0]),
-                fits.Column(name='GAMMA_Tcos', format='D', array=GAMMA_Tcos[:,1,0]),
-                fits.Column(name='GAMMA_Tcos_reduced', format='D', array=GAMMA_Tcos[:,2,0]),
-                fits.Column(name='error_GAMMA_Tcos_control', format='D', array=eGAMMA_Tcos[:,0]),
-                fits.Column(name='error_GAMMA_Tcos', format='D', array=eGAMMA_Tcos[:,1]),
-                fits.Column(name='error_GAMMA_Tcos_reduced', format='D', array=eGAMMA_Tcos[:,2]),
-                fits.Column(name='GAMMA_Xsin_control', format='D', array=GAMMA_Xsin[:,0,0]),
-                fits.Column(name='GAMMA_Xsin', format='D', array=GAMMA_Xsin[:,1,0]),
-                fits.Column(name='GAMMA_Xsin_reduced', format='D', array=GAMMA_Xsin[:,2,0]),
-                fits.Column(name='error_GAMMA_Xsin_control', format='D', array=eGAMMA_Xsin[:,0]),
-                fits.Column(name='error_GAMMA_Xsin', format='D', array=eGAMMA_Xsin[:,1]),
-                fits.Column(name='error_GAMMA_Xsin_reduced', format='D', array=eGAMMA_Xsin[:,2])]
+        table_hdu = [fits.Column(name='Rp', format='E', array=R),
+                fits.Column(name='DSigma_T', format='E', array=DSigma_T[0]),
+                fits.Column(name='COV_ST', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_St),
+                fits.Column(name='DSigma_X', format='E', array=DSigma_X[0]),
+                fits.Column(name='COV_SX', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Sx),
+                fits.Column(name='GAMMA_Tcos_control', format='E', array=GAMMA_Tcos[:,0,0]),
+                fits.Column(name='COV_GT_control', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gtc),
+                fits.Column(name='GAMMA_Tcos', format='E', array=GAMMA_Tcos[:,1,0]),
+                fits.Column(name='COV_GT', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gt),
+                fits.Column(name='GAMMA_Tcos_reduced', format='E', array=GAMMA_Tcos[:,2,0]),
+                fits.Column(name='COV_GT_reduced', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gtr),
+                fits.Column(name='GAMMA_Xsin_control', format='E', array=GAMMA_Xsin[:,0,0]),
+                fits.Column(name='COV_GX_control', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gxc),
+                fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
+                fits.Column(name='COV_GX', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gx),
+                fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,2,0]),
+                fits.Column(name='COV_GX_reduced', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gxr)]
                 
-        for j in np.arange(1,101):
-                
-                table_hdu += [fits.Column(name='DSigma_T_K'+str(j), format='D', array=DSigma_T[j])]
-                
-                table_hdu += [fits.Column(name='GAMMA_Tcos_control_K'+str(j), format='D', array=GAMMA_Tcos[:,0,j])]
-                table_hdu += [fits.Column(name='GAMMA_Tcos_K'+str(j), format='D', array=GAMMA_Tcos[:,1,j])]
-                table_hdu += [fits.Column(name='GAMMA_Tcos_reduced_K'+str(j), format='D', array=GAMMA_Tcos[:,2,j])]
-                
-                table_hdu += [fits.Column(name='GAMMA_Xsin_control_K'+str(j), format='D', array=GAMMA_Xsin[:,0,j])]
-                table_hdu += [fits.Column(name='GAMMA_Xsin_K'+str(j), format='D', array=GAMMA_Xsin[:,1,j])]
-                table_hdu += [fits.Column(name='GAMMA_Xsin_reduced_K'+str(j), format='D', array=GAMMA_Xsin[:,2,j])]
         
         
         tbhdu = fits.BinTableHDU.from_columns(table_hdu)

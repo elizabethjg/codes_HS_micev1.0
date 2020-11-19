@@ -386,21 +386,21 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
         table_hdu = [fits.Column(name='Rp', format='E', array=R),
                 fits.Column(name='DSigma_T', format='E', array=DSigma_T[0]),
-                fits.Column(name='COV_ST', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_St),
+                fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
                 fits.Column(name='DSigma_X', format='E', array=DSigma_X[0]),
-                fits.Column(name='COV_SX', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Sx),
+                fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
                 fits.Column(name='GAMMA_Tcos_control', format='E', array=GAMMA_Tcos[:,0,0]),
-                fits.Column(name='COV_GT_control', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gtc),
+                fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
                 fits.Column(name='GAMMA_Tcos', format='E', array=GAMMA_Tcos[:,1,0]),
-                fits.Column(name='COV_GT', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gt),
+                fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
                 fits.Column(name='GAMMA_Tcos_reduced', format='E', array=GAMMA_Tcos[:,2,0]),
-                fits.Column(name='COV_GT_reduced', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gtr),
+                fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),
                 fits.Column(name='GAMMA_Xsin_control', format='E', array=GAMMA_Xsin[:,0,0]),
-                fits.Column(name='COV_GX_control', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gxc),
+                fits.Column(name='COV_GX_control', format='E', array=COV_Gxc.flatten()),
                 fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
-                fits.Column(name='COV_GX', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gx),
+                fits.Column(name='COV_GX', format='E', array=COV_Gx.flatten()),
                 fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0]),
-                fits.Column(name='COV_GX_reduced', format=str(ndots**2)+'E', dim=(ndots,1), array=COV_Gxr)]
+                fits.Column(name='COV_GX_reduced', format='E', array=COV_Gxr.flatten())]
                 
         
         

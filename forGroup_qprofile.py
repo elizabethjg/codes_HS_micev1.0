@@ -31,7 +31,7 @@ def partial_profile(RA0,DEC0,Z,angles,
 
         ndots = int(ndots)
 
-        cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
+        cosmo = LambdaCDM(H0=100*h, Om0=0.25, Ode0=0.75)
         dl  = cosmo.angular_diameter_distance(Z).value
         KPCSCALE   = dl*(((1.0/3600.0)*np.pi)/180.0)*1000.0
         
@@ -182,7 +182,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         h              (float) H0 = 100.*h
         '''
 
-        cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
+        cosmo = LambdaCDM(H0=100*h, Om0=0.25, Ode0=0.75)
         tini = time.time()
         
         print('Sample ',sample)

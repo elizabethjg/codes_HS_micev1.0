@@ -1,37 +1,36 @@
 import sys
-sys.path.append('/home/eli/Documentos/PostDoc/halo-elongation/multipole_density_profile')
-sys.path.append('/mnt/clemente/lensing/multipole_density_profile')
-sys.path.append('/home/elizabeth/multipole_density_profile')
-sys.path.append('/home/eli/Documentos/Astronomia/posdoc/halo-elongation/multipole_density_profile')
-import numpy as np
-from pylab import *
-from multipoles_shear import *
-import emcee
+sys.path.append('/mnt/clemente/lensing')
+sys.path.append('/mnt/clemente/lensing/lens_codes_v3.7')
+sys.path.append('/home/eli/lens_codes_v3.7')
 import time
+import numpy as np
+from astropy.io import fits
+from astropy.cosmology import LambdaCDM
+from models_profile import *
 from multiprocessing import Pool
+from multiprocessing import Process
 import argparse
+from astropy.constants import G,c,M_sun,pc
+import emcee
+from models_profiles import *
+from astropy.cosmology import LambdaCDM
 
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/profiles/'
+cosmo = LambdaCDM(H0=100, Om0=0.25, Ode0=0.75)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-file', action='store', dest='file_name', default='profile.cat')
+parser.add_argument('-ang', action='store', dest='angle', default='standard')
 parser.add_argument('-ncores', action='store', dest='ncores', default=4)
-parser.add_argument('-misscentred', action='store', dest='miss', default=0)
-parser.add_argument('-component', action='store', dest='component', default='both')
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000)
 parser.add_argument('-nit', action='store', dest='nit', default=250)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
 args = parser.parse_args()
 
-folder    = args.folder
+folder    = '../profiles/'
 file_name = args.file_name
 angle     = args.angle
-
-if 'True' in args.miss:
-	miss      = True
-elif 'False' in args.miss:
-	miss      = False
 
 if 'True' in args.cont:
 	cont      = True
@@ -46,68 +45,66 @@ ncores    = int(ncores)
 rin       = float(args.RIN)
 rout      = float(args.ROUT)
 
-if miss:
-	outfile = folder+'quadrupole_'+component+'_miss_'+file_name[:-4]+'_'+angle+'_'+str(int(rin))+'_'+str(int(rout))+'.out'
-	backup  = folder+'backup_'+component+'_miss_'+file_name[:-4]+'_'+angle+'_'+str(int(rin))+'_'+str(int(rout))+'.out'
-else:
-	outfile = folder+'quadrupole_'+component+'_'+file_name[:-4]+'_'+angle+'_'+str(int(rin))+'_'+str(int(rout))+'.out'
-	backup  = folder+'backup_'+component+'_'+file_name[:-4]+'_'+angle+'_'+str(int(rin))+'_'+str(int(rout))+'.out'
+outfile = folder+'fitted_'+file_name[:-4]+'_'+angle+'_'+str(int(rin))+'_'+str(int(rout))+'.fits'
+backup  = folder+'backup_'+file_name[:-4]+'_'+angle+'_'+str(int(rin))+'_'+str(int(rout))+'.fits'
 
 
 
-print 'fitting quadrupole'
-print folder
-print file_name
-print angle
-print 'miss = ',miss
-print component
-print 'ncores = ',ncores
-print 'RIN ',rin
-print 'ROUT ',rout
-print 'nit', nit
-print 'continue',cont
-print 'outfile',outfile
+print('fitting profiles')
+print(folder)
+print(file_name)
+print(angle)
+print(component)
+print('ncores = ',ncores)
+print('RIN ',rin)
+print('ROUT ',rout)
+print('nit', nit)
+print('continue',cont)
+print('outfile',outfile)
 
 
-f = open(folder+file_name,'r')
-lines = f.readlines()
-j = lines[2].find('=')+1
-zmean = float(lines[2][j:-2])
-pcc = float((lines[-1][1:-2]))
-M200 = float((lines[-2][1:-2]))*1.e14
-    
-print 'M200',M200
-print 'pcc',pcc
+profile = fits.open(folder+file_name)
+h       = profile[1].header
+p       = profile[1].data
+zmean   = h['Z_MEAN']    
+lMguess = np.log10(h['M200'])
+cguess  = h['c200']
 
 
-def log_likelihood(data_model, r, Gamma, e_Gamma):
-    ellip = data_model
-    if 'both' in component:
-	r = np.split(r,2)[0]
-	multipoles = multipole_shear_parallel(r,M200=M200,misscentred = miss,
-				    ellip=ellip,z=zmean,components = ['tcos','xsin'],
-				    verbose=False,ncores=ncores)
-	model_t = model_Gamma(multipoles,'tcos', misscentred = miss, pcc = pcc)
-	model_x = model_Gamma(multipoles,'xsin', misscentred = miss, pcc = pcc)
-	model   = np.append(model_t,model_x)
-    else:
-	multipoles = multipole_shear_parallel(r,M200=M200,misscentred = miss,
-				    ellip=ellip,z=zmean,components = [component],
-				    verbose=False,ncores=ncores)
-	model = model_Gamma(multipoles,component, misscentred = miss, pcc = pcc)
-    sigma2 = e_Gamma**2
-    return -0.5 * np.sum((Gamma - model)**2 / sigma2 + np.log(2.*np.pi*sigma2))
+def log_likelihood(data_model, r, profiles, iCOV):
+    lM200,c200,q = data_model
+
+    e = (1.-q)/(1.+q)
+
+    ds, gt, gx = profiles
+    iCds, iCgt, iCgx = iCOV 
+
+    DS      = Delta_Sigma_NFW(R,z,10**lM200,c200 = c200,cosmo=cosmo)
+    GT,GX   = GAMMA_components(r,zmean,ellip=e,M200 = 10**lM200,c200 = c200,cosmo=cosmo)
+
+    L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
+    L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
+    L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
+
+    return L_DS + L_GT + L_GX
     
 
-def log_probability(data_model, r, Gamma, e_Gamma):
-    ellip = data_model
-    if 0. < ellip < 0.5:
-        return log_likelihood(data_model, r, Gamma, e_Gamma)
+def log_probability(data_model, r, profiles, iCOV):
+    
+    lM200,c200,q = data_model
+    
+    if 0.2 < q < 1.0 and 12.5 < lM200 < 16.0 and 1 < c200 10:
+        return log_likelihood(data_model, r, profiles, iCOV)
     return -np.inf
 
 # initializing
 
-pos = np.array([np.random.uniform(0.,0.5,10)]).T
+pos = np.array([np.random.uniform(12.5,15.5,15),
+                np.random.normal(cguess,0.5,15),
+                np.random.uniform(0.2,0.9,15)]).T
+
+qdist = pos[:,2]                
+pos[qdist > 1.,1] = 1.
 
 nwalkers, ndim = pos.shape
 

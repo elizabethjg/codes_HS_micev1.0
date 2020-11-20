@@ -365,6 +365,10 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         s3d_mean     = np.average(L.s3d,weights=Ntot)
         s3dr_mean    = np.average(L.s3dr,weights=Ntot)
         
+        # FITTING NFW PROFILE
+        
+        nfw    = Delta_Sigma_fit(R,DSigma_T[0],np.diag(COV_St),zmean,cosmo,True)
+        
         
         # WRITING OUTPUT FITS FILE
         
@@ -378,10 +382,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
                 fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0])]
                 
-        for k in range(100):
-            table_pro += [fits.Column(name='DSigma_T_K'+str(k+1), format='E', array=DSigma_T[k+1])]
-        
-                
+                     
         table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
                     fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
                     fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
@@ -402,6 +403,11 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         h.append(('z_max',np.round(z_max,4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
         h.append(('z_mean',np.round(zmean,4)))
+        h.append(('M200',np.round(nfw.M200/1.e14,4)))
+        h.append(('e_M200',np.round(nfw.error_M200/1.e14,4)))
+        h.append(('c200',np.round(nfw.c200,4)))
+        h.append(('e_c200',np.round(nfw.error_c200,4)))
+        h.append(('chi2',np.round(nfw.chi2,4)))
         h.append(('q2d_mean',np.round(q2d_mean,4)))
         h.append(('q2dr_mean',np.round(q2dr_mean,4)))
         h.append(('q3d_mean',np.round(q3d_mean,4)))

@@ -13,9 +13,9 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
-h = 1.0
+# h = 1.0
 # cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
-cosmo = LambdaCDM(H0=70, Om0=0.25, Ode0=0.75)
+cosmo = LambdaCDM(H0=100, Om0=0.25, Ode0=0.75)
 
 
 RM = np.loadtxt('/home/elizabeth/Documentos/posdoc/halo-elongation/redMapper/member_distribution/profiles/profile_total.cat').T
@@ -29,9 +29,15 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
 
     print(p_name)
     
-    h = profile[0].header
-    p = profile[1].data
+    # '''
+    h   = profile[0].header
+    p   = profile[1].data
+    cov = profile[2].data
+    '''
     
+    h = profile[1].header
+    p = profile[1].data
+    '''
     zmean = h['z_mean']
     q  = h['q2d_mean']
     qr = h['q2dr_mean']
@@ -65,6 +71,17 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     GXr_k    = np.zeros((100,ndots))
     GXc_k    = np.zeros((100,ndots))
     
+    # '''
+    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
+    
+    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
+    CovGTc = cov.COV_GT_control.reshape(len(GT),len(GT))
+    
+    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
+    CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
+    CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
+    '''
     
     for k in range(100):
         
@@ -136,7 +153,7 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     CovGXc *= 99/100.
     
     Corr /= 100.
-    
+    '''
     nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
     
     mass = str(np.round(np.log10(nfw.M200),1))

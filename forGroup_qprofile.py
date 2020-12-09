@@ -22,7 +22,49 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-sample', action='store', dest='sample',default='pru')
+parser.add_argument('-vmice', action='store', dest='vmice',default='1')
+parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
+parser.add_argument('-lM_max', action='store', dest='lM_max', default=15.5)
+parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
+parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
+parser.add_argument('-RIN', action='store', dest='RIN', default=400.)
+parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000.)
+parser.add_argument('-nbins', action='store', dest='nbins', default=40)
+parser.add_argument('-ncores', action='store', dest='ncores', default=10)
+parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
+args = parser.parse_args()
+
+sample     = args.sample
+lM_min     = float(args.lM_min)
+lM_max     = float(args.lM_max) 
+z_min      = float(args.z_min) 
+z_max      = float(args.z_max) 
+RIN        = float(args.RIN)
+ROUT       = float(args.ROUT)
+ndots      = int(args.nbins)
+ncores     = int(args.ncores)
+vmice      = int(args.vmice)
+hcosmo     = float(args.h_cosmo)
+
+'''
+sample='bin_140'
+lM_min=14.
+lM_max=14.2
+z_min = 0.1
+z_max = 0.4
+RIN = 400.
+ROUT = 5000.
+ndots= 40
+ncores = 40
+hcosmo = 0.7 
+vmice = 2
+'''
+
+
+folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v'+str(vmice)+'.0/catalogs/'
 S      = fits.open(folder+'MICE_sources.fits')[1].data
 
 
@@ -160,23 +202,11 @@ def cov_matrix(array):
             
         
         
-'''
-sample='bin_148'
-lM_min=14.8
-lM_max=20.
-z_min = 0.1
-z_max = 0.4
-RIN = 400.
-ROUT =5000.
-ndots= 40
-ncores=40
-h=0.7
-'''
 
 def main(sample='pru',lM_min=14.,lM_max=14.2,
                 z_min = 0.1, z_max = 0.4,
                 RIN = 400., ROUT =5000.,
-                ndots= 40, ncores=10, h=1.0):
+                ndots= 40, ncores=10, hcosmo=1.0):
 
         '''
         
@@ -194,7 +224,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         h              (float) H0 = 100.*h
         '''
 
-        cosmo = LambdaCDM(H0=100*h, Om0=0.25, Ode0=0.75)
+        cosmo = LambdaCDM(H0=100*hcosmo, Om0=0.25, Ode0=0.75)
         tini = time.time()
         
         print('Sample ',sample)
@@ -203,7 +233,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         print(z_min,' <= z < ',z_max)
         print('Profile has ',ndots,'bins')
         print('from ',RIN,'kpc to ',ROUT,'kpc')
-        print('h ',h)
+        print('h ',hcosmo)
+        print('MICE version ',vmice)
               
         # Defining radial bins
         bines = np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1)
@@ -211,7 +242,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
         #reading cats
         
-        L = fits.open(folder+'MICEv1.0_halo_cat_withshapes.fits')[1].data
+        L = fits.open(folder+'MICE_halo_cat_withshapes.fits')[1].data
         
         mregion = (L.ra < 80.)*(L.dec > 36.5)        
         mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
@@ -287,12 +318,12 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
                 rin  = RIN*np.ones(num)
                 rout = ROUT*np.ones(num)
                 nd   = ndots*np.ones(num)
-                h_array   = h*np.ones(num)
+                h_array   = hcosmo*np.ones(num)
                 
                 if num == 1:
                         entrada = [Lsplit[l].ra[0], Lsplit[l].dec[0],
                                    Lsplit[l].z_v[0],Tsplit[l][0],
-                                   RIN,ROUT,ndots,h]
+                                   RIN,ROUT,ndots,hcosmo]
                         
                         salida = [partial_profile_unpack(entrada)]
                 else:          
@@ -365,6 +396,11 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         s3d_mean     = np.average(L.s3d,weights=Ntot)
         s3dr_mean    = np.average(L.s3dr,weights=Ntot)
         
+        if vmice == 2:
+            lM_v2_mean = np.average(L.lmhalo,weights=Ntot)
+        else:
+            lM_v2_mean = lM_mean
+            
         # FITTING NFW PROFILE
         
         nfw    = Delta_Sigma_fit(R,DSigma_T[0],np.diag(COV_St),zmean,cosmo,True)
@@ -397,11 +433,14 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
         h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
-        h.append(('lM_min',np.int(lM_min)))
-        h.append(('lM_max',np.int(lM_max)))
+        h.append(('MICE version',vmice))
+        h.append(('lM_min',np.round(lM_min,2)))
+        h.append(('lM_max',np.round(lM_max,2)))
         h.append(('z_min',np.round(z_min,4)))
         h.append(('z_max',np.round(z_max,4)))
+        h.append(('hcosmo',np.round(hcosmo,4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
+        h.append(('lM_v2_mean',np.round(lM_v2_mean,4)))
         h.append(('z_mean',np.round(zmean,4)))
         h.append(('M200',np.round(nfw.M200/1.e14,4)))
         h.append(('e_M200',np.round(nfw.error_M200/1.e14,4)))
@@ -427,30 +466,4 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
 
 
-if __name__ == '__main__':
-        
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-sample', action='store', dest='sample',default='pru')
-        parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
-        parser.add_argument('-lM_max', action='store', dest='lM_max', default=15.5)
-        parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
-        parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
-        parser.add_argument('-RIN', action='store', dest='RIN', default=400.)
-        parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000.)
-        parser.add_argument('-nbins', action='store', dest='nbins', default=40)
-        parser.add_argument('-ncores', action='store', dest='ncores', default=10)
-        parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
-        args = parser.parse_args()
-        
-        sample     = args.sample
-        lM_min     = float(args.lM_min)
-        lM_max     = float(args.lM_max) 
-        z_min      = float(args.z_min) 
-        z_max      = float(args.z_max) 
-        RIN        = float(args.RIN)
-        ROUT       = float(args.ROUT)
-        nbins      = int(args.nbins)
-        ncores     = int(args.ncores)
-        h          = float(args.h_cosmo)
-        
-        main(sample,lM_min,lM_max,z_min,z_max,RIN,ROUT,nbins,ncores,h)
+main(sample,lM_min,lM_max,z_min,z_max,RIN,ROUT,ndots,ncores,hcosmo)

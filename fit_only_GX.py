@@ -58,8 +58,7 @@ RIN       = float(args.RIN)
 ROUT      = float(args.ROUT)
 
 
-
-outfile     = 'fitresults_all_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
+outfile     = 'fitresults_onlyGX_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 plot_folder = folder+'plots_mcmc/'
 
@@ -83,34 +82,27 @@ p       = profile[1].data
 cov     = profile[2].data
 zmean   = h['Z_MEAN']    
 lMguess = np.log10(h['M200'])
-cguess  = h['c200']
 
 cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 
-def log_likelihood(data_model, R, profiles, iCOV):
+def log_likelihood(data_model, R, gx, iCgx):
     lM200,q = data_model
 
     e = (1.-q)/(1.+q)
 
-    ds, gt, gx = profiles
-    iCds, iCgt, iCgx = iCOV 
-
-    DS      = Delta_Sigma_NFW(R,zmean,10**lM200,cosmo=cosmo)
     GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,cosmo=cosmo)
 
-    L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
-    L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
 
-    return L_DS + L_GT + L_GX
+    return L_GX 
     
 
-def log_probability(data_model, r, profiles, iCOV):
+def log_probability(data_model, R, profiles, iCOV):
     
     lM200,q = data_model
     
     if 0.2 < q < 1.0 and 12.5 < lM200 < 16.0:
-        return log_likelihood(data_model, r, profiles, iCOV)
+        return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
 
@@ -128,45 +120,41 @@ nwalkers, ndim = pos.shape
 # running emcee
 
 maskr   = (p.Rp > (RIN/1000.))*(p.Rp < (ROUT/1000.))
-
 mr = np.meshgrid(maskr,maskr)[1]*np.meshgrid(maskr,maskr)[0]
 
-CovDS  = cov.COV_ST.reshape(len(p.Rp),len(p.Rp))[mr]
-CovGT  = cov.COV_GT.reshape(len(p.Rp),len(p.Rp))[mr]
 CovGX  = cov.COV_GX.reshape(len(p.Rp),len(p.Rp))[mr]
-
+CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
 
 p  = p[maskr]
 
-t1 = time.time()
-
-DSt = p.DSigma_T
-GT  = p.GAMMA_Tcos
 GX  = p.GAMMA_Xsin
 
 
-CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
-CovGT  = CovGT.reshape(maskr.sum(),maskr.sum())
-CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
+iCgx   = np.linalg.inv(CovGX)
 
-profiles = [DSt,GT,GX]
-iCov     = [np.linalg.inv(CovDS),np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
-
+t1 = time.time()
 backend = emcee.backends.HDFBackend(backup)
 if not cont:
     backend.reset(nwalkers, ndim)
-    
+
+
+pool = Pool(processes=(ncores))    
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
-                                args=(p.Rp,profiles,iCov),backend=backend)
+                                args=(p.Rp,GX,iCgx),
+                                backend=backend,pool = pool)
 				
+
 
 if cont:                                
     sampler.run_mcmc(None, nit, progress=True)
 else:
     sampler.run_mcmc(pos, nit, progress=True)
+pool.terminate()
+    
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
+
 #-------------------
 # saving mcmc out
 
@@ -196,7 +184,7 @@ hdul = fits.HDUList([primary_hdu, tbhdu])
 hdul.writeto(folder+outfile,overwrite=True)
 
 fig = corner.corner(mcmc_out.T, labels=['lM200','q'])
-plt.savefig(plot_folder+'corner_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
+plt.savefig(plot_folder+'corner_onlyGX_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
 
 f, ax = plt.subplots(2, 1, figsize=(6,3))
 
@@ -214,4 +202,5 @@ ax[1].axhline(qout[1] + np.diff(qout)[0],ls='--')
 
 
 f.subplots_adjust(hspace=0,wspace=0)
-plt.savefig(plot_folder+'walk_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
+plt.savefig(plot_folder+'walk_onlyGX_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
+

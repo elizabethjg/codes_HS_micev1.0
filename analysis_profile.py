@@ -13,19 +13,14 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
-# h = 1.0
-# cosmo = LambdaCDM(H0=100*h, Om0=0.3, Ode0=0.7)
-cosmo = LambdaCDM(H0=100, Om0=0.25, Ode0=0.75)
 
 
-RM = np.loadtxt('/home/elizabeth/Documentos/posdoc/halo-elongation/redMapper/member_distribution/profiles/profile_total.cat').T
-RMt  = np.loadtxt('/home/elizabeth/Documentos/posdoc/halo-elongation/redMapper/member_distribution/profiles/profile_total_t.cat').T
-RMtp = np.loadtxt('/home/elizabeth/Documentos/posdoc/halo-elongation/redMapper/member_distribution/profiles/profile_total_tp.cat').T
-
-def plt_profile(mbin,ax,ax1,ax2,ax3):
+def plt_profile(mbin,ax,ax1,ax2,ax3,RIN,ROUT,mv):
+    
+    folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv'+str(mv)+'.0/profiles/'
 
     p_name = 'profile_bin_'+str(int(mbin))+'.fits'
-    profile = fits.open('../profiles/'+p_name)
+    profile = fits.open(folder+p_name)
 
     print(p_name)
     
@@ -33,11 +28,15 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     h   = profile[0].header
     p   = profile[1].data
     cov = profile[2].data
+    
+    cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
     '''
     
     h = profile[1].header
     p = profile[1].data
     '''
+    micev = str(h['MICE version'])
+    
     zmean = h['z_mean']
     q  = h['q2d_mean']
     qr = h['q2dr_mean']
@@ -61,16 +60,6 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     GXr = p.GAMMA_Xsin_reduced
     GXc = p.GAMMA_Xsin_control
     
-    DS_k     = np.zeros((100,ndots))
-    
-    GT_k     = np.zeros((100,ndots))
-    GTr_k    = np.zeros((100,ndots))
-    GTc_k    = np.zeros((100,ndots))
-    
-    GX_k     = np.zeros((100,ndots))
-    GXr_k    = np.zeros((100,ndots))
-    GXc_k    = np.zeros((100,ndots))
-    
     # '''
     CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
     
@@ -81,104 +70,62 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
     CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
     CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
-    '''
-    
-    for k in range(100):
-        
-        DS_k[k,:]     = p['DSigma_T_K'+str(k+1)]
-        
-        GT_k[k,:]     = p['GAMMA_Tcos_K'+str(k+1)]
-        GTr_k[k,:]    = p['GAMMA_Tcos_reduced_K'+str(k+1)]
-        GTc_k[k,:]    = p['GAMMA_Tcos_control_K'+str(k+1)]
-    
-        GX_k[k,:]     = p['GAMMA_Xsin_K'+str(k+1)]
-        GXr_k[k,:]    = p['GAMMA_Xsin_reduced_K'+str(k+1)]
-        GXc_k[k,:]    = p['GAMMA_Xsin_control_K'+str(k+1)]
-    
-    
-    
-    DS_kmean = np.mean(DS_k,axis=0)
-    DS_kstd  = np.std(DS_k,axis=0)
-    
-    GT_kmean  = np.mean(GT_k,axis=0)
-    GTr_kmean = np.mean(GTr_k,axis=0)
-    GTc_kmean = np.mean(GTc_k,axis=0)
-    
-    GX_kmean  = np.mean(GX_k,axis=0)
-    GXr_kmean = np.mean(GXr_k,axis=0)
-    GXc_kmean = np.mean(GXc_k,axis=0)
-    
-    CovDS  = np.zeros((ndots,ndots))
-    
-    CovGT   = np.zeros((ndots,ndots))
-    CovGTr  = np.zeros((ndots,ndots))
-    CovGTc  = np.zeros((ndots,ndots))
-    
-    CovGX   = np.zeros((ndots,ndots))
-    CovGXr  = np.zeros((ndots,ndots))
-    CovGXc  = np.zeros((ndots,ndots))
-    
-    Corr = np.zeros((ndots,ndots))
-    
-    for k in range(100):
-        
-        dif = (p['DSigma_T_K'+str(k+1)]-DS_kmean)
-        CovDS += np.outer(dif,dif)        
-    
-        dif = (p['GAMMA_Tcos_K'+str(k+1)]-GT_kmean)
-        CovGT += np.outer(dif,dif)        
-        dif = (p['GAMMA_Tcos_reduced_K'+str(k+1)]-GTr_kmean)
-        CovGTr += np.outer(dif,dif)        
-        dif = (p['GAMMA_Tcos_control_K'+str(k+1)]-GTc_kmean)
-        CovGTc += np.outer(dif,dif)        
-        
-        dif = (p['GAMMA_Xsin_K'+str(k+1)]-GX_kmean)
-        CovGX += np.outer(dif,dif)        
-        dif = (p['GAMMA_Xsin_reduced_K'+str(k+1)]-GXr_kmean)
-        CovGXr += np.outer(dif,dif)        
-        dif = (p['GAMMA_Xsin_control_K'+str(k+1)]-GXc_kmean)
-        CovGXc += np.outer(dif,dif)        
-            
-        difw = (p['DSigma_T_K'+str(k+1)]-DS_kmean)/DS_kstd
-        Corr += np.outer(difw,difw)        
-    
-    CovDS  *= 99/100.
-    
-    CovGT  *= 99/100.
-    CovGTr *= 99/100.
-    CovGTc *= 99/100.
-    
-    CovGX  *= 99/100.
-    CovGXr *= 99/100.
-    CovGXc *= 99/100.
-    
-    Corr /= 100.
-    '''
-    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
-    
-    mass = str(np.round(np.log10(nfw.M200),1))
-    
+
+    # FIT MONOPOLE
     rplot = np.arange(0.1,5,0.1)
     
+    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     
-    gt_RM,gx_RM   = GAMMA_components(RM[0],z=0.25,ellip=0.22,M200 =2.e14,c200 = None,cosmo=cosmo)
+    mass = str(np.round(np.log10(nfw.M200),1))
+    
+    
+    # MCMC results
+
+    fall = fits.open(folder+'fitresults_all_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fq   = fits.open(folder+'fitresults_onlyq_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fGX  = fits.open(folder+'fitresults_onlyGX_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fGT  = fits.open(folder+'fitresults_onlyGT_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+  
+    eall = (1. - fall['q']) / (1. + fall['q'])
+    eq   = (1. - fq['q']) / (1. + fq['q'])
+    eGX  = (1. - fGX['q']) / (1. + fGX['q'])
+    eGT  = (1. - fGT['q']) / (1. + fGT['q'])
+  
+    DS_all = Delta_Sigma_NFW(rplot,zmean,10**fall['lM200'],cosmo=cosmo)
+    DS_q   = Delta_Sigma_NFW(rplot,zmean,10**fq['lM200'],cosmo=cosmo)
+    DS_GX  = Delta_Sigma_NFW(rplot,zmean,10**fGX['lM200'],cosmo=cosmo)
+    DS_GT  = Delta_Sigma_NFW(rplot,zmean,10**fGT['lM200'],cosmo=cosmo)
+    
+    gt_all,gx_all = GAMMA_components(rplot,zmean,ellip=eall,M200 =10**fall['lM200'],cosmo=cosmo)
+    gt_q  ,gx_q   = GAMMA_components(rplot,zmean,ellip=eq,M200 =10**fq['lM200'],cosmo=cosmo)
+    gt_GX ,gx_GX  = GAMMA_components(rplot,zmean,ellip=eGX,M200 =10**fGX['lM200'],cosmo=cosmo)
+    gt_GT ,gx_GT  = GAMMA_components(rplot,zmean,ellip=eGT,M200 =10**fGT['lM200'],cosmo=cosmo)
+    
+
     
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
     ax2.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
     ax3.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
 
-    ax.legend()
+    
     ax1.legend()
     ax2.legend()
-    ax3.legend()
     
-    ax.plot(1000,1000,'w.',label='$M_{200}$'+mass)
-    ax.plot(p.Rp,p.DSigma_T,'C1',label = 'standard')
-    ax.plot(nfw.xplot,nfw.yplot,'C3')
+    ax.set_title('MICE v'+micev+'.0')
+    ax1.set_title('MICE v'+micev+'.0')
+    ax2.set_title('MICE v'+micev+'.0')
+    ax3.set_title('MICE v'+micev+'.0')
+    
+    ax.plot(p.Rp,p.DSigma_T,'C1')
+    ax.plot(nfw.xplot,nfw.yplot,'C3',label='fited nfw')
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
+    ax.plot(rplot,DS_all,'C1--',label='mcmc all')
+    ax.plot(rplot,DS_q,'C0--',label='mcmc q')
+    ax.plot(rplot,DS_GT,'C4--',label='mcmc gt')
+    ax.plot(rplot,DS_GX,'C2--',label='mcmc gx')
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -188,7 +135,8 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     ax.set_xticklabels([0.4,1,3])
     ax.yaxis.set_ticks([5,10,100])
     ax.set_yticklabels([5,10,100])
-
+    ax.legend()
+    
     # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
     # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
     
@@ -196,6 +144,13 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     ax1.plot(p.Rp,GTr,'C0--',label = 'reduced')
     ax1.plot(rplot,gt,'C3')
     ax1.plot(rplot,gtr,'C3--')
+
+    ax1.plot(rplot,gt_all,'C1--')
+    ax1.plot(rplot,gt_q,'C0--')
+    ax1.plot(rplot,gt_GT,'C4--')
+    ax1.plot(rplot,gt_GX,'C2--')
+
+
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
     ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
     ax1.set_xscale('log')
@@ -216,6 +171,12 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     ax2.plot(p.Rp,GXr,'C5--')
     ax2.plot(rplot,gx,'C3')
     ax2.plot(rplot,gxr,'C3--')
+    
+    ax2.plot(rplot,gx_all,'C1--')
+    ax2.plot(rplot,gx_q,'C0--')
+    ax2.plot(rplot,gx_GT,'C4--')
+    ax2.plot(rplot,gx_GX,'C2--')
+    
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
     ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -227,8 +188,8 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     
     
     ax3.plot([0,5],[0,0],'C7')
-    ax3.plot(p.Rp,GTc,'k', label = 'tangential')
-    ax3.plot(p.Rp,GXc,'C8--', label = 'cross')
+    ax3.plot(p.Rp,GTc,'k', label = 'GT control')
+    ax3.plot(p.Rp,GXc,'C8--', label = 'GX control')
     ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.2)
     ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.2)
     ax3.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -237,8 +198,9 @@ def plt_profile(mbin,ax,ax1,ax2,ax3):
     ax3.set_ylim(-10,7)
     ax3.xaxis.set_ticks([0.4,1,3])
     ax3.set_xticklabels([0.4,1,3])
+    ax3.legend()
 
-
+folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv'+str(mv)+'.0/profiles/'
 
 f, ax = plt.subplots()
 f1, ax1 = plt.subplots()
@@ -246,7 +208,17 @@ f2, ax2 = plt.subplots()
 f3, ax3 = plt.subplots()
 
 
+plt_profile(140,ax,ax1,ax2,ax3,RIN,ROUT,mv)
 
+f.savefig(folder+'DSigma_'+str(RIN)+'_'+str(ROUT)+'.png')
+f1.savefig(folder+'GT_'+str(RIN)+'_'+str(ROUT)+'.png')
+f2.savefig(folder+'GX_'+str(RIN)+'_'+str(ROUT)+'.png')
+f3.savefig(folder+'control.png')
+
+
+
+
+'''
 ft, axt  = plt.subplots(2,4, figsize=(12,6), sharey=True)
 ft1, axt1 = plt.subplots(2,4, figsize=(12,6), sharey=True)
 ft2, axt2 = plt.subplots(2,4, figsize=(12,6), sharey=True)
@@ -262,6 +234,7 @@ ax1 = axt1.flatten()
 ax2 = axt2.flatten()
 ax3 = axt3.flatten()
 
-for j in range(8):
+for j in range(7):
     
-    plt_profile(130+2*j,ax[j],ax1[j],ax2[j],ax3[j])
+    plt_profile(136+2*j,ax[j],ax1[j],ax2[j],ax3[j])
+'''

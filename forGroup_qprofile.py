@@ -30,6 +30,8 @@ parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
 parser.add_argument('-lM_max', action='store', dest='lM_max', default=15.5)
 parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
 parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
+parser.add_argument('-q_min', action='store', dest='q_min', default=0.1)
+parser.add_argument('-q_max', action='store', dest='q_max', default=0.4)
 parser.add_argument('-RIN', action='store', dest='RIN', default=400.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
@@ -42,6 +44,8 @@ lM_min     = float(args.lM_min)
 lM_max     = float(args.lM_max) 
 z_min      = float(args.z_min) 
 z_max      = float(args.z_max) 
+q_min      = float(args.q_min) 
+q_max      = float(args.q_max) 
 RIN        = float(args.RIN)
 ROUT       = float(args.ROUT)
 ndots      = int(args.nbins)
@@ -50,11 +54,13 @@ vmice      = int(args.vmice)
 hcosmo     = float(args.h_cosmo)
 
 '''
-sample='bin_140'
+sample='bin_140_qm'
 lM_min=14.
-lM_max=14.2
+lM_max=14.4
 z_min = 0.1
 z_max = 0.4
+q_min = 0.
+q_max = 0.6
 RIN = 400.
 ROUT = 5000.
 ndots= 40
@@ -205,6 +211,7 @@ def cov_matrix(array):
 
 def main(sample='pru',lM_min=14.,lM_max=14.2,
                 z_min = 0.1, z_max = 0.4,
+                q_min = 0.1, q_max = 0.4,
                 RIN = 400., ROUT =5000.,
                 ndots= 40, ncores=10, hcosmo=1.0):
 
@@ -217,6 +224,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         lM_max         (float) higher limit for log(Mass) - <
         z_min          (float) lower limit for z - >=
         z_max          (float) higher limit for z - <
+        q_min          (float) lower limit for q - >=
+        q_max          (float) higher limit for q - <
         RIN            (float) Inner bin radius of profile
         ROUT           (float) Outer bin radius of profile
         ndots          (int) Number of bins of the profile
@@ -231,6 +240,7 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         print('Selecting groups with:')
         print(lM_min,' <= log(M) < ',lM_max)
         print(z_min,' <= z < ',z_max)
+        print(q_min,' <= q < ',q_max)
         print('Profile has ',ndots,'bins')
         print('from ',RIN,'kpc to ',ROUT,'kpc')
         print('h ',hcosmo)
@@ -247,7 +257,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         mregion = (L.ra < 80.)*(L.dec > 36.5)        
         mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
-        mlenses = mmass*mz*mregion
+        mq      = (L.q2d >= q_min)*(L.q2d < q_max)
+        mlenses = mmass*mz*mregion*mq
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:
@@ -436,8 +447,10 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         h.append(('MICE version',vmice))
         h.append(('lM_min',np.round(lM_min,2)))
         h.append(('lM_max',np.round(lM_max,2)))
-        h.append(('z_min',np.round(z_min,4)))
-        h.append(('z_max',np.round(z_max,4)))
+        h.append(('z_min',np.round(z_min,2)))
+        h.append(('z_max',np.round(z_max,2)))
+        h.append(('q_min',np.round(q_min,2)))
+        h.append(('q_max',np.round(q_max,2)))
         h.append(('hcosmo',np.round(hcosmo,4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
         h.append(('lM_v2_mean',np.round(lM_v2_mean,4)))
@@ -466,4 +479,4 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
 
 
-main(sample,lM_min,lM_max,z_min,z_max,RIN,ROUT,ndots,ncores,hcosmo)
+main(sample,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,hcosmo)

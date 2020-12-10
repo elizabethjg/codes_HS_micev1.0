@@ -30,8 +30,8 @@ parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
 parser.add_argument('-lM_max', action='store', dest='lM_max', default=15.5)
 parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
 parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
-parser.add_argument('-q_min', action='store', dest='q_min', default=0.1)
-parser.add_argument('-q_max', action='store', dest='q_max', default=0.4)
+parser.add_argument('-q_min', action='store', dest='q_min', default=0.)
+parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
 parser.add_argument('-RIN', action='store', dest='RIN', default=400.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
@@ -211,7 +211,7 @@ def cov_matrix(array):
 
 def main(sample='pru',lM_min=14.,lM_max=14.2,
                 z_min = 0.1, z_max = 0.4,
-                q_min = 0.1, q_max = 0.4,
+                q_min = 0., q_max = 1.0,
                 RIN = 400., ROUT =5000.,
                 ndots= 40, ncores=10, hcosmo=1.0):
 

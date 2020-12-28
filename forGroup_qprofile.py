@@ -44,8 +44,8 @@ args = parser.parse_args()
 
 sample     = args.sample
 rprox      = args.rprox
-rmin       = float(args.lM_min)
-rmax       = float(args.lM_max) 
+rmin       = float(args.rmin)
+rmax       = float(args.rmax) 
 lM_min     = float(args.lM_min)
 lM_max     = float(args.lM_max) 
 z_min      = float(args.z_min) 

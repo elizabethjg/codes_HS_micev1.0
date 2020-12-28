@@ -267,7 +267,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         L = fits.open(folder+'MICE_halo_cat_withshapes.fits')[1].data
         
         mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
-        mregion = (L.ra < 80.)*(L.dec > 36.5)        
+        mregion = (L.ra < 80.)*(L.dec < 50.)#*(L.dec > 36.5)        
         mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
         mq      = (L.q2d >= q_min)*(L.q2d < q_max)

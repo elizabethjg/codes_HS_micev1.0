@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name='bin_144'
+#SBATCH --job-name='dens'
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00
@@ -19,8 +19,16 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample 'bin_130_dens' -rmax 30. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'bin_130_iso' -rmin 30. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_130_dens' -rmax 30. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_132_dens' -rmax 30. -lM_min 13.2 -lM_max 13.4 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_134_dens' -rmax 30. -lM_min 13.4 -lM_max 13.6 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_136_dens' -rmax 30. -lM_min 13.6 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_138_dens' -rmax 30. -lM_min 13.8 -lM_max 14.0 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_140_dens' -rmax 30. -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_142_dens' -rmax 30. -lM_min 14.2 -lM_max 14.4 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_144_dens' -rmax 30. -lM_min 14.4 -lM_max 16.0 -ncores $SLURM_CPUS_PER_TASK
+
+##srun python -u forGroup_qprofile.py -sample 'bin_130_iso' -rmin 30. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_qprofile.py -sample 'bin_132' -lM_min 13.2 -lM_max 13.4 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.6 -ncores $SLURM_CPUS_PER_TASK

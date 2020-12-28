@@ -15,7 +15,7 @@ Msun = M_sun.value # Solar mass (kg)
 
 def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     
-    folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv'+str(mv)+'.0/profiles/'
+    folder = '../../MICEv'+str(mv1)+'.0/profiles/'
 
 
     p_name = 'profile_'+samp1+'.fits'
@@ -152,7 +152,7 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax3.legend()
 
 
-    folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv'+str(mv2)+'.0/profiles/'
+    folder = '../../MICEv'+str(mv2)+'.0/profiles/'
 
 
     p_name = 'profile_'+samp2+'.fits'
@@ -628,21 +628,25 @@ def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     ax3.set_xticklabels([0.1,1,3])
     ax3.legend()
 
-folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv'+str(mv)+'.0/profiles/'
+folder = '../../MICEv2.0/profiles/'
 
 f, ax = plt.subplots()
 f1, ax1 = plt.subplots()
 f2, ax2 = plt.subplots()
 f3, ax3 = plt.subplots()
 
+RIN = 0
+ROUT = 5000
 
 # plt_profile_micec(samp,ax,ax1,ax2,ax3,RIN,ROUT)
-plt_profile_compare('140_144_zlow','140_144_zhigh',ax,ax1,ax2,ax3,RIN,ROUT,2,2)
+plt_profile_compare('140','140',ax,ax1,ax2,ax3,RIN,ROUT,1,2)
 
-f.savefig(folder+'comparison/'+'DSigma_'+samp+'_'+str(RIN)+'_'+str(ROUT)+'.png')
-f1.savefig(folder+'comparison/'+'GT_'+samp+'_'+str(RIN)+'_'+str(ROUT)+'.png')
-f2.savefig(folder+'comparison/'+'GX_'+samp+'_'+str(RIN)+'_'+str(ROUT)+'.png')
-f3.savefig(folder+'comparison/'+'control'+samp+'.png')
+samp = '140'
+
+f.savefig(folder+'comparison-MICE/'+'DSigma_'+samp+'_'+str(RIN)+'_'+str(ROUT)+'.png')
+f1.savefig(folder+'comparison-MICE/'+'GT_'+samp+'_'+str(RIN)+'_'+str(ROUT)+'.png')
+f2.savefig(folder+'comparison-MICE/'+'GX_'+samp+'_'+str(RIN)+'_'+str(ROUT)+'.png')
+f3.savefig(folder+'comparison-MICE/'+'control'+samp+'.png')
 
 
 

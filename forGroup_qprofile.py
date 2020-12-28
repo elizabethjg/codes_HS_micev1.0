@@ -26,6 +26,9 @@ Msun = M_sun.value # Solar mass (kg)
 parser = argparse.ArgumentParser()
 parser.add_argument('-sample', action='store', dest='sample',default='pru')
 parser.add_argument('-vmice', action='store', dest='vmice',default='2')
+parser.add_argument('-Rprox', action='store', dest='rprox',default='Rprox_lM14cut')
+parser.add_argument('-Rmin', action='store', dest='rmin',default=0.)
+parser.add_argument('-Rmax', action='store', dest='rmax',default=1000.)
 parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
 parser.add_argument('-lM_max', action='store', dest='lM_max', default=15.5)
 parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
@@ -40,6 +43,9 @@ parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
 args = parser.parse_args()
 
 sample     = args.sample
+rprox      = args.rprox
+rmin       = float(args.lM_min)
+rmax       = float(args.lM_max) 
 lM_min     = float(args.lM_min)
 lM_max     = float(args.lM_max) 
 z_min      = float(args.z_min) 
@@ -65,7 +71,7 @@ RIN = 400.
 ROUT = 5000.
 ndots= 40
 ncores = 40
-hcosmo = 0.7 
+hcosmo = 1.0 
 vmice = 2
 '''
 
@@ -209,7 +215,9 @@ def cov_matrix(array):
         
         
 
-def main(sample='pru',lM_min=14.,lM_max=14.2,
+def main(sample='pru', rprox = 'Rprox_lM14cut', 
+                rmin = 0., rmax = 1000.,
+                lM_min=14.,lM_max=14.2,
                 z_min = 0.1, z_max = 0.4,
                 q_min = 0., q_max = 1.0,
                 RIN = 400., ROUT =5000.,
@@ -220,6 +228,9 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         INPUT
         ---------------------------------------------------------
         sample         (str) sample name
+        rprox          (str) radius to the neighbour criteria
+        rmin           (float) lower limit for rprox - >=
+        rmax           (float) higher limit for rprox - <
         lM_min         (float) lower limit for log(Mass) - >=
         lM_max         (float) higher limit for log(Mass) - <
         z_min          (float) lower limit for z - >=
@@ -254,11 +265,12 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
         L = fits.open(folder+'MICE_halo_cat_withshapes.fits')[1].data
         
+        mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
         mregion = (L.ra < 80.)*(L.dec > 36.5)        
         mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
         mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-        mlenses = mmass*mz*mregion*mq
+        mlenses = mmass*mz*mregion*mq*mrcut
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:
@@ -445,6 +457,8 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
         h.append(('MICE version',vmice))
+        h.append((rprox+'_min',np.round(rmin,1)))
+        h.append((rprox+'_max',np.round(rmax,1)))
         h.append(('lM_min',np.round(lM_min,2)))
         h.append(('lM_max',np.round(lM_max,2)))
         h.append(('z_min',np.round(z_min,2)))
@@ -479,4 +493,4 @@ def main(sample='pru',lM_min=14.,lM_max=14.2,
         
 
 
-main(sample,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,hcosmo)
+main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,hcosmo)

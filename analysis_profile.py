@@ -296,7 +296,7 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
 
 def plt_profile_wofit(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     
-    folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv'+str(mv)+'.0/profiles/'
+    folder = '../../MICEv'+str(mv)+'.0/profiles/'
 
 
     p_name = 'profile_'+samp+'.fits'

@@ -19,13 +19,15 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-##srun python -u forGroup_qprofile.py -sample 'bin_130' -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin_130_dens' -rmax 30. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'bin_130_iso' -rmin 30. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
+
 ##srun python -u forGroup_qprofile.py -sample 'bin_132' -lM_min 13.2 -lM_max 13.4 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.6 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample 'bin_136' -lM_min 13.6 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample 'bin_138' -lM_min 13.8 -lM_max 14.0 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample 'bin_140' -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample 'bin_142' -lM_min 14.2 -lM_max 14.4 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'bin_144' -lM_min 14.4 -lM_max 15.0 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'bin_144' -lM_min 14.4 -lM_max 15.0 -ncores $SLURM_CPUS_PER_TASK
 
 

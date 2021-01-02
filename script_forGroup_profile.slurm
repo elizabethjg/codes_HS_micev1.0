@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name='all'
+#SBATCH --job-name='dens2'
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
-#SBATCH --time=3-00:00
+#SBATCH --time=2-00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
 #SBATCH --mail-type=FAIL,END
@@ -19,14 +19,14 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample 'ebin_130' -rmin 0. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'ebin_132' -rmin 0. -lM_min 13.2 -lM_max 13.4 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'ebin_134' -rmin 0. -lM_min 13.4 -lM_max 13.6 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'ebin_136' -rmin 0. -lM_min 13.6 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'ebin_138' -rmin 0. -lM_min 13.8 -lM_max 14.0 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'ebin_140' -rmin 0. -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'ebin_142' -rmin 0. -lM_min 14.2 -lM_max 14.4 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'ebin_144' -rmin 0. -lM_min 14.4 -lM_max 16.0 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'ebin_130' -rmin 0. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'ebin_132' -rmin 0. -lM_min 13.2 -lM_max 13.4 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'ebin_134' -rmin 0. -lM_min 13.4 -lM_max 13.6 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_136_dens' -rmax 30. -lM_min 13.6 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_138_dens' -rmax 30. -lM_min 13.8 -lM_max 14.0 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_140_dens' -rmax 30. -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_142_dens' -rmax 30. -lM_min 14.2 -lM_max 14.4 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample 'ebin_144_dens' -rmax 30. -lM_min 14.4 -lM_max 16.0 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_qprofile.py -sample 'bin_130_iso' -rmin 30. -lM_min 13.0 -lM_max 13.2 -ncores $SLURM_CPUS_PER_TASK
 

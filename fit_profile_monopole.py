@@ -135,15 +135,18 @@ backend = emcee.backends.HDFBackend(backup)
 if not cont:
     backend.reset(nwalkers, ndim)
     
+pool = Pool(processes=(ncores))
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
-                                args=(p.Rp,CovDS,iCov),backend=backend)
-				
+                                args=(p.Rp,CovDS,iCov),backend=backend,pool = pool)
+
 
 if cont:                                
     sampler.run_mcmc(None, nit, progress=True)
 else:
     sampler.run_mcmc(pos, nit, progress=True)
-    
+
+
+pool.terminate()    
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
 #-------------------

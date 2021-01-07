@@ -87,8 +87,6 @@ cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 def log_likelihood(data_model, R, ds, iCds):
     lM200,s_off = data_model
 
-    e = (1.-q)/(1.+q)
-
     DS      = Delta_Sigma_NFW_miss(R,zmean,10**lM200,s_off=s_off,cosmo=cosmo)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0

@@ -504,7 +504,7 @@ def plt_profile_wofit_onlystandard(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
 
     # FIT MONOPOLE
-    rplot = np.arange(0.1,10,0.05)
+    rplot = np.arange(0.1,10,0.1)
     
     nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)

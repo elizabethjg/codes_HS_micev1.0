@@ -21,12 +21,12 @@ import os
 '''
 folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv2.0/profiles/'
 cont = False
-file_name = 'profile_bin_140.fits'
+file_name = 'profile_ebin_140.fits'
 angle = 'standard'
-ncores = 3
+ncores = 30
 nit = 250
 RIN = 0.
-ROUT =5000.
+ROUT =2500.
 # '''
 
 parser = argparse.ArgumentParser()
@@ -87,7 +87,7 @@ cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 def log_likelihood(data_model, R, ds, iCds):
     lM200,s_off = data_model
 
-    DS      = Delta_Sigma_NFW_miss(R,zmean,10**lM200,s_off=s_off,cosmo=cosmo)
+    DS      = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200,s_off=s_off,cosmo=cosmo,ncores=ncores)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
 
@@ -135,18 +135,18 @@ backend = emcee.backends.HDFBackend(backup)
 if not cont:
     backend.reset(nwalkers, ndim)
     
-pool = Pool(processes=(ncores))
+# pool = Pool(processes=(ncores))
+    
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
-                                args=(p.Rp,DSt,iCov),backend=backend,pool = pool)
-
-
+                                args=(p.Rp,DSt,iCov),backend=backend)
+                                # pool = pool, threads=ncores)
 if cont:                                
     sampler.run_mcmc(None, nit, progress=True)
 else:
     sampler.run_mcmc(pos, nit, progress=True)
 
 
-pool.terminate()    
+# pool.terminate()    
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
 #-------------------

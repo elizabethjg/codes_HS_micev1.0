@@ -137,7 +137,7 @@ if not cont:
     
 pool = Pool(processes=(ncores))
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
-                                args=(p.Rp,CovDS,iCov),backend=backend,pool = pool)
+                                args=(p.Rp,DSt,iCov),backend=backend,pool = pool)
 
 
 if cont:                                

@@ -57,7 +57,7 @@ ROUT      = float(args.ROUT)
 
 
 
-outfile     = 'fitresults_all_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
+outfile     = 'fitresults_mono_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 plot_folder = folder+'plots_mcmc/'
 

@@ -158,7 +158,7 @@ print((time.time()-t1)/60.)
 mcmc_out = sampler.get_chain(flat=True).T
 
 table = [fits.Column(name='logM200', format='E', array=mcmc_out[0]),
-            fits.Column(name='s_off', format='E', array=mcmc_out[1],
+            fits.Column(name='s_off', format='E', array=mcmc_out[1]),
             fits.Column(name='c200', format='E', array=mcmc_out[2])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))

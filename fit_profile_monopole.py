@@ -34,8 +34,8 @@ parser.add_argument('-folder', action='store', dest='folder', default='/mnt/clem
 parser.add_argument('-file', action='store', dest='file_name', default='profile.cat')
 parser.add_argument('-ncores', action='store', dest='ncores', default=40)
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)
-parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000)
-parser.add_argument('-nit', action='store', dest='nit', default=250)
+parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
+parser.add_argument('-nit', action='store', dest='nit', default=400)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
 args = parser.parse_args()
 
@@ -85,9 +85,11 @@ cguess  = h['c200']
 cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 
 def log_likelihood(data_model, R, ds, iCds):
-    lM200,s_off = data_model
+    lM200,s_off,c200 = data_model
 
-    DS      = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200,s_off=s_off,cosmo=cosmo,ncores=ncores)
+    DS      = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200,
+                                            s_off=s_off,c200=c200,
+                                            cosmo=cosmo,ncores=ncores)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
 
@@ -96,9 +98,9 @@ def log_likelihood(data_model, R, ds, iCds):
 
 def log_probability(data_model, r, profiles, iCOV):
     
-    lM200,s_off = data_model
+    lM200,s_off,c200 = data_model
     
-    if 0.0 < s_off < 0.5 and 12.5 < lM200 < 16.0:
+    if 0.0 < s_off < 0.5 and 12.5 < lM200 < 16.0 and 2. < c200 < 7.:
         return log_likelihood(data_model, r, profiles, iCOV)
         
     return -np.inf
@@ -106,7 +108,8 @@ def log_probability(data_model, r, profiles, iCOV):
 # initializing
 
 pos = np.array([np.random.uniform(12.5,15.5,15),
-                np.random.uniform(0.,0.2,15)]).T
+                np.random.uniform(0.,0.2,15),
+                np.random.uniform(2.5,5.5,15)]).T
 
 qdist = pos[:,1]                
 pos[qdist > 1.,1] = 1.
@@ -155,12 +158,14 @@ print((time.time()-t1)/60.)
 mcmc_out = sampler.get_chain(flat=True).T
 
 table = [fits.Column(name='logM200', format='E', array=mcmc_out[0]),
-            fits.Column(name='s_off', format='E', array=mcmc_out[1])]
+            fits.Column(name='s_off', format='E', array=mcmc_out[1],
+            fits.Column(name='c200', format='E', array=mcmc_out[2])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
 lMout  = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
 s_off  = np.percentile(mcmc_out[1][1500:], [16, 50, 84])
+c200   = np.percentile(mcmc_out[2][1500:], [16, 50, 84])
 
 h = fits.Header()
 h.append(('lM200',np.round(lMout[1],4)))
@@ -171,11 +176,19 @@ h.append(('soff',np.round(s_off[1],4)))
 h.append(('esoffM',np.round(np.diff(s_off)[0],4)))
 h.append(('esoffm',np.round(np.diff(s_off)[1],4)))
 
+h.append(('c200',np.round(c200[1],4)))
+h.append(('ec200M',np.round(np.diff(c200)[0],4)))
+h.append(('ec200m',np.round(np.diff(c200)[1],4)))
+
 primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
 hdul.writeto(folder+outfile,overwrite=True)
+
+print('SAVED FILE')
+
+'''
 
 fig = corner.corner(mcmc_out.T, labels=['lM200','s_off'])
 plt.savefig(plot_folder+'corner_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
@@ -197,3 +210,4 @@ ax[1].axhline(qout[1] + np.diff(qout)[0],ls='--')
 
 f.subplots_adjust(hspace=0,wspace=0)
 plt.savefig(plot_folder+'walk_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
+'''

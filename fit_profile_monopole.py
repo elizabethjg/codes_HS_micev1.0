@@ -14,7 +14,6 @@ from astropy.constants import G,c,M_sun,pc
 import emcee
 from models_profiles import *
 from astropy.cosmology import LambdaCDM
-import corner
 import os
 
 

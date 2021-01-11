@@ -37,6 +37,7 @@ parser.add_argument('-RIN', action='store', dest='RIN', default=0)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
 parser.add_argument('-nit', action='store', dest='nit', default=400)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
+parser.add_argument('-Proff', action='store', dest='Proff', default='Gamma')
 args = parser.parse_args()
 
 
@@ -48,6 +49,12 @@ if 'True' in args.cont:
 elif 'False' in args.cont:
 	cont      = False
 
+if 'Gamma' in args.Proff:
+	Proff = Gamma
+elif 'Rayleigh' in args.Proff:
+	Proff = Rayleigh
+
+
 	
 nit       = int(args.nit)
 ncores    = args.ncores
@@ -57,7 +64,7 @@ ROUT      = float(args.ROUT)
 
 
 
-outfile     = 'fitresults_mono_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
+outfile     = 'fitresults_mono_'+args.Proff+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 plot_folder = folder+'plots_mcmc/'
 
@@ -72,6 +79,7 @@ print('ROUT ',ROUT)
 print('nit', nit)
 print('continue',cont)
 print('outfile',outfile)
+print('P_Roff',args.Proff)
 
 
 profile = fits.open(folder+file_name)
@@ -88,7 +96,7 @@ def log_likelihood(data_model, R, ds, iCds):
     lM200,s_off,c200 = data_model
 
     DS      = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200,
-                                            s_off=s_off,c200=c200,
+                                            s_off=s_off,c200=c200,P_Roff = Proff,
                                             cosmo=cosmo,ncores=ncores)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0

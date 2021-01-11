@@ -14,7 +14,7 @@ export OMP_NUM_THREADS=10
 module load softwares/anaconda3/5.0-intel-2018.0
 source activate py3env
 
-srun -u python fit_profile_monopole.py -folder '~/MICE_v1.0/profiles/' -file 'profile_ebin_140.fits' -ROUT 2500. -ncores 10 -Proff Rayleigh
+srun -u python fit_profile_monopole.py -folder '/home/elizabeth/MICEv1.0/profiles/' -file 'profile_ebin_140.fits' -ROUT 2500. -ncores 10 -Proff Rayleigh
 
 ##srun -u python fit_profile_monopole_misscentred_pcc.py -folder '/home/elizabeth/profiles_indcat/' \
 ##-file 'profile_'$SLURM_JOB_NAME'.fits' -ncores 15                                    

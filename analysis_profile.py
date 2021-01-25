@@ -511,12 +511,12 @@ def plt_profile_wofit_onlystandard(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     
     mass = str(np.round(np.log10(nfw.M200),1))
-    
+    con = str(np.round(nfw.c200,1))
     
         
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
-    ax.plot(nfw.xplot,nfw.yplot,'C3',label='fited nfw',alpha=0.5)
+    ax.plot(nfw.xplot,nfw.yplot,'C3',label='lM200 = '+mass+',c200 = '+con,alpha=0.5)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma$')
@@ -532,7 +532,7 @@ def plt_profile_wofit_onlystandard(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
     # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
     
-    ax1.plot(p.Rp,GT,'C4',label = 'standard')
+    ax1.plot(p.Rp,GT,'C4')
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
     ax1.plot(rplot,gt,'C3',alpha=0.5)
     ax1.set_xscale('log')

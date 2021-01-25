@@ -33,7 +33,7 @@ parser.add_argument('-sample', action='store', dest='sample',default='pru')
 parser.add_argument('-vmice', action='store', dest='vmice',default='2')
 parser.add_argument('-rprox', action='store', dest='rprox',default='Rprox_lM14cut')
 parser.add_argument('-rmin', action='store', dest='rmin',default=0.)
-parser.add_argument('-rmax', action='store', dest='rmax',default=1000.)
+parser.add_argument('-rmax', action='store', dest='rmax',default=5000.)
 parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.4)
 parser.add_argument('-lM_max', action='store', dest='lM_max', default=14.6)
 parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
@@ -243,7 +243,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         print(rmin,' <= '+rprox+' < ',rmax)
         print(z_min,' <= z < ',z_max)
         print(q_min,' <= q < ',q_max)
-        print('Profile has ',ndots,'bins')
+        print('Map pixel size ',ndots,'bins')
         print('max',ROUT,'kpc')
         print('h ',hcosmo)
         print('MICE version ',vmice)
@@ -251,6 +251,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         # Defining 2D bins
         
         lsize = int(np.sqrt(ndots))
+        
+        ndots = int(lsize**2)
         
         Rmpc = 1.e-3*ROUT
         

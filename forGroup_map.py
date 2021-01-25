@@ -41,7 +41,7 @@ parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
 parser.add_argument('-q_min', action='store', dest='q_min', default=0.)
 parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000.)
-parser.add_argument('-nbins', action='store', dest='nbins', default=5000)
+parser.add_argument('-nbins', action='store', dest='nbins', default=6000)
 parser.add_argument('-ncores', action='store', dest='ncores', default=32)
 parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
 args = parser.parse_args()
@@ -475,7 +475,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         hdul = fits.HDUList([primary_hdu, tbhdu_pro, tbhdu_cov])
         
-        hdul.writeto(folder+'profile_'+sample+'.fits',overwrite=True)
+        hdul.writeto(folder+'mapa_'+sample+'.fits',overwrite=True)
                 
         tfin = time.time()
         

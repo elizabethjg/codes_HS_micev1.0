@@ -339,7 +339,6 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 
                 num = len(Lsplit[l])
                 
-                rin  = RIN*np.ones(num)
                 rout = ROUT*np.ones(num)
                 nd   = (ndots*np.ones(num)).astype(int)
                 h_array   = hcosmo*np.ones(num)

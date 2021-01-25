@@ -244,7 +244,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         print(z_min,' <= z < ',z_max)
         print(q_min,' <= q < ',q_max)
         print('Profile has ',ndots,'bins')
-        print('from ',RIN,'kpc to ',ROUT,'kpc')
+        print('max',ROUT,'kpc')
         print('h ',hcosmo)
         print('MICE version ',vmice)
               

@@ -4,6 +4,7 @@ from astropy.io import fits
 from astropy.cosmology import LambdaCDM
 sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
+sys.path.append('/mnt/clemente/lensing/lens_codes_v3.7')
 from profiles_fit import *
 from fit_profiles_curvefit import *
 from multipoles_shear import *
@@ -15,11 +16,11 @@ Msun = M_sun.value # Solar mass (kg)
 
 
     
-folder = '/home/elizabeth/MICEv2.0/'
+folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v2.0/catalogs/'
 
 
-p_name = 'profiles/profile_ebin_142.fits'
-m_name = 'mapas/mapa_bin_142.fits'
+p_name = 'profile_ebin_142.fits'
+m_name = 'mapa_bin_142.fits'
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
@@ -55,7 +56,7 @@ r = np.sqrt(x**2 + y**2)
 out = multipole_shear_parallel(r,M200=nfw.M200,ellip=0.25,z=0.2,
 							 h=h['hcosmo'],misscentred=True,
 							 s_off=0.2,components = ['t0','t','tcos','xsin'],
-							 verbose = False, Yanmiss = False, ncores=40)
+							 verbose = True, Yanmiss = False, ncores=35)
 
 table = [fits.Column(name='xmpc', format='E', array=x),
             fits.Column(name='ympc', format='E', array=y),
@@ -76,4 +77,4 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'mapas/mapa_bin_142_missx.fits',overwrite=True)
+hdul.writeto(folder+'mapa_bin_142_missx.fits',overwrite=True)

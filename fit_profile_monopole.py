@@ -36,7 +36,7 @@ parser.add_argument('-RIN', action='store', dest='RIN', default=0)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
 parser.add_argument('-nit', action='store', dest='nit', default=400)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
-parser.add_argument('-Proff', action='store', dest='Proff', default='Gamma')
+parser.add_argument('-Proff', action='store', dest='Proff', default='Rayleigh')
 args = parser.parse_args()
 
 

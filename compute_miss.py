@@ -23,7 +23,7 @@ m_name = 'mapas/mapa_bin_144.fits'
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
-fitmiss = fits.open(folder+'profiles/fitresults_mono_Rayleigh_0_2500_profile_ebin_140.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_mono_Rayleigh_0_2500_profile_ebin_142.fits')[0].header
 
 print(p_name)
 

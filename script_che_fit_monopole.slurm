@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=miss
+#SBATCH --job-name=miss2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
 #SBATCH --time=3-00:00
@@ -14,9 +14,9 @@ export OMP_NUM_THREADS=40
 module load softwares/anaconda3/5.0-intel-2018.0
 source activate py3env
 
-srun -u python fit_profile_monopole.py -folder '/home/elizabeth/MICEv2.0/profiles/' -file 'profile_ebin_142.fits' -ROUT 2500. -ncores 10 
-srun -u python compute_miss.py
-
+##srun -u python fit_profile_monopole.py -folder '/home/elizabeth/MICEv2.0/profiles/' -file 'profile_ebin_142.fits' -ROUT 2500. -ncores 10 
+##srun -u python compute_miss.py
+srun -u python compute_miss2.py
 
 ##srun -u python fit_profile_monopole_misscentred_pcc.py -folder '/home/elizabeth/profiles_indcat/' \
 ##-file 'profile_'$SLURM_JOB_NAME'.fits' -ncores 15                                    

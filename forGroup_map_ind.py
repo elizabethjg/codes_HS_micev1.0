@@ -41,7 +41,7 @@ parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
 parser.add_argument('-q_min', action='store', dest='q_min', default=0.)
 parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=5000.)
-parser.add_argument('-nbins', action='store', dest='nbins', default=6000)
+parser.add_argument('-nbins', action='store', dest='nbins', default=5000)
 parser.add_argument('-ncores', action='store', dest='ncores', default=32)
 parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
 args = parser.parse_args()
@@ -275,208 +275,116 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
             mrcut   = np.ones(len(L.ra)).astype(bool)
             
         mregion = (L.ra < 80.)*(L.dec < 50.)#*(L.dec > 36.5)        
-        mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
         mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-        mlenses = mmass*mz*mregion*mq*mrcut
-        Nlenses = mlenses.sum()
-
-        if Nlenses < ncores:
-                ncores = Nlenses
-        
-        print('Nlenses',Nlenses)
-        print('CORRIENDO EN ',ncores,' CORES')
+        mlenses = mz*mregion*mq*mrcut
         
         L = L[mlenses]
+        lmo = np.argsort(L.lgm)[-200:]
         
-        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T
-        # Define K masks
+        L = L[lmo]
         
-        ra = L.ra
-        dec = L.dec
-        
-        ramin  = np.min(ra)
-        decmin = np.min(dec)
-        dra  = ((np.max(ra)+1)  - ramin)/10.
-        ddec = ((np.max(dec)+1) - decmin)/10.
-        
-        kmask = np.zeros((101,len(ra)))
-        kmask[0] = np.ones(len(ra)).astype(bool)
-        c    = 1
-        
-        for a in range(10): 
-                for d in range(10): 
-                        mra  = (ra  >= ramin + a*dra)*(ra < ramin + (a+1)*dra) 
-                        mdec = (dec >= decmin + d*ddec)*(dec < decmin + (d+1)*ddec) 
-        
-                        kmask[c] = ~(mra*mdec)
-                        c += 1
-
-        
-        # SPLIT LENSING CAT
-        
-        lbins = int(round(Nlenses/float(ncores), 0))
-        slices = ((np.arange(lbins)+1)*ncores).astype(int)
-        slices = slices[(slices < Nlenses)]
-        Lsplit = np.split(L,slices)
-        Tsplit = np.split(theta,slices)        
-        Ksplit = np.split(kmask.T,slices)
-        
-        # WHERE THE SUMS ARE GOING TO BE SAVED
-                      
-        GTsum = np.zeros((101,ndots,3))
-        GXsum = np.zeros((101,ndots,3))
-        Ksum  = np.zeros((101,ndots,3))
-                                   
-        Ninbin = np.zeros((101,ndots,3))
-        
-        tslice       = np.array([])
-        Ntot         = np.array([])
-        
-        for l in range(len(Lsplit)):
+        for j in range(200):
                 
-                print('RUN ',l+1,' OF ',len(Lsplit))
+                idhalo = L.unique_halo_id_raw[j]       
+                Nlenses = 1
+        
+                if Nlenses < ncores:
+                        ncores = Nlenses
                 
-                t1 = time.time()
+                print('Nlenses',Nlenses)
+                print('CORRIENDO EN ',ncores,' CORES')
+                print('LENS ',j)
                 
-                num = len(Lsplit[l])
                 
-                rout = ROUT*np.ones(num)
-                nd   = (ndots*np.ones(num)).astype(int)
-                h_array   = hcosmo*np.ones(num)
+                theta  = np.array([0.,np.arctan(L.a2dy[j]/L.a2dx[j]),np.arctan(L.a2dry[j]/L.a2drx[j])]).T
+        
                 
-                if num == 1:
-                        entrada = [Lsplit[l].ra[0], Lsplit[l].dec[0],
-                                   Lsplit[l].z_v[0],Tsplit[l][0],
-                                   ROUT,ndots,hcosmo]
-                        
-                        salida = [partial_map_unpack(entrada)]
-                else:          
-                        entrada = np.array([Lsplit[l].ra,Lsplit[l].dec,
-                                        Lsplit[l].z_v,Tsplit[l].tolist(),
-                                        rout,nd,h_array]).T
-                        
-                        pool = Pool(processes=(num))
-                        salida = np.array(pool.map(partial_map_unpack, entrada))
-                        pool.terminate()
+                entrada = [L.ra[j],L.dec[j],L.z_v[j],theta,ROUT,ndots,hcosmo]
+                                               
+                
+                profilesums = partial_map_unpack(entrada)
+                                        
+                GTsum = profilesums['GTsum']
+                GXsum = profilesums['GXsum']
+                Ksum  = profilesums['Ksum']
+                
+                Ninbin = profilesums['Ninbin']
                                 
-                for j in range(len(salida)):
+                                
+                # COMPUTING PROFILE        
                         
-                        profilesums = salida[j]
-                        km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
-                                                
-                        GTsum += np.tile(profilesums['GTsum'],(101,1,1))*km
-                        GXsum += np.tile(profilesums['GXsum'],(101,1,1))*km
-                        Ksum  += np.tile(profilesums['Ksum'],(101,1,1))*km
-                        
-                        Ninbin += np.tile(profilesums['Ninbin'],(101,1,1))*km
-                        Ntot         = np.append(Ntot,profilesums['Ntot'])
+                GT  = (GTsum/Ninbin)
+                GX  = (GXsum/Ninbin)
+                K   = (Ksum/Ninbin)
                         
                 
-                t2 = time.time()
-                ts = (t2-t1)/60.
-                tslice = np.append(tslice,ts)
-                print('TIME SLICE')
-                print(ts)
-                print('Estimated ramaining time')
-                print(np.mean(tslice)*(len(Lsplit)-(l+1)))
-        
-        # COMPUTING PROFILE        
                 
-        GT  = (GTsum/Ninbin)
-        GX  = (GXsum/Ninbin)
-        K   = (Ksum/Ninbin)
+                # AVERAGE LENS PARAMETERS
                 
-        # COMPUTE COVARIANCE
-        
-        COV_Gtc = cov_matrix(GT[1:,:,0])
-        COV_Gt  = cov_matrix(GT[1:,:,1])
-        COV_Gtr = cov_matrix(GT[1:,:,2])
-        
-        COV_Gxc = cov_matrix(GX[1:,:,0])
-        COV_Gx  = cov_matrix(GX[1:,:,1])
-        COV_Gxr = cov_matrix(GX[1:,:,2])
+                zmean        = L.z_v[j]
+                lM_mean      = L.lgm[j]
+                
+                q2d_mean     = L.q2d[j]
+                q2dr_mean    = L.q2dr[j]
+                q3d_mean     = L.q3d[j]
+                q3dr_mean    = L.q3dr[j]
+                s3d_mean     = L.s3d[j]
+                s3dr_mean    = L.s3dr[j]
+                
+                if vmice == 2:
+                        lM_v2_mean = L.lmhalo[j]
+                else:
+                        lM_v2_mean = lM_mean
+                
+                
+                
+                # WRITING OUTPUT FITS FILE
+                
+                table_pro = [fits.Column(name='xmpc', format='E', array=xbin),
+                        fits.Column(name='ympc', format='E', array=ybin),
+                        fits.Column(name='GT_control', format='E', array=GT[:,0]),
+                        fits.Column(name='GT', format='E', array=GT[:,1]),
+                        fits.Column(name='GT_reduced', format='E', array=GT[:,2]),
+                        fits.Column(name='GX_control', format='E', array=GX[:,0]),
+                        fits.Column(name='GX', format='E', array=GX[:,1]),
+                        fits.Column(name='GX_reduced', format='E', array=GX[:,2]),
+                        fits.Column(name='K_control', format='E', array=K[:,0]),
+                        fits.Column(name='K', format='E', array=K[:,1]),
+                        fits.Column(name='K_reduced', format='E', array=K[:,2])]
+                        
+                                        
+                tbhdu_pro = fits.BinTableHDU.from_columns(fits.ColDefs(table_pro))
 
-        COV_Kc = cov_matrix(GX[1:,:,0])
-        COV_K  = cov_matrix(GX[1:,:,1])
-        COV_Kr = cov_matrix(GX[1:,:,2])
-        
-        
-        # AVERAGE LENS PARAMETERS
-        
-        zmean        = np.average(L.z_v,weights=Ntot)
-        lM_mean      = np.average(L.lgm,weights=Ntot)
-        
-        q2d_mean     = np.average(L.q2d,weights=Ntot)
-        q2dr_mean    = np.average(L.q2dr,weights=Ntot)
-        q3d_mean     = np.average(L.q3d,weights=Ntot)
-        q3dr_mean    = np.average(L.q3dr,weights=Ntot)
-        s3d_mean     = np.average(L.s3d,weights=Ntot)
-        s3dr_mean    = np.average(L.s3dr,weights=Ntot)
-        
-        if vmice == 2:
-            lM_v2_mean = np.average(L.lmhalo,weights=Ntot)
-        else:
-            lM_v2_mean = lM_mean
-            
-        
-        
-        # WRITING OUTPUT FITS FILE
-        
-        table_pro = [fits.Column(name='xmpc', format='E', array=xbin),
-                fits.Column(name='ympc', format='E', array=ybin),
-                fits.Column(name='GT_control', format='E', array=GT[0,:,0]),
-                fits.Column(name='GT', format='E', array=GT[0,:,1]),
-                fits.Column(name='GT_reduced', format='E', array=GT[0,:,2]),
-                fits.Column(name='GX_control', format='E', array=GX[0,:,0]),
-                fits.Column(name='GX', format='E', array=GX[0,:,1]),
-                fits.Column(name='GX_reduced', format='E', array=GX[0,:,2]),
-                fits.Column(name='K_control', format='E', array=K[0,:,0]),
-                fits.Column(name='K', format='E', array=K[0,:,1]),
-                fits.Column(name='K_reduced', format='E', array=K[0,:,2])]
                 
-                     
-        table_cov = [fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
-                    fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
-                    fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),
-                    fits.Column(name='COV_GX_control', format='E', array=COV_Gxc.flatten()),
-                    fits.Column(name='COV_GX', format='E', array=COV_Gx.flatten()),
-                    fits.Column(name='COV_GX_reduced', format='E', array=COV_Gxr.flatten()),
-                    fits.Column(name='COV_K_control', format='E', array=COV_Kc.flatten()),
-                    fits.Column(name='COV_K', format='E', array=COV_K.flatten()),
-                    fits.Column(name='COV_K_reduced', format='E', array=COV_Kr.flatten())]
-        
-        tbhdu_pro = fits.BinTableHDU.from_columns(fits.ColDefs(table_pro))
-        tbhdu_cov = fits.BinTableHDU.from_columns(fits.ColDefs(table_cov))
-        
-        h = fits.Header()
-        h.append(('N_LENSES',np.int(Nlenses)))
-        h.append(('MICE version',vmice))
-        h.append(('ndots',ndots))
-        h.append((rprox+'_min',np.round(rmin,1)))
-        h.append((rprox+'_max',np.round(rmax,1)))
-        h.append(('lM_min',np.round(lM_min,2)))
-        h.append(('lM_max',np.round(lM_max,2)))
-        h.append(('z_min',np.round(z_min,2)))
-        h.append(('z_max',np.round(z_max,2)))
-        h.append(('q_min',np.round(q_min,2)))
-        h.append(('q_max',np.round(q_max,2)))
-        h.append(('hcosmo',np.round(hcosmo,4)))
-        h.append(('lM_mean',np.round(lM_mean,4)))
-        h.append(('lM_v2_mean',np.round(lM_v2_mean,4)))
-        h.append(('z_mean',np.round(zmean,4)))
-        h.append(('q2d_mean',np.round(q2d_mean,4)))
-        h.append(('q2dr_mean',np.round(q2dr_mean,4)))
-        h.append(('q3d_mean',np.round(q3d_mean,4)))
-        h.append(('q3dr_mean',np.round(q3dr_mean,4)))
-        h.append(('s3d_mean',np.round(s3d_mean,4)))        
-        h.append(('s3dr_mean',np.round(s3dr_mean,4))) 
-        
-        primary_hdu = fits.PrimaryHDU(header=h)
-        
-        hdul = fits.HDUList([primary_hdu, tbhdu_pro, tbhdu_cov])
-        
-        hdul.writeto(folder+'mapa_'+sample+'.fits',overwrite=True)
+                h = fits.Header()
+                h.append(('LENS',np.int(idhalo)))
+                h.append(('MICE version',vmice))
+                h.append(('ndots',ndots))
+                h.append((rprox+'_min',np.round(rmin,1)))
+                h.append((rprox+'_max',np.round(rmax,1)))
+                h.append(('lM_min',np.round(lM_min,2)))
+                h.append(('lM_max',np.round(lM_max,2)))
+                h.append(('z_min',np.round(z_min,2)))
+                h.append(('z_max',np.round(z_max,2)))
+                h.append(('q_min',np.round(q_min,2)))
+                h.append(('q_max',np.round(q_max,2)))
+                h.append(('hcosmo',np.round(hcosmo,4)))
+                h.append(('lM_mean',np.round(lM_mean,4)))
+                h.append(('lM_v2_mean',np.round(lM_v2_mean,4)))
+                h.append(('z_mean',np.round(zmean,4)))
+                h.append(('q2d_mean',np.round(q2d_mean,4)))
+                h.append(('q2dr_mean',np.round(q2dr_mean,4)))
+                h.append(('q3d_mean',np.round(q3d_mean,4)))
+                h.append(('q3dr_mean',np.round(q3dr_mean,4)))
+                h.append(('s3d_mean',np.round(s3d_mean,4)))        
+                h.append(('s3dr_mean',np.round(s3dr_mean,4))) 
+                
+                primary_hdu = fits.PrimaryHDU(header=h)
+                
+                hdul = fits.HDUList([primary_hdu, tbhdu_pro])
+                
+                hdul.writeto(folder+'mapa_ind_'+str(j)+'.fits',overwrite=True)
                 
         tfin = time.time()
         

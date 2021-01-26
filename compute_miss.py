@@ -53,8 +53,8 @@ theta  = np.arctan2(y,x)
 r = np.sqrt(x**2 + y**2)
 
 
-DS = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=30)
-gt,gx = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=30)
+DS = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=40)
+gt,gx = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=40)
 
 table = [fits.Column(name='xmpc', format='E', array=x),
             fits.Column(name='ympc', format='E', array=y),

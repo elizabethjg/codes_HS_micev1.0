@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=miss
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=40
 #SBATCH --time=3-00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
@@ -9,7 +9,7 @@
 #SBATCH --mail-user=ejgonzalez@unc.edu.ar
 
 
-export OMP_NUM_THREADS=20
+export OMP_NUM_THREADS=40
 
 module load softwares/anaconda3/5.0-intel-2018.0
 source activate py3env

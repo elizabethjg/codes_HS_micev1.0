@@ -56,7 +56,7 @@ r = np.sqrt(x**2 + y**2)
 out = multipole_shear_parallel(r,M200=nfw.M200,ellip=0.25,z=0.2,
 							 h=h['hcosmo'],misscentred=True,
 							 s_off=0.2,components = ['t0','t','tcos','xsin'],
-							 verbose = True, Yanmiss = False, ncores=35)
+							 verbose = True, Yanmiss = False, ncores=48)
 
 table = [fits.Column(name='xmpc', format='E', array=x),
             fits.Column(name='ympc', format='E', array=y),

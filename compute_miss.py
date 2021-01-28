@@ -4,8 +4,9 @@ from astropy.io import fits
 from astropy.cosmology import LambdaCDM
 sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
+sys.path.append('/mnt/clemente/lensing/lens_codes_v3.7')
 from profiles_fit import *
-from fit_profiles_curvefit import *
+from models_profiles import *
 from astropy.constants import G,c,M_sun, pc
 
 cvel = c.value;   # Speed of light (m.s-1)

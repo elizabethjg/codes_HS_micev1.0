@@ -53,9 +53,11 @@ x = mapa.xmpc
 theta  = np.arctan2(y,x)
 r = np.sqrt(x**2 + y**2)
 
-
+print('Computing DS...')
 DS = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+print('Computing S...')
 S = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+print('Computing gt,gx...')
 gt,gx = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 
 table = [fits.Column(name='rmpc', format='E', array=r),

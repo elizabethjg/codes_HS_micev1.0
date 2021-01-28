@@ -53,10 +53,16 @@ x = mapa.xmpc
 theta  = np.arctan2(y,x)
 r = np.sqrt(x**2 + y**2)
 
+R = (r**2)*np.sqrt(q*(np.cos(theta))**2 + (np.sin(theta))**2 / q)
+
+print('Computing S0...')
+S0 = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+print('Computing DS0...')
+DS0 = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 print('Computing S...')
-S = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+S = Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 print('Computing DS...')
-DS = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+DS = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 print('Computing gt,gx...')
 gt,gx = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 
@@ -65,6 +71,8 @@ j = np.argsort(r)
 table = [fits.Column(name='rmpc', format='E', array=r[j]),
             fits.Column(name='xmpc', format='E', array=x[j]),
             fits.Column(name='ympc', format='E', array=y[j]),
+            fits.Column(name='S0', format='E', array=S0[j]),
+            fits.Column(name='DS0', format='E', array=DS0[j]),
             fits.Column(name='S', format='E', array=S[j]),
             fits.Column(name='DS', format='E', array=DS[j]),
             fits.Column(name='Gt', format='E', array=gt[j]),

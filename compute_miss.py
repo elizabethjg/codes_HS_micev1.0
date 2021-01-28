@@ -60,13 +60,15 @@ DS = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c2
 print('Computing gt,gx...')
 gt,gx = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 
-table = [fits.Column(name='rmpc', format='E', array=r),
-            fits.Column(name='xmpc', format='E', array=x),
-            fits.Column(name='ympc', format='E', array=y),
-            fits.Column(name='S', format='E', array=S),
-            fits.Column(name='DS', format='E', array=DS),
-            fits.Column(name='Gt', format='E', array=gt),
-            fits.Column(name='Gx', format='E', array=gx)]
+j = np.argsort(r)
+
+table = [fits.Column(name='rmpc', format='E', array=r[j]),
+            fits.Column(name='xmpc', format='E', array=x[j]),
+            fits.Column(name='ympc', format='E', array=y[j]),
+            fits.Column(name='S', format='E', array=S[j]),
+            fits.Column(name='DS', format='E', array=DS[j]),
+            fits.Column(name='Gt', format='E', array=gt[j]),
+            fits.Column(name='Gx', format='E', array=gx[j])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 

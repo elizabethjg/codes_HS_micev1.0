@@ -129,7 +129,7 @@ def partial_map(RA0,DEC0,Z,angles,ROUT,ndots,h):
         #get cross ellipticities
         ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c
         # '''
-        k  = catdata.kappa
+        k  = catdata.kappa*sigma_c
                 
         wcs.wcs.crval = [RA0,DEC0]
         dx, dy = wcs.wcs_world2pix(catdata.ra,catdata.dec, 0)

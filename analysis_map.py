@@ -22,6 +22,8 @@ p_name = 'profiles/profile_ebin_142.fits'
 m_name = 'mapas/mapa_bin_142.fits'
 m_name_miss = 'mapas/mapa_bin_142_miss.fits'
 
+fitmiss = fits.open(folder+'profiles/fitresults_mono_Rayleigh_0_2500_profile_ebin_142.fits')[0].header
+
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
 miss = fits.open(folder+m_name_miss)[1].data
@@ -90,19 +92,14 @@ f1, ax1 = plt.subplots()
 f2, ax2 = plt.subplots() 
 f3, ax3 = plt.subplots() 
 
-ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
-ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
-ax2.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
-ax3.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
-
-
 ax1.legend()
 ax2.legend()
 
+o = np.argsort(r)
 
 ax.plot(p.Rp,p.DSigma_T,'C1')
-ax.plot(nfw.xplot,nfw.yplot,'C3',label='fited nfw')
-ax.plot(r,miss.DS,'C4',label='fited nfw')
+ax.plot(nfw.xplot,nfw.yplot,'C3',label = 'lM200='+mass+',c200='+str(nfw.c200)) 
+ax.plot(r[o],miss.DS[o],'C4',label = 'lM200='+str(lM200_miss)+',c200='+str(c200_miss)+',soff='+str(soff)) 
 ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
 ax.set_xscale('log')
 ax.set_yscale('log')
@@ -123,6 +120,7 @@ ax1.plot(p.Rp,GT,'C4',label = 'standard')
 ax1.plot(p.Rp,GTr,'C0--',label = 'reduced')
 ax1.plot(rplot,gt,'C3')
 ax1.plot(rplot,gtr,'C3--')
+ax1.plot(r[o],miss.Gt[o],'C4') 
 
 ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
 ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
@@ -145,6 +143,7 @@ ax2.plot(p.Rp,GX,'C2')
 ax2.plot(p.Rp,GXr,'C5--')
 ax2.plot(rplot,gx,'C3')
 ax2.plot(rplot,gxr,'C3--')
+ax2.plot(r[o],miss.Gx[o],'C4') 
 
 ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
 ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
@@ -170,13 +169,26 @@ ax3.xaxis.set_ticks([0.1,1,5,7])
 ax3.set_xticklabels([0.1,1,5,7])
 ax3.legend()
 
-gt0 = Delta_Sigma_NFW(r,zmean,1.3*nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-gtc,gxs  = GAMMA_components(r,zmean,ellip=e,M200 =1.3*nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+gt0 = Delta_Sigma_NFW(r,zmean,nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+gtc,gxs  = GAMMA_components(r,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
 
 GT = gt0 + gtc*np.cos(2*theta)
 GX = gxs*np.sin(2*theta)
 
+# CENTRED
 
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=mapa.GT_control,vmin=-10,vmax=50.)
+ax[1].scatter(x,y,c=mapa.GT_control - gt0,vmin=-10,vmax=50.)
+ax[2].scatter(x,y,c=mapa.GX_control,vmin=-10,vmax=50.)
+
+ax[0].set_title('GT_control')
+ax[1].set_title('GT_control - GT0_model')
+ax[2].set_title('GX_control')
+
+f.savefig(folder+'mapas/control.png')
 
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
@@ -190,12 +202,12 @@ ax[0].set_title('GT0_model')
 ax[1].set_title('GT_control')
 ax[2].set_title('Difference')
 
-f.savefig(folder+'mapas/monopole_M.png')
+f.savefig(folder+'mapas/monopole.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
 
-ax[0].scatter(x,y,c=GT,vmin=-10,vmax=50.)
+ax[0].scatter(x,y,c=GT,vmin=-10,vmax=50.)  
 ax[1].scatter(x,y,c=mapa.GT,vmin=-10,vmax=50.)
 ax[2].scatter(x,y,c=GT-mapa.GT,vmin=-10,vmax=50.)
 
@@ -203,7 +215,7 @@ ax[0].set_title('(GT0+GT2)_model')
 ax[1].set_title('GT')
 ax[2].set_title('Difference')
 
-f.savefig(folder+'mapas/GT_M.png')
+f.savefig(folder+'mapas/GT.png')
 
 
 
@@ -218,7 +230,7 @@ ax[0].set_title('GT2_model')
 ax[1].set_title('GT - GT0_model')
 ax[2].set_title('Difference')
 
-f.savefig(folder+'mapas/GT2_M.png')
+f.savefig(folder+'mapas/GT2.png')
 
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
@@ -232,4 +244,128 @@ ax[0].set_title('GX2_model')
 ax[1].set_title('GX')
 ax[2].set_title('Difference')
 
-f.savefig(folder+'mapas/GX_M.png')
+f.savefig(folder+'mapas/GX.png')
+
+# MISSCENTRED
+
+missx = fits.open(folder+'mapas/mapa_bin_142_missx.fits')[1].data
+
+gt0mx = missx.Gt_off
+GTmx  = missx.Gt_off + missx.Gt_off_cos*np.cos(2*theta)
+GXmx  = missx.Gx_off_sin*np.sin(2*theta)
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=gt0mx,vmin=-10,vmax=50.)
+ax[1].scatter(x,y,c=mapa.GT_control,vmin=-10,vmax=50.)
+ax[2].scatter(x,y,c=gt0mx-mapa.GT_control,vmin=-10,vmax=50.)
+
+ax[0].set_title('GT0_model')
+ax[1].set_title('GT_control')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/monopole_missx.png')
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=GTmx,vmin=-10,vmax=50.)  
+ax[1].scatter(x,y,c=mapa.GT,vmin=-10,vmax=50.)
+ax[2].scatter(x,y,c=GTmx-mapa.GT,vmin=-10,vmax=50.)
+
+ax[0].set_title('(GT0+GT2)_model')
+ax[1].set_title('GT')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/GT_missx.png')
+
+
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=GTm-gt0m,vmin=-10,vmax=10.)
+ax[1].scatter(x,y,c=mapa.GT-gt0m,vmin=-10,vmax=10.)
+ax[2].scatter(x,y,c=GTm-mapa.GT,vmin=-10,vmax=10.)
+
+ax[0].set_title('GT2_model')
+ax[1].set_title('GT - GT0_model')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/GT2_missx.png')
+
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=GXm,vmin=-10,vmax=10.)
+ax[1].scatter(x,y,c=mapa.GX,vmin=-10,vmax=10.)
+ax[2].scatter(x,y,c=GXm-mapa.GX,vmin=-10,vmax=10.)
+
+ax[0].set_title('GX2_model')
+ax[1].set_title('GX')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/GX_missx.png')
+
+# MISSCENTRED
+
+gt0m = miss.DS
+GTm = miss.DS + miss.Gt*np.cos(2*theta)
+GXm = miss.Gx*np.sin(2*theta)
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=gt0m,vmin=-10,vmax=50.)
+ax[1].scatter(x,y,c=mapa.GT_control,vmin=-10,vmax=50.)
+ax[2].scatter(x,y,c=gt0m-mapa.GT_control,vmin=-10,vmax=50.)
+
+ax[0].set_title('GT0_model')
+ax[1].set_title('GT_control')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/monopole_miss.png')
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=GTm,vmin=-10,vmax=50.)  
+ax[1].scatter(x,y,c=mapa.GT,vmin=-10,vmax=50.)
+ax[2].scatter(x,y,c=GTm-mapa.GT,vmin=-10,vmax=50.)
+
+ax[0].set_title('(GT0+GT2)_model')
+ax[1].set_title('GT')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/GT_miss.png')
+
+
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=GTm-gt0m,vmin=-10,vmax=10.)
+ax[1].scatter(x,y,c=mapa.GT-gt0m,vmin=-10,vmax=10.)
+ax[2].scatter(x,y,c=GTm-mapa.GT,vmin=-10,vmax=10.)
+
+ax[0].set_title('GT2_model')
+ax[1].set_title('GT - GT0_model')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/GT2_miss.png')
+
+
+f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
+f.subplots_adjust(hspace=0,wspace=0)
+
+ax[0].scatter(x,y,c=GXm,vmin=-10,vmax=10.)
+ax[1].scatter(x,y,c=mapa.GX,vmin=-10,vmax=10.)
+ax[2].scatter(x,y,c=GXm-mapa.GX,vmin=-10,vmax=10.)
+
+ax[0].set_title('GX2_model')
+ax[1].set_title('GX')
+ax[2].set_title('Difference')
+
+f.savefig(folder+'mapas/GX_miss.png')

@@ -16,7 +16,7 @@ Msun = M_sun.value # Solar mass (kg)
 
 
     
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v2.0/catalogs/'
+folder = '/mnt/clemente/lensing/HALO_SHAPE/MICEv2.0/catalogs/'
 
 
 p_name = 'profile_ebin_142.fits'

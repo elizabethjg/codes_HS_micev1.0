@@ -5,7 +5,6 @@ from astropy.cosmology import LambdaCDM
 sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
 sys.path.append('/mnt/clemente/lensing/lens_codes_v3.7')
-from profiles_fit import *
 from models_profiles import *
 from astropy.constants import G,c,M_sun, pc
 
@@ -16,7 +15,7 @@ Msun = M_sun.value # Solar mass (kg)
 
 
     
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICE_v2.0/catalogs/'
+folder = '/mnt/clemente/lensing/HALO_SHAPE/MICEv2.0/catalogs/'
 
 
 p_name = 'profile_ebin_142.fits'

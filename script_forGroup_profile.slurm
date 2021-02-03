@@ -19,7 +19,9 @@ export MKL_NUM_THREADS=56
 
 conda activate py3env
 
-srun python -u compute_miss.py
+srun python -u forGroup_qprofile.py -sample 'ebin_140_sqrt' -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
+
+##srun python -u compute_miss.py
 
 ##srun python -u forGroup_map.py -sample 'bin_144' -lM_min 14.4 -lM_max 14.6 -ncores 56
 ##srun python -u forGroup_map.py -sample 'bin_142' -lM_min 14.2 -lM_max 14.4 -ncores 56

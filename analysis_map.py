@@ -4,10 +4,10 @@ from astropy.io import fits
 from astropy.cosmology import LambdaCDM
 sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
-from profiles_fit import *
+sys.path.append('/mnt/clemente/lensing/lens_codes_v3.7')
+from models_profiles import *
 from fit_profiles_curvefit import *
 from astropy.constants import G,c,M_sun, pc
-
 cvel = c.value;   # Speed of light (m.s-1)
 G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
@@ -99,7 +99,7 @@ o = np.argsort(r)
 
 ax.plot(p.Rp,p.DSigma_T,'C1')
 ax.plot(nfw.xplot,nfw.yplot,'C3',label = 'lM200='+mass+',c200='+str(nfw.c200)) 
-ax.plot(r[o],miss.DS[o],'C4',label = 'lM200='+str(lM200_miss)+',c200='+str(c200_miss)+',soff='+str(soff)) 
+ax.plot(r[o],miss.DS0[o],'C4',label = 'lM200='+str(lM200_miss)+',c200='+str(c200_miss)+',soff='+str(soff)) 
 ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
 ax.set_xscale('log')
 ax.set_yscale('log')

@@ -164,8 +164,11 @@ def partial_profile(RA0,DEC0,Z,angles,
                 GAMMATcos_wsum[nbin,:] = np.sum((np.tile(et[mbin],(3,1))*np.cos(2.*at[mbin]).T),axis=1)
                 GAMMAXsin_wsum[nbin,:] = np.sum((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T),axis=1)
                 
-                COS2_2theta[nbin,:] = np.sum((np.cos(2.*at[mbin]).T)**2,axis=1)
-                SIN2_2theta[nbin,:] = np.sum((np.sin(2.*at[mbin]).T)**2,axis=1)
+                # COS2_2theta[nbin,:] = np.sum((np.cos(2.*at[mbin]).T)**2,axis=1)
+                # SIN2_2theta[nbin,:] = np.sum((np.sin(2.*at[mbin]).T)**2,axis=1)
+
+                COS2_2theta[nbin,:] = np.sum((np.cos(2.*at[mbin]).T),axis=1)
+                SIN2_2theta[nbin,:] = np.sum((np.sin(2.*at[mbin]).T),axis=1)
                                
                 N_inbin = np.append(N_inbin,len(et[mbin]))
                 

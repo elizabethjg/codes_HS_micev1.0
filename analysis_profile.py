@@ -4,7 +4,7 @@ from astropy.io import fits
 from astropy.cosmology import LambdaCDM
 sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
-from profiles_fit import *
+from models_profiles import *
 from fit_profiles_curvefit import *
 from astropy.constants import G,c,M_sun, pc
 
@@ -98,11 +98,11 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax.set_yscale('log')
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
     ax.set_ylim(2,200)
-    ax.set_xlim(0.1,10)
+    ax.set_xlim(0.5,10)
     ax.xaxis.set_ticks([0.1,1,5,7])
     ax.set_xticklabels([0.1,1,5,7])
-    ax.yaxis.set_ticks([5,10,100])
-    ax.set_yticklabels([5,10,100])
+    ax.yaxis.set_ticks([1,10,100])
+    ax.set_yticklabels([1,10,100])
     ax.legend()
     
     # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
@@ -119,8 +119,8 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax1.set_xlim(0.1,10)
     ax1.xaxis.set_ticks([0.1,1,5,7])
     ax1.set_xticklabels([0.1,1,5,7])
-    ax1.yaxis.set_ticks([0.3,10,100])
-    ax1.set_yticklabels([0.3,10,100])
+    ax1.yaxis.set_ticks([0.1,10,100])
+    ax1.set_yticklabels([0.1,10,100])
     
     # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
     # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
@@ -233,12 +233,12 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax.set_yscale('log')
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
     ax.set_ylabel(r'$\Delta\Sigma$')
-    ax.set_ylim(2,200)
+    ax.set_ylim(0.5,200)
     ax.set_xlim(0.1,10)
     ax.xaxis.set_ticks([0.1,1,5,7])
     ax.set_xticklabels([0.1,1,5,7])
-    ax.yaxis.set_ticks([5,10,100])
-    ax.set_yticklabels([5,10,100])
+    ax.yaxis.set_ticks([1,10,100])
+    ax.set_yticklabels([1,10,100])
     ax.legend()
     
     # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
@@ -256,8 +256,8 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax1.set_xlim(0.1,10)
     ax1.xaxis.set_ticks([0.1,1,5,7])
     ax1.set_xticklabels([0.1,1,5,7])
-    ax1.yaxis.set_ticks([0.3,10,100])
-    ax1.set_yticklabels([0.3,10,100])
+    ax1.yaxis.set_ticks([0.1,10,100])
+    ax1.set_yticklabels([0.1,10,100])
 
 
     
@@ -521,7 +521,7 @@ def plt_profile_wofit_onlystandard(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma$')
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax.set_ylim(1,200)
+    ax.set_ylim(0.5,200)
     ax.set_xlim(0.1,10)
     ax.xaxis.set_ticks([0.1,1,5,7])
     ax.set_xticklabels([0.1,1,5,7])
@@ -539,12 +539,12 @@ def plt_profile_wofit_onlystandard(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
     ax1.set_ylabel(r'$\Gamma_T$')
-    ax1.set_ylim(1,200)
+    ax1.set_ylim(0.5,200)
     ax1.set_xlim(0.1,10)
     ax1.xaxis.set_ticks([0.1,1,5,7])
     ax1.set_xticklabels([0.1,1,5,7])
-    ax1.yaxis.set_ticks([0.3,10,100])
-    ax1.set_yticklabels([0.3,10,100])
+    ax1.yaxis.set_ticks([1,10,100])
+    ax1.set_yticklabels([1,10,100])
     
     # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
     # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
@@ -579,7 +579,7 @@ def plt_profile_wofit_onlystandard(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
 
 def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     
-    folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv'+str(mv)+'.0/profiles/'
+    folder = '../../MICEv'+str(mv)+'.0/profiles/'
 
     p_name = 'profile_'+samp+'.fits'
     profile = fits.open(folder+p_name)

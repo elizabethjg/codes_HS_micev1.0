@@ -15,15 +15,15 @@ Msun = M_sun.value # Solar mass (kg)
 
 
     
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICEv2.0/catalogs/'
+folder = '/mnt/clemente/lensing/HALO_SHAPE/MICEv2.0/'
 
 
-p_name = 'profile_ebin_142.fits'
-m_name = 'mapa_bin_142.fits'
+p_name = 'profiles/profile_ebin_142.fits'
+m_name = 'mapas/mapa_bin_142.fits'
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
-fitmiss = fits.open(folder+'fitresults_mono_Rayleigh_0_2500_profile_ebin_142.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_mono_Rayleigh_0_2500_profile_ebin_142.fits')[0].header
 
 print(p_name)
 
@@ -58,8 +58,6 @@ print('Computing S0...')
 S0 = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 print('Computing DS0...')
 DS0 = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
-print('Computing S2...')
-S = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 print('Computing S...')
 S = Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
 print('Computing DS...')

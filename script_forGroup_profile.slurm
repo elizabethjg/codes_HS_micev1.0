@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fit
+#SBATCH --job-name=fit_allmis
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=10
 #SBATCH --time=3-00:00
@@ -19,7 +19,7 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u fit_profile_fullmodel.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
+srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u compute_miss.py
 

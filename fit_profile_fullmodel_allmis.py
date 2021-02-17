@@ -107,7 +107,7 @@ def log_likelihood(data_model, R, profiles, iCOV):
                                             cosmo=cosmo,ncores=ncores)
 
     DSf      = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lMf,
-                                             s_off=soff,c200 = c200f,,P_Roff = Proff,
+                                             s_off=soff,c200 = c200f,P_Roff = Proff,
                                              cosmo=cosmo,ncores=ncores)
 
 

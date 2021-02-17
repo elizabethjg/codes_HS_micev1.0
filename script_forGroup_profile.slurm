@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name='miss2'
+#SBATCH --job-name=fit
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=56
+#SBATCH --cpus-per-task=10
 #SBATCH --time=3-00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
@@ -14,12 +14,12 @@ source $HOME/.bashrc
 
 cd /mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/codes_HS_micev1.0/
 
-export OMP_NUM_THREADS=56
-export MKL_NUM_THREADS=56
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample 'ebin_140_sqrt' -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u fit_profile_fullmodel.py -file 'profile_ebin_142.fits' -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u compute_miss.py
 

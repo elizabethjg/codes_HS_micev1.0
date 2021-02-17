@@ -23,7 +23,7 @@ m_name = 'mapas/mapa_bin_142.fits'
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
-fitmiss = fits.open(folder+'profiles/fitresults_mono_Rayleigh_0_2500_profile_ebin_142.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_1500_profile_ebin_142.fits')[0].header
 
 print(p_name)
 
@@ -34,13 +34,13 @@ cov = profile[2].data
 
 lM200_miss = fitmiss['lm200']
 c200_miss = fitmiss['c200']
-soff = fitmiss['soff']
+soff = 0.08
 
 cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 
 
 zmean = h['z_mean']
-q  = h['q2d_mean']
+q  = fitmiss['c200']
 qr = h['q2dr_mean']
 
 e = (1-q)/(1+q)
@@ -86,4 +86,4 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'mapa_bin_142_miss.fits',overwrite=True)
+hdul.writeto(folder+'mapa_bin_142_miss_fullmodel.fits',overwrite=True)

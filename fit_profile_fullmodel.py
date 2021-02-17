@@ -20,12 +20,11 @@ import os
 '''
 folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv2.0/profiles/'
 cont = False
-file_name = 'profile_ebin_140.fits'
-angle = 'standard'
+file_name = 'profile_ebin_142.fits'
 ncores = 30
-nit = 250
+nit = 1000
 RIN = 0.
-ROUT =2500.
+ROUT =2000.
 # '''
 
 parser = argparse.ArgumentParser()
@@ -33,8 +32,8 @@ parser.add_argument('-folder', action='store', dest='folder', default='/mnt/clem
 parser.add_argument('-file', action='store', dest='file_name', default='profile.cat')
 parser.add_argument('-ncores', action='store', dest='ncores', default=40)
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)
-parser.add_argument('-ROUT', action='store', dest='ROUT', default=1500)
-parser.add_argument('-nit', action='store', dest='nit', default=250)
+parser.add_argument('-ROUT', action='store', dest='ROUT', default=2000)
+parser.add_argument('-nit', action='store', dest='nit', default=1000)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
 parser.add_argument('-Proff', action='store', dest='Proff', default='Rayleigh')
 args = parser.parse_args()
@@ -63,7 +62,7 @@ ROUT      = float(args.ROUT)
 
 
 
-outfile     = 'fitresults_mono_'+args.Proff+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
+outfile     = 'fitresults_fullmodel_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 plot_folder = folder+'plots_mcmc/'
 
@@ -78,7 +77,7 @@ print('ROUT ',ROUT)
 print('nit', nit)
 print('continue',cont)
 print('outfile',outfile)
-print('P_Roff',args.Proff)
+# print('P_Roff',args.Proff)
 
 
 profile = fits.open(folder+file_name)
@@ -115,7 +114,7 @@ def log_likelihood(data_model, R, profiles, iCOV):
                                            c200 = c200, P_Roff= Proff, 
                                            cosmo=cosmo, ncores=ncores)
                                            
-    gtf,gxf  = GAMMA_components(R,zmean,ellip=ef,10**lMf,c200 = c200f,cosmo=cosmo)
+    gtf,gxf  = GAMMA_components(R,zmean,ellip=ef,M200 =10**lMf,c200 = c200f,cosmo=cosmo)
     
     DS = DSH + DSf
     GT = gtH + gtf
@@ -132,19 +131,19 @@ def log_probability(data_model, r, profiles, iCOV):
     
     lM200,c200,q,lMf,c200f,qf = data_model
     
-    if 13.5 < lM200 < 15.0 and 2. < c200 < 7. and 0.5 < q < 0.9 and 11. < lMf < 13.0 and 0.1 < c200f < 2. and 0.05 < qf < 0.4:
+    if 13.5 < lM200 < 15.0 and 1. < c200 < 7. and 0.5 < q < 0.9 and 11. < lMf < 13.0 and 0.1 < c200f < 7. and 0.05 < qf < 0.4:
         return log_likelihood(data_model, r, profiles, iCOV)
         
     return -np.inf
 
 # initializing
 
-pos = np.array([np.random.uniform(12.5,15.5,10),
-                np.random.uniform(2.5,5.5,10),
-                np.random.uniform(0.5,0.8,10),
-                np.random.uniform(11.5,12.5,10),
-                np.random.uniform(0.1,1.5,10),
-                np.random.uniform(0.1,0.2,10)]).T
+pos = np.array([np.random.uniform(13.5,15.,15),
+                np.random.uniform(1.5,6.0,15),
+                np.random.uniform(0.5,0.8,15),
+                np.random.uniform(11.5,12.5,15),
+                np.random.uniform(0.1,5.,15),
+                np.random.uniform(0.1,0.2,15)]).T
 
 
 nwalkers, ndim = pos.shape

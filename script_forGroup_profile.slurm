@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=fit_allmis
+#SBATCH --job-name=map_134
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
@@ -19,7 +19,9 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_map.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
+
+##srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u compute_miss.py
 

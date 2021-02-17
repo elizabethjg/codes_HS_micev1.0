@@ -19,7 +19,7 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u fit_profile_fullmodel.py -file 'profile_ebin_142.fits' -lM_min 14.0 -lM_max 14.2 -ncores $SLURM_CPUS_PER_TASK
+srun python -u fit_profile_fullmodel.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u compute_miss.py
 

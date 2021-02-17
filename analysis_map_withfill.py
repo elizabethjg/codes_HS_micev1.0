@@ -21,8 +21,17 @@ folder = '../../MICEv2.0/'
 p_name = 'profiles/profile_ebin_142.fits'
 m_name = 'mapas/mapa_bin_142.fits'
 m_name_miss = 'mapas/mapa_bin_142_miss_fullmodel.fits'
-
 fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_1500_profile_ebin_142.fits')[0].header
+
+mapmodel_folder = 'mapas/142/map_models/'
+pfolder = 'mapas/142/profiles/'
+map_folder = 'mapas/142/maps_compare/'
+
+os.system('mkdir '+folder+'mapas/142')
+os.system('mkdir '+folder+pfolder)
+os.system('mkdir '+folder+map_folder)
+os.system('mkdir '+folder+mapmodel_folder)
+
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
@@ -122,7 +131,7 @@ ax.set_xticklabels([0.1,1,5,7])
 ax.yaxis.set_ticks([5,10,100])
 ax.set_yticklabels([5,10,100])
 ax.legend()
-f.savefig(folder+'mapas/test_full_model/profile_DS.png')
+f.savefig(folder+pfolder+'profile_DS_withfil.png')
 
 # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
 # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
@@ -134,10 +143,8 @@ ax1.plot(rplot,gt,'C3',alpha= 0.5)
 ax1.plot(r[o],miss.Gt[o],'C3') 
 ax1.plot(r[o],(gtf+miss.Gt)[o],'C0')
 ax1.plot(r[o],gtf[o],'C0--')
-
-
 ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
-ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
+# ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
 ax1.set_xscale('log')
 ax1.set_yscale('log')
 ax1.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -148,7 +155,7 @@ ax1.xaxis.set_ticks([0.1,1,5,7])
 ax1.set_xticklabels([0.1,1,5,7])
 ax1.yaxis.set_ticks([0.3,10,100])
 ax1.set_yticklabels([0.3,10,100])
-f1.savefig(folder+'mapas/test_full_model/profile_GT.png')
+f1.savefig(folder+pfolder+'profile_GT_withfil.png')
 
 # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
 # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
@@ -164,7 +171,7 @@ ax2.plot(r[o],gxf[o],'C0--')
 
 
 ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
-ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
+# ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
 ax2.set_xlabel('r [$h^{-1}$ Mpc]')
 ax2.set_ylabel(r'$\Gamma_\times$')
 ax2.set_xscale('log')
@@ -172,7 +179,7 @@ ax2.set_xlim(0.1,10)
 ax2.set_ylim(-20,20)
 ax2.xaxis.set_ticks([0.1,1,5,7])
 ax2.set_xticklabels([0.1,1,5,7])
-f2.savefig(folder+'mapas/test_full_model/profile_GX.png')
+f1.savefig(folder+pfolder+'profile_GX_withfil.png')
 
 R = r*np.sqrt(q*(np.cos(theta))**2 + (np.sin(theta))**2 / q)
 
@@ -200,340 +207,8 @@ Sr = S0+e*S2*np.cos(2*theta)
 Sr_miss = (miss.S0-e*miss.S2*np.cos(2*theta))
 
 # '''
-# SMODEL
 
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
 
-im0 = ax[0].scatter(x,y,c=S,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=S0,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=S - S0,vmin=-10,vmax=50.)
-
-ax[0].set_title('S(R)_model')
-ax[1].set_title('S(r)_model')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/S_model_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=miss.S,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=miss.S0,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=miss.S - miss.S0,vmin=-10,vmax=50.)
-
-ax[0].set_title('S(R)_model')
-ax[1].set_title('S(r)_model')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/S_model_miscentred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=S,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=Sr,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=S-Sr,vmin=-10,vmax=50.)
-
-ax[0].set_title('S(R)')
-ax[1].set_title('S(r) + e S2(r) cos(2t)')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/S_model_vs_approx_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=miss.S,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=Sr_miss,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=miss.S-Sr_miss,vmin=-10,vmax=50.)
-
-ax[0].set_title('S(R)')
-ax[1].set_title('S(r) + e S2(r) cos(2t)')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/S_model_vs_approx_miscentred.png')
-
-# GT MODEL
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=gt,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=gt0,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=gt - gt0,vmin=-10,vmax=50.)
-
-ax[0].set_title('GT(R) = DS(R)')
-ax[1].set_title('GT(r) = GT0')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/GT_model_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=miss.DS,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=miss.DS0,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=miss.DS - miss.DS0,vmin=-10,vmax=50.)
-
-ax[0].set_title('GT(R) = DS(R)')
-ax[1].set_title('GT(r) = GT0')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/GT_model_miscentred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=gt,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=GT,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=gt-GT,vmin=-10,vmax=50.)
-
-ax[0].set_title('GT(R)')
-ax[1].set_title('GT0 + e GT2 cos(2t)')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/GT_model_vs_approx_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=miss.DS,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=GTmiss,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=miss.DS-GTmiss,vmin=-10,vmax=50.)
-
-ax[0].set_title('GT(R)')
-ax[1].set_title('GT0 + e GT2 cos(2t)')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/models_fullmodel/GT_model_vs_approx_miscentred.png')
-
-
-
-#### COMPARISON S
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=S0,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.K_control,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=S0 - mapa.K_control,vmin=-50,vmax=50.)
-
-ax[0].set_title('S(r)_model')
-ax[1].set_title('S_control')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/S0_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=S,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.K,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=S - mapa.K,vmin=-50,vmax=50.)
-
-ax[0].set_title('S(R)_model')
-ax[1].set_title('S')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/S_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=Sr,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.K,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=Sr - mapa.K,vmin=-50,vmax=50.)
-
-ax[0].set_title('S(r) + e S2(r) cos(2t)')
-ax[1].set_title('S')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/Sr_centred.png')
-
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=Sr_miss,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.K,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=Sr_miss - mapa.K,vmin=-50,vmax=50.)
-
-ax[0].set_title('S(r) + e S2(r) cos(2t)')
-ax[1].set_title('S')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/Sr_miscentred.png')
-
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=miss.S0,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.K_control,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=miss.S0 - mapa.K_control,vmin=-50,vmax=50.)
-
-ax[0].set_title('S(r)_model')
-ax[1].set_title('S_control')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/S0_miscentred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=miss.S,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.K,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=miss.S - mapa.K,vmin=-50,vmax=50.)
-
-ax[0].set_title('S(R)_model')
-ax[1].set_title('S')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/S_miscentred.png')
-
-#COMPARISON control
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=mapa.GT_control,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.GT_control - gt0,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=mapa.GX_control,vmin=-50,vmax=50.)
-
-ax[0].set_title('GT_control')
-ax[1].set_title('GT_control - GT0_model')
-ax[2].set_title('GX_control')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/control_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=mapa.GT_control,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.GT_control - miss.DS0,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=mapa.GX_control,vmin=-50,vmax=50.)
-
-ax[0].set_title('GT_control')
-ax[1].set_title('GT_control - GT0_model')
-ax[2].set_title('GX_control')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/control_miscentred.png')
-
-
-#COMPARISON monopole
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=gt0,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.GT_control,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=gt0-mapa.GT_control,vmin=-50,vmax=50.)
-
-ax[0].set_title('GT0_model')
-ax[1].set_title('GT_control')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/monopole_centred.png')
-
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=miss.DS0,vmin=-50,vmax=50.)
-ax[1].scatter(x,y,c=mapa.GT_control,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=miss.DS0-mapa.GT_control,vmin=-50,vmax=50.)
-
-ax[0].set_title('GT0_model')
-ax[1].set_title('GT_control')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/monopole_miscentred.png')
-
-#COMPARISON GT
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=GT,vmin=-50,vmax=50.)  
-ax[1].scatter(x,y,c=mapa.GT,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=GT-mapa.GT,vmin=-50,vmax=50.)
-
-ax[0].set_title('(GT0+GT2)_model')
-ax[1].set_title('GT')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/GT_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=GTmiss,vmin=-50,vmax=50.)  
-ax[1].scatter(x,y,c=mapa.GT,vmin=-50,vmax=50.)
-ax[2].scatter(x,y,c=GTmiss-mapa.GT,vmin=-50,vmax=50.)
-
-ax[0].set_title('(GT0+GT2)_model')
-ax[1].set_title('GT')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/GT_miscentred.png')
-
-#COMPARISON GT2
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=GT-gt0,vmin=-10,vmax=10.)
-ax[1].scatter(x,y,c=mapa.GT-gt0,vmin=-10,vmax=10.)
-ax[2].scatter(x,y,c=GT-mapa.GT,vmin=-10,vmax=10.)
-
-ax[0].set_title('GT2_model')
-ax[1].set_title('GT - GT0_model')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/GT2_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=GTmiss-miss.DS0,vmin=-10,vmax=10.)
-ax[1].scatter(x,y,c=mapa.GT-miss.DS0,vmin=-10,vmax=10.)
-ax[2].scatter(x,y,c=GTmiss-mapa.GT,vmin=-10,vmax=10.)
-
-ax[0].set_title('GT2_model')
-ax[1].set_title('GT - GT0_model')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/GT2_miscentred.png')
-
-#COMPARISON GX2
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=GX,vmin=-10,vmax=10.)
-ax[1].scatter(x,y,c=mapa.GX,vmin=-10,vmax=10.)
-ax[2].scatter(x,y,c=GX-mapa.GX,vmin=-10,vmax=10.)
-
-ax[0].set_title('GX2_model')
-ax[1].set_title('GX')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/GX2_centred.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-im0 = ax[0].scatter(x,y,c=GXmiss,vmin=-10,vmax=10.)
-ax[1].scatter(x,y,c=mapa.GX,vmin=-10,vmax=10.)
-ax[2].scatter(x,y,c=GXmiss-mapa.GX,vmin=-10,vmax=10.)
-
-ax[0].set_title('GX2_model')
-ax[1].set_title('GX')
-ax[2].set_title('Difference')
-f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/comparison_fullmodel/GX2_miscentred.png')
-# '''
 # FILAMENT TEST
 
 # S
@@ -550,7 +225,7 @@ ax[1].set_title('Sf_model')
 ax[2].set_title('Full model (S(R) + Sf)')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/test_full_model/map_Smodel.png')
+f.savefig(folder+mapmodel_folder+'S_model_withfil.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -564,7 +239,7 @@ ax[1].set_title('S')
 ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/test_full_model/map_Sresidual.png')
+f.savefig(folder+map_folder+'S_withfil.png')
 
 # GT
 
@@ -580,7 +255,7 @@ ax[1].set_title('Gt_fil')
 ax[2].set_title('Full model')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+'mapas/test_full_model/map_GTmodel.png')
+f.savefig(folder+mapmodel_folder+'GT_model_withfil.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -595,7 +270,7 @@ ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+'mapas/test_full_model/map_GTresidual.png')
+f.savefig(folder+map_folder+'GT_withfil.png')
 
 # GT2
 
@@ -612,7 +287,7 @@ ax[2].set_title('Full model')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+'mapas/test_full_model/map_GT2model.png')
+f.savefig(folder+mapmodel_folder+'GT2_model_withfil.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -627,7 +302,7 @@ ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+'mapas/test_full_model/map_GT2residual.png')
+f.savefig(folder+map_folder+'GT2_withfil.png')
 
 
 
@@ -646,7 +321,7 @@ ax[2].set_title('Full model')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+'mapas/test_full_model/map_GX2model.png')
+f.savefig(folder+mapmodel_folder+'GX2_model_withfil.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -661,71 +336,5 @@ ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+'mapas/test_full_model/map_GX2residual.png')
+f.savefig(folder+map_folder+'GX2_withfil.png')
 
-
-
-'''
-# MISSCENTRED
-
-missx = fits.open(folder+'mapas/mapa_bin_142_missx.fits')[1].data
-
-gt0mx = missx.Gt_off
-GTmx  = missx.Gt_off + missx.Gt_off_cos*np.cos(2*theta)
-GXmx  = missx.Gx_off_sin*np.sin(2*theta)
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-ax[0].scatter(x,y,c=gt0mx,vmin=-10,vmax=50.)
-ax[1].scatter(x,y,c=mapa.GT_control,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=gt0mx-mapa.GT_control,vmin=-10,vmax=50.)
-
-ax[0].set_title('GT0_model')
-ax[1].set_title('GT_control')
-ax[2].set_title('Difference')
-
-f.savefig(folder+'mapas/monopole_missx.png')
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-ax[0].scatter(x,y,c=GTmx,vmin=-10,vmax=50.)  
-ax[1].scatter(x,y,c=mapa.GT,vmin=-10,vmax=50.)
-ax[2].scatter(x,y,c=GTmx-mapa.GT,vmin=-10,vmax=50.)
-
-ax[0].set_title('(GT0+GT2)_model')
-ax[1].set_title('GT')
-ax[2].set_title('Difference')
-
-f.savefig(folder+'mapas/GT_missx.png')
-
-
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-ax[0].scatter(x,y,c=GTmx-gt0mx,vmin=-10,vmax=10.)
-ax[1].scatter(x,y,c=mapa.GT-gt0mx,vmin=-10,vmax=10.)
-ax[2].scatter(x,y,c=GTmx-mapa.GT,vmin=-10,vmax=10.)
-
-ax[0].set_title('GT2_model')
-ax[1].set_title('GT - GT0_model')
-ax[2].set_title('Difference')
-
-f.savefig(folder+'mapas/GT2_missx.png')
-
-
-f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-f.subplots_adjust(hspace=0,wspace=0)
-
-ax[0].scatter(x,y,c=GXm,vmin=-10,vmax=10.)
-ax[1].scatter(x,y,c=mapa.GX,vmin=-10,vmax=10.)
-ax[2].scatter(x,y,c=GXm-mapa.GX,vmin=-10,vmax=10.)
-
-ax[0].set_title('GX2_model')
-ax[1].set_title('GX')
-ax[2].set_title('Difference')
-
-f.savefig(folder+'mapas/GX_missx.png')
-'''

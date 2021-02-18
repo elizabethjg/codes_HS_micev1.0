@@ -14,20 +14,18 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
-
-    
 folder = '../../MICEv2.0/'
 
 
-p_name = 'profiles/profile_ebin_142.fits'
-m_name = 'mapas/mapa_bin_142.fits'
+p_name = 'profiles/profile_ebin_138.fits'
+m_name = 'mapas/mapa_bin_138.fits'
 m_name_miss = 'mapas/mapa_bin_142_miss.fits'
 
-mapmodel_folder = 'mapas/142/map_models/'
-pfolder = 'mapas/142/profiles/'
-map_folder = 'mapas/142/maps_compare/'
+mapmodel_folder = 'mapas/138/map_models/'
+pfolder = 'mapas/138/profiles/'
+map_folder = 'mapas/138/maps_compare/'
 
-os.system('mkdir '+folder+'mapas/142')
+os.system('mkdir '+folder+'mapas/138')
 os.system('mkdir '+folder+pfolder)
 os.system('mkdir '+folder+map_folder)
 os.system('mkdir '+folder+mapmodel_folder)

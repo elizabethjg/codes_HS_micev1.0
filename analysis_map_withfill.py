@@ -294,7 +294,7 @@ f.subplots_adjust(hspace=0,wspace=0)
 
 im0 = ax[0].scatter(x,y,c=(GTmiss-miss.DS0) + (GTf - DSf),vmin=-10,vmax=10.)
 ax[1].scatter(x,y,c=mapa.GT - miss.DS0 - DSf,vmin=-10,vmax=10.)
-ax[2].scatter(x,y,c= (GTmiss-GTf) - mapa.GT,vmin=-10,vmax=10.)
+ax[2].scatter(x,y,c= (GTmiss+GTf) - mapa.GT,vmin=-10,vmax=10.)
 
 ax[0].set_title('GT2 Full model')
 ax[1].set_title('GT2')

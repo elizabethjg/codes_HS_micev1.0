@@ -23,7 +23,7 @@ m_name = 'mapas/mapa_bin_142.fits'
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
-fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_2000_profile_ebin_142.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_allmis_0_2000_profile_ebin_142.fits')[0].header
 
 print(p_name)
 
@@ -86,4 +86,4 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'mapas/mapa_bin_142_miss_fullmodel.fits',overwrite=True)
+hdul.writeto(folder+'mapas/mapa_bin_142_miss_fullmodel_allmis.fits',overwrite=True)

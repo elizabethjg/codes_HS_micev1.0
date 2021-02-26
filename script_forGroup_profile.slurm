@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fit_allmis
+#SBATCH --job-name=142mis
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=8:00:00

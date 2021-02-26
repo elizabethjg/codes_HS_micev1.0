@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=142_fm
+#SBATCH --job-name=142
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=8:00:00
@@ -12,7 +12,7 @@
 . /etc/profile
 source $HOME/.bashrc
 
-cd /mnt/projects/lensing/HALO_SHAPE/MICE_v1.0/codes_HS_micev1.0/
+cd /mnt/projects/lensing/HALO_SHAPE/MICEv1.0/codes_HS_micev1.0/
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK

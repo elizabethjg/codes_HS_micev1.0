@@ -18,7 +18,7 @@ Msun = M_sun.value # Solar mass (kg)
 folder = '../../MICEv2.0/'
 
 bnum = '142'
-mis  = '_allmis'
+# mis  = '_allmis'
 mis  = ''
 
 p_name = 'profiles/profile_ebin_'+bnum+'.fits'
@@ -109,11 +109,6 @@ gtf,gxf  = GAMMA_components(r,zmean,ellip=ef,M200 =M200f,c200 = c200f,cosmo=cosm
 mass = str(np.round(np.log10(nfw.M200),1))
 
 f, ax = plt.subplots() 
-f1, ax1 = plt.subplots() 
-f2, ax2 = plt.subplots() 
-
-ax1.legend()
-ax2.legend()
 
 o = np.argsort(r)
 
@@ -138,7 +133,7 @@ f.savefig(folder+pfolder+'profile_DS_withfil'+mis+'.png')
 
 # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
 # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
-
+f1, ax1 = plt.subplots() 
 ax1.plot(p.Rp,GT,'C4',label = 'standard')
 # ax1.plot(p.Rp,GTr,'C0--',label = 'reduced')
 ax1.plot(rplot,gt,'C3',alpha= 0.5)
@@ -163,6 +158,7 @@ f1.savefig(folder+pfolder+'profile_GT_withfil'+mis+'.png')
 # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
 # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
 
+f2, ax2 = plt.subplots() 
 ax2.plot([0,5],[0,0],'C7')
 ax2.plot(p.Rp,GX,'C2')
 # ax2.plot(p.Rp,GXr,'C5--')
@@ -182,7 +178,7 @@ ax2.set_xlim(0.1,10)
 ax2.set_ylim(-20,20)
 ax2.xaxis.set_ticks([0.1,1,5,7])
 ax2.set_xticklabels([0.1,1,5,7])
-f1.savefig(folder+pfolder+'profile_GX_withfil'+mis+'.png')
+f2.savefig(folder+pfolder+'profile_GX_withfil'+mis+'.png')
 
 R = r*np.sqrt(q*(np.cos(theta))**2 + (np.sin(theta))**2 / q)
 

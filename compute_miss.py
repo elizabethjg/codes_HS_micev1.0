@@ -41,7 +41,11 @@ cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 
 
 zmean = h['z_mean']
-q  = fitmiss['c200']
+try: 
+      q     = fitmiss['q']
+except:
+      q     = h['q2d_mean']
+
 qr = h['q2dr_mean']
 
 e = (1-q)/(1+q)

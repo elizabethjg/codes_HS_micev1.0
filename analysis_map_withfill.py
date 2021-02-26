@@ -17,17 +17,20 @@ Msun = M_sun.value # Solar mass (kg)
     
 folder = '../../MICEv2.0/'
 
+bnum = '142'
+mis  = '_allmis'
+mis  = ''
 
-p_name = 'profiles/profile_ebin_142.fits'
-m_name = 'mapas/mapa_bin_142.fits'
-m_name_miss = 'mapas/mapa_bin_142_miss_fullmodel.fits'
-fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_2000_profile_ebin_142.fits')[0].header
+p_name = 'profiles/profile_ebin_'+bnum+'.fits'
+m_name = 'mapas/mapa_bin_'+bnum+'.fits'
+m_name_miss = 'mapas/mapa_bin_'+bnum+'_miss_fullmodel'+mis+'.fits'
+fitmiss = fits.open(folder+'profiles/fitresults_fullmodel'+mis+'_0_2000_profile_ebin_'+bnum+'.fits')[0].header
 
-mapmodel_folder = 'mapas/142/map_models/'
-pfolder = 'mapas/142/profiles/'
-map_folder = 'mapas/142/maps_compare/'
+mapmodel_folder = 'mapas/'+bnum+'/map_models/'
+pfolder = 'mapas/'+bnum+'/profiles/'
+map_folder = 'mapas/'+bnum+'/maps_compare/'
 
-os.system('mkdir '+folder+'mapas/142')
+os.system('mkdir '+folder+'mapas/'+bnum)
 os.system('mkdir '+folder+pfolder)
 os.system('mkdir '+folder+map_folder)
 os.system('mkdir '+folder+mapmodel_folder)
@@ -131,7 +134,7 @@ ax.set_xticklabels([0.1,1,5,7])
 ax.yaxis.set_ticks([5,10,100])
 ax.set_yticklabels([5,10,100])
 ax.legend()
-f.savefig(folder+pfolder+'profile_DS_withfil.png')
+f.savefig(folder+pfolder+'profile_DS_withfil'+mis+'.png')
 
 # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
 # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
@@ -155,7 +158,7 @@ ax1.xaxis.set_ticks([0.1,1,5,7])
 ax1.set_xticklabels([0.1,1,5,7])
 ax1.yaxis.set_ticks([0.3,10,100])
 ax1.set_yticklabels([0.3,10,100])
-f1.savefig(folder+pfolder+'profile_GT_withfil.png')
+f1.savefig(folder+pfolder+'profile_GT_withfil'+mis+'.png')
 
 # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
 # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
@@ -179,7 +182,7 @@ ax2.set_xlim(0.1,10)
 ax2.set_ylim(-20,20)
 ax2.xaxis.set_ticks([0.1,1,5,7])
 ax2.set_xticklabels([0.1,1,5,7])
-f1.savefig(folder+pfolder+'profile_GX_withfil.png')
+f1.savefig(folder+pfolder+'profile_GX_withfil'+mis+'.png')
 
 R = r*np.sqrt(q*(np.cos(theta))**2 + (np.sin(theta))**2 / q)
 
@@ -225,7 +228,7 @@ ax[1].set_title('Sf_model')
 ax[2].set_title('Full model (S(R) + Sf)')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+mapmodel_folder+'S_model_withfil.png')
+f.savefig(folder+mapmodel_folder+'S_model_withfil'+mis+'.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -239,7 +242,7 @@ ax[1].set_title('S')
 ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+map_folder+'S_withfil.png')
+f.savefig(folder+map_folder+'S_withfil'+mis+'.png')
 
 # GT
 
@@ -255,7 +258,7 @@ ax[1].set_title('Gt_fil')
 ax[2].set_title('Full model')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
-f.savefig(folder+mapmodel_folder+'GT_model_withfil.png')
+f.savefig(folder+mapmodel_folder+'GT_model_withfil'+mis+'.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -270,7 +273,7 @@ ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+map_folder+'GT_withfil.png')
+f.savefig(folder+map_folder+'GT_withfil'+mis+'.png')
 
 # GT2
 
@@ -287,7 +290,7 @@ ax[2].set_title('Full model')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+mapmodel_folder+'GT2_model_withfil.png')
+f.savefig(folder+mapmodel_folder+'GT2_model_withfil'+mis+'.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -302,7 +305,7 @@ ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+map_folder+'GT2_withfil.png')
+f.savefig(folder+map_folder+'GT2_withfil'+mis+'.png')
 
 
 
@@ -321,7 +324,7 @@ ax[2].set_title('Full model')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+mapmodel_folder+'GX2_model_withfil.png')
+f.savefig(folder+mapmodel_folder+'GX2_model_withfil'+mis+'.png')
 
 f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
 f.subplots_adjust(hspace=0,wspace=0)
@@ -336,5 +339,5 @@ ax[2].set_title('Difference')
 
 f.colorbar(im0, ax=ax, orientation='horizontal', fraction=.05)
 
-f.savefig(folder+map_folder+'GX2_withfil.png')
+f.savefig(folder+map_folder+'GX2_withfil'+mis+'.png')
 

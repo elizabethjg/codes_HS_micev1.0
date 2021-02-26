@@ -21,7 +21,7 @@ folder = '../../MICEv2.0/'
 p_name = 'profiles/profile_ebin_142.fits'
 m_name = 'mapas/mapa_bin_142.fits'
 m_name_miss = 'mapas/mapa_bin_142_miss_fullmodel.fits'
-fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_1500_profile_ebin_142.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_2000_profile_ebin_142.fits')[0].header
 
 mapmodel_folder = 'mapas/142/map_models/'
 pfolder = 'mapas/142/profiles/'

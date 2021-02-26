@@ -4,7 +4,7 @@ from astropy.io import fits
 from astropy.cosmology import LambdaCDM
 sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
-sys.path.append('/mnt/clemente/lensing/lens_codes_v3.7')
+sys.path.append('/mnt/projects/lensing/lens_codes_v3.7')
 from models_profiles import *
 from astropy.constants import G,c,M_sun, pc
 
@@ -15,7 +15,7 @@ Msun = M_sun.value # Solar mass (kg)
 
 
     
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICEv2.0/'
+folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/'
 
 
 p_name = 'profiles/profile_ebin_142.fits'
@@ -23,7 +23,7 @@ m_name = 'mapas/mapa_bin_142.fits'
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
-fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_1500_profile_ebin_142.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_2000_profile_ebin_142.fits')[0].header
 
 print(p_name)
 
@@ -86,4 +86,4 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'mapa_bin_142_miss_fullmodel.fits',overwrite=True)
+hdul.writeto(folder+'mapas/mapa_bin_142_miss_fullmodel.fits',overwrite=True)

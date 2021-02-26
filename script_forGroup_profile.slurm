@@ -12,7 +12,7 @@
 . /etc/profile
 source $HOME/.bashrc
 
-cd /mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/codes_HS_micev1.0/
+cd /mnt/projects/lensing/HALO_SHAPE/MICE_v1.0/codes_HS_micev1.0/
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
@@ -21,9 +21,9 @@ conda activate py3env
 
 ##srun python -u forGroup_map.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
 
-srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
+##srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
 
-##srun python -u compute_miss.py
+srun python -u compute_miss.py
 
 ##srun python -u forGroup_map.py -sample 'bin_144' -lM_min 14.4 -lM_max 14.6 -ncores 56
 ##srun python -u forGroup_map.py -sample 'bin_142' -lM_min 14.2 -lM_max 14.4 -ncores 56

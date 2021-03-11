@@ -279,13 +279,13 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
         mq      = (L.q2d >= q_min)*(L.q2d < q_max)
         mlenses = mz*mregion*mq*mrcut
+        Nlenses = mlenses.sum()        
+        
+        print('Nlenses',Nlenses)
         
         L = L[mlenses]
-        lmo = np.argsort(L.lgm)[-200:]
         
-        L = L[lmo]
-        
-        for j in range(200):
+        for j in range(mlenses.sum()):
                 
                 idhalo = L.unique_halo_id_raw[j]       
                 Nlenses = 1
@@ -294,7 +294,6 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                         ncores = Nlenses
                 
                 print('Nlenses',Nlenses)
-                print('CORRIENDO EN ',ncores,' CORES')
                 print('LENS ',j)
                 
                 
@@ -385,7 +384,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 
                 hdul = fits.HDUList([primary_hdu, tbhdu_pro])
                 
-                hdul.writeto(folder+'mapa_ind_'+str(j)+'.fits',overwrite=True)
+                hdul.writeto(folder+'mapas/mapa_ind_'+sample+'_'+str(idhalo)+'.fits',overwrite=True)
                 
         tfin = time.time()
         

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=map_pru
+#SBATCH --job-name=profile_pru
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=5:00:00
@@ -23,8 +23,8 @@ conda activate py3env
 
 ##srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
 
-##srun python -u forGroup_qprofile.py -rmin 10. -lM_min 13.7 -lM_max 14. -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_map.py -rmin 10. -lM_min 13.5 -lM_max 14. -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -rmin 10. -lM_min 13.7 -lM_max 14. -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_map.py -rmin 10. -lM_min 13.5 -lM_max 14. -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_map.py -sample 'bin_144' -lM_min 14.4 -lM_max 14.6 -ncores 56
 ##srun python -u forGroup_map.py -sample 'bin_142' -lM_min 14.2 -lM_max 14.4 -ncores 56

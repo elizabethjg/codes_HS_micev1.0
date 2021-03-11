@@ -1,6 +1,6 @@
 import sys
-sys.path.append('/mnt/clemente/lensing')
-sys.path.append('/mnt/clemente/lensing/lens_codes_v3.7')
+sys.path.append('/mnt/projects/lensing')
+sys.path.append('/mnt/projects/lensing/lens_codes_v3.7')
 sys.path.append('/home/eli/lens_codes_v3.7')
 import time
 import numpy as np
@@ -64,22 +64,22 @@ hcosmo     = float(args.h_cosmo)
 
 '''
 sample='pru'
-lM_min=14.
-lM_max=14.2
+lM_min=13.6
+lM_max=13.65
 z_min = 0.1
-z_max = 0.4
+z_max = 0.11
 q_min = 0.
-q_max = 0.6
+q_max = 1.0
 RIN = 400.
 ROUT = 5000.
-ndots= 40
+ndots= 5000
 ncores = 40
 hcosmo = 1.0 
 vmice = 2
 '''
 
 
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/catalogs/'
+folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/catalogs/'
 S      = fits.open(folder+'MICE_sources.fits')[1].data
 
 
@@ -274,7 +274,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
 
             mrcut   = np.ones(len(L.ra)).astype(bool)
             
-        mregion = (L.ra < 80.)*(L.dec < 50.)#*(L.dec > 36.5)        
+        mregion = (L.ra < 80.)*(L.dec < 50.)#*(L.dec > 36.5) 
+        mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
         mq      = (L.q2d >= q_min)*(L.q2d < q_max)
         mlenses = mz*mregion*mq*mrcut

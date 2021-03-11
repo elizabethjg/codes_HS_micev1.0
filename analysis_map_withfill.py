@@ -18,8 +18,8 @@ Msun = M_sun.value # Solar mass (kg)
 folder = '../../MICEv2.0/'
 
 bnum = '142'
-# mis  = '_allmis'
-mis  = ''
+mis  = '_allmis'
+# mis  = ''
 
 p_name = 'profiles/profile_ebin_'+bnum+'.fits'
 m_name = 'mapas/mapa_bin_'+bnum+'.fits'

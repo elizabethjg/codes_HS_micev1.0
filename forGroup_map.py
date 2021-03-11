@@ -79,8 +79,8 @@ vmice = 2
 '''
 
 
-folder = '/mnt/clemente/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/catalogs/'
-S      = fits.open(folder+'MICE_sources.fits')[1].data
+folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/'
+S      = fits.open(folder+'catalogs/MICE_sources.fits')[1].data
 
 
 def partial_map(RA0,DEC0,Z,angles,ROUT,ndots,h):
@@ -265,7 +265,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 
         #reading cats
         
-        L = fits.open(folder+'MICE_halo_cat_withshapes.fits')[1].data
+        L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes.fits')[1].data
         
         try:
             mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
@@ -476,7 +476,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         hdul = fits.HDUList([primary_hdu, tbhdu_pro, tbhdu_cov])
         
-        hdul.writeto(folder+'mapa_'+sample+'.fits',overwrite=True)
+        hdul.writeto(folder+'mapas/mapa_'+sample+'.fits',overwrite=True)
                 
         tfin = time.time()
         

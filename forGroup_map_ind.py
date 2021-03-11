@@ -79,7 +79,7 @@ vmice = 2
 '''
 
 
-folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/catalogs/'
+folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/'
 S      = fits.open(folder+'catalogs/MICE_sources.fits')[1].data
 
 

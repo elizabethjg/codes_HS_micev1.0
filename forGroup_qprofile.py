@@ -16,6 +16,10 @@ from multiprocessing import Process
 import argparse
 from astropy.constants import G,c,M_sun,pc
 
+###################
+# ARREGLAR RPROX 14
+##################
+
 #parameters
 cvel = c.value;   # Speed of light (m.s-1)
 G    = G.value;   # Gravitational constant (m3.kg-1.s-2)

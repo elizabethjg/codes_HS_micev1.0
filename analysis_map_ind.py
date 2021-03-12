@@ -15,26 +15,20 @@ Msun = M_sun.value # Solar mass (kg)
 
 
     
-folder = '../../MICEv2.0/'
+folder = '../../MICEv2.0/mapas/'
 
-for j in range(200):
+ides = np.loadtxt(folder+'list_mpru').astype(int)
 
-    m_name = 'mapas/mapa_ind_'+str(j)+'.fits'
+for j in ides:
+
+    m_name = 'mapa_ind_pru_'+str(j)+'.fits'
 
     mapa = fits.open(folder+m_name)[1].data
 
     x = mapa.xmpc
     y = mapa.ympc
 
-    f, ax = plt.subplots(1,3, figsize=(14,5), sharex=True, sharey=True)
-    f.subplots_adjust(hspace=0,wspace=0)
     
-    ax[0].scatter(x,y,c=mapa.K,vmin=-0.02,vmax=0.02)
-    ax[1].scatter(x,y,c=mapa.GT,vmin=-50,vmax=50.)
-    ax[2].scatter(x,y,c=mapa.GX,vmin=-50,vmax=50.)
+    plt.scatter(x,y,c=mapa.K,vmin=-0.005,vmax=0.005)
     
-    ax[0].set_title('Kappa')
-    ax[1].set_title('GT')
-    ax[2].set_title('GX')
-    
-    f.savefig(folder+'mapas/mapas_ind/mapa'+str(j)+'.png')
+    plt.savefig(folder+'pru/mapas_ind/mapa'+str(j)+'.png')

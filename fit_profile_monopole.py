@@ -107,7 +107,7 @@ def log_probability(data_model, r, profiles, iCOV):
     
     lM200,s_off,c200 = data_model
     
-    if 0.0 < s_off < 0.5 and 12.5 < lM200 < 16.0 and 2. < c200 < 7.:
+    if 0.0 < s_off < 0.5 and 12.5 < lM200 < 16.0 and 0. < c200 < 7.:
         return log_likelihood(data_model, r, profiles, iCOV)
         
     return -np.inf
@@ -116,7 +116,7 @@ def log_probability(data_model, r, profiles, iCOV):
 
 pos = np.array([np.random.uniform(12.5,15.5,15),
                 np.random.uniform(0.,0.2,15),
-                np.random.uniform(2.5,5.5,15)]).T
+                np.random.uniform(1.0,4.0,15)]).T
 
 qdist = pos[:,1]                
 pos[qdist > 1.,1] = 1.

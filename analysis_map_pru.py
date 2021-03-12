@@ -21,7 +21,7 @@ bnum = 'pru'
 
 p_name = 'profiles/profile_'+bnum+'.fits'
 m_name = 'mapas/mapa_'+bnum+'.fits'
-m_name_miss = 'mapas/mapa_bin_142_miss.fits'
+m_name_miss = 'mapas/mapa_bin_'+bnum+'_miss.fits'
 
 
 mapmodel_folder = 'mapas/'+bnum+'/map_models/'
@@ -98,19 +98,12 @@ gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,co
 gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
 
 mass = str(np.round(np.log10(nfw.M200),1))
-
-f, ax = plt.subplots() 
-f1, ax1 = plt.subplots() 
-f2, ax2 = plt.subplots() 
-
-ax1.legend()
-ax2.legend()
-
 o = np.argsort(r)
 
+f, ax = plt.subplots() 
 ax.plot(p.Rp,p.DSigma_T,'C1')
 ax.plot(nfw.xplot,nfw.yplot,'C3',label = 'lM200='+mass+',c200='+str(nfw.c200),alpha=0.5) 
-# ax.plot(r[o],miss.DS0[o],'C3',label = 'lM200='+str(lM200_miss)+',c200='+str(c200_miss)+',soff='+str(soff)) 
+ax.plot(r[o],miss.DS0[o],'C3',label = 'lM200='+str(lM200_miss)+',c200='+str(c200_miss)+',soff='+str(soff)) 
 ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
 ax.set_xscale('log')
 ax.set_yscale('log')
@@ -127,7 +120,7 @@ f.savefig(folder+pfolder+'profile_DS.png')
 
 # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
 # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
-
+f1, ax1 = plt.subplots() 
 ax1.plot(p.Rp,GT,'C4',label = 'standard')
 # ax1.plot(p.Rp,GTr,'C0--',label = 'reduced')
 ax1.plot(rplot,gt,'C3',alpha= 0.5)
@@ -149,7 +142,7 @@ f1.savefig(folder+pfolder+'profile_GT.png')
 
 # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
 # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
-
+f2, ax2 = plt.subplots() 
 ax2.plot([0,5],[0,0],'C7')
 ax2.plot(p.Rp,GX,'C2')
 # ax2.plot(p.Rp,GXr,'C5--')

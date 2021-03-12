@@ -65,18 +65,21 @@ hcosmo     = float(args.h_cosmo)
 
 '''
 sample='pru'
-lM_min=14.35
-lM_max=14.4
+lM_min=13.5
+lM_max=14.
 z_min = 0.1
-z_max = 0.4
+z_max = 0.12
 q_min = 0.
-q_max = 0.6
-RIN = 400.
-ROUT = 5000.
+q_max = 1.
+RIN = 100.
+ROUT = 10000.
 ndots= 40
 ncores = 40
 hcosmo = 1.0 
 vmice = 2
+rmin = 10.
+rmax = 1000.
+rprox = 'Rprox_lM14cut'
 '''
 
 
@@ -281,7 +284,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
         mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-        mlenses = mmass*mz*mregion*mq*mrcut
+        mlenses = mmass*mz*mq*mrcut
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:

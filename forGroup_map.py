@@ -278,7 +278,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
         mz      = (L.z_v >= z_min)*(L.z_v < z_max)
         mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-        mlenses = mmass*mz*mregion*mq*mrcut
+        mlenses = mmass*mz*mq*mrcut
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:

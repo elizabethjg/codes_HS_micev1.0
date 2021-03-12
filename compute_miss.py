@@ -17,9 +17,11 @@ Msun = M_sun.value # Solar mass (kg)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-sample', action='store', dest='samp', default='pru')
+parser.add_argument('-ncores', action='store', dest='ncores', default=48)
 args = parser.parse_args()
 
 sampname = args.samp
+ncores    = int(args.ncores)
     
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/'
 
@@ -65,15 +67,15 @@ r = np.sqrt(x**2 + y**2)
 R = r*np.sqrt(q*(np.cos(theta))**2 + (np.sin(theta))**2 / q)
 
 print('Computing S0...')
-S0 = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+S0 = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing DS0...')
-DS0 = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+DS0 = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing S...')
-S = Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+S = Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing DS...')
-DS = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=56)
+DS = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing gt,gx...')
-gt,gx,s2 = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo, return_S2 = True, ncores=56)
+gt,gx,s2 = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo, return_S2 = True, ncores=ncores)
 
 
 table = [fits.Column(name='rmpc', format='E', array=r),

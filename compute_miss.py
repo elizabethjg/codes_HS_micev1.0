@@ -7,6 +7,7 @@ sys.path.append('/home/elizabeth/lens_codes_v3.7')
 sys.path.append('/mnt/projects/lensing/lens_codes_v3.7')
 from models_profiles import *
 from astropy.constants import G,c,M_sun, pc
+import argparse
 
 cvel = c.value;   # Speed of light (m.s-1)
 G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
@@ -14,18 +15,21 @@ pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-sample', action='store', dest='samp', default='pru')
+args = parser.parse_args()
+
+sampname = args.samp
     
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/'
 
-
-p_name = 'profiles/profile_ebin_142.fits'
-m_name = 'mapas/mapa_bin_142.fits'
+p_name = 'profiles/profile_'+sampname+'.fits'
+m_name = 'mapas/mapa_'+sampname+'.fits'
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
-# fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_0_2000_profile_ebin_142.fits')[0].header
-fitmiss = fits.open(folder+'profiles/fitresults_fullmodel_allmis_0_2000_profile_ebin_142.fits')[0].header
-# fitmiss = fits.open(folder+'profiles/fitresults_mono_Rayleigh_0_2500_profile_ebin_142.fits')[0].header
+
+fitmiss = fits.open(folder+'profiles/fitresults_mono_Rayleigh_0_2500_profile_'+sampname+'.fits')[0].header
 
 print(p_name)
 
@@ -92,4 +96,4 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'mapas/mapa_bin_142_miss_fullmodel_allmis.fits',overwrite=True)
+hdul.writeto(folder+'mapas/mapa_bin_'+sampname+'_miss.fits',overwrite=True)

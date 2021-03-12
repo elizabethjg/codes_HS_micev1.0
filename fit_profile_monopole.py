@@ -29,7 +29,7 @@ ROUT =2500.
 # '''
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-folder', action='store', dest='folder', default='/mnt/clemente/lensing/HALO_SHAPE/MICE_v2.0/catalogs/')
+parser.add_argument('-folder', action='store', dest='folder', default='/mnt/projects/lensing/HALO_SHAPE/MICE_v2.0/catalogs/')
 parser.add_argument('-file', action='store', dest='file_name', default='profile.cat')
 parser.add_argument('-ncores', action='store', dest='ncores', default=40)
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)

@@ -28,12 +28,12 @@ ROUT =2000.
 # '''
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-folder', action='store', dest='folder', default='/mnt/clemente/lensing/HALO_SHAPE/MICEv2.0/profiles/')
+parser.add_argument('-folder', action='store', dest='folder', default='/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/profiles/')
 parser.add_argument('-file', action='store', dest='file_name', default='profile.cat')
 parser.add_argument('-ncores', action='store', dest='ncores', default=40)
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)
-parser.add_argument('-ROUT', action='store', dest='ROUT', default=2000)
-parser.add_argument('-nit', action='store', dest='nit', default=500)
+parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
+parser.add_argument('-nit', action='store', dest='nit', default=400)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
 parser.add_argument('-Proff', action='store', dest='Proff', default='Rayleigh')
 args = parser.parse_args()

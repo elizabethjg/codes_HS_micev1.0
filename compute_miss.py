@@ -42,7 +42,7 @@ cov = profile[2].data
 
 lM200_miss = fitmiss['lm200']
 c200_miss = fitmiss['c200']
-soff = 0.08
+soff = fitmiss['soff']
 
 cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 

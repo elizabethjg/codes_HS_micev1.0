@@ -93,6 +93,10 @@ tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
 
 h = fits.Header()
+h.append(('lM200',np.round(lM200_miss,4)))
+h.append(('soff',np.round(c200_miss,4)))
+h.append(('c200',np.round(soff,4)))
+h.append(('q',np.round(q,4)))
 
 primary_hdu = fits.PrimaryHDU(header=h)
 

@@ -17,7 +17,7 @@ Msun = M_sun.value # Solar mass (kg)
 folder = '../../MICEv2.0/'
 
 
-bnum = 'pru'
+bnum = 'pru_elip'
 
 p_name = 'profiles/profile_'+bnum+'.fits'
 m_name = 'mapas/mapa_'+bnum+'.fits'
@@ -96,7 +96,7 @@ rplot = np.arange(0.1,5,0.05)
 nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
 gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
 gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-
+# DSmiss = Delta_Sigma_NFW_miss_parallel(p.Rp,zmean,10**lM200_miss,s_off=soff,c200=c200_miss,P_Roff = Rayleigh,cosmo=cosmo,ncores=2)
 mass = str(np.round(np.log10(nfw.M200),1))
 o = np.argsort(r)
 

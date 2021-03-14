@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=all
+#SBATCH --job-name=pru
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=5:00:00
@@ -23,11 +23,11 @@ conda activate py3env
 
 ##srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
 
-srun python -u compute_miss.py -sample pru -ncores $SLURM_CPUS_PER_TASK
-srun python -u compute_miss.py -sample pru_round -ncores $SLURM_CPUS_PER_TASK
-srun python -u compute_miss.py -sample pru_elip -ncores $SLURM_CPUS_PER_TASK
-srun python -u compute_miss.py -sample pru_dens -ncores $SLURM_CPUS_PER_TASK
-srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
+srun python -u compute_miss.py -sample $SLURM_JOB_NAME -ncores $SLURM_CPUS_PER_TASK
+##srun python -u compute_miss.py -sample pru_round -ncores $SLURM_CPUS_PER_TASK
+##srun python -u compute_miss.py -sample pru_elip -ncores $SLURM_CPUS_PER_TASK
+##srun python -u compute_miss.py -sample pru_dens -ncores $SLURM_CPUS_PER_TASK
+##srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_qprofile.py -sample 'pru' -lM_min 13.4 -lM_max 14. -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample 'pru_round' -q_min 0.7 -lM_min 13.4 -lM_max 14. -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK

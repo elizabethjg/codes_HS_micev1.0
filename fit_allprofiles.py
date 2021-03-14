@@ -96,7 +96,6 @@ def log_likelihood(data_model, R, profiles, iCOV):
     lM200,c200,soff,q = data_model
     
     e  = (1.-q)/(1.+q)
-    ef = (1.-qf)/(1.+qf)
     
     ds, gt, gx = profiles
     iCds, iCgt, iCgx = iCOV 

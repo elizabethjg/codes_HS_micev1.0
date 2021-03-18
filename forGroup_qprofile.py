@@ -44,10 +44,12 @@ parser.add_argument('-ROUT', action='store', dest='ROUT', default=10000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
 parser.add_argument('-ncores', action='store', dest='ncores', default=10)
 parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
+parser.add_argument('-ides_list', action='store', dest='idlist', default=None)
 args = parser.parse_args()
 
 sample     = args.sample
 rprox      = args.rprox
+idlist     = args.idlist
 rmin       = float(args.rmin)
 rmax       = float(args.rmax) 
 lM_min     = float(args.lM_min)
@@ -232,7 +234,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 z_min = 0.1, z_max = 0.4,
                 q_min = 0., q_max = 1.0,
                 RIN = 400., ROUT =5000.,
-                ndots= 40, ncores=10, hcosmo=1.0):
+                ndots= 40, ncores=10, 
+                idlist= None, hcosmo=1.0):
 
         '''
         
@@ -260,14 +263,18 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         print('Sample ',sample)
         print('Selecting groups with:')
-        print(lM_min,' <= log(M) < ',lM_max)
-        print(rmin,' <= '+rprox+' < ',rmax)
-        print(z_min,' <= z < ',z_max)
-        print(q_min,' <= q < ',q_max)
-        print('Profile has ',ndots,'bins')
-        print('from ',RIN,'kpc to ',ROUT,'kpc')
-        print('h ',hcosmo)
-        print('MICE version ',vmice)
+        
+        if idlist:
+                print('From id list '+idlist)
+        else:
+                print(lM_min,' <= log(M) < ',lM_max)
+                print(rmin,' <= '+rprox+' < ',rmax)
+                print(z_min,' <= z < ',z_max)
+                print(q_min,' <= q < ',q_max)
+                print('Profile has ',ndots,'bins')
+                print('from ',RIN,'kpc to ',ROUT,'kpc')
+                print('h ',hcosmo)
+                print('MICE version ',vmice)
               
         # Defining radial bins
         bines = np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1)
@@ -277,18 +284,23 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes.fits')[1].data
         
-        try:
-            mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
-        except:
-            print(rprox+' NOT FINDED')
-
-            mrcut   = np.ones(len(L.ra)).astype(bool)
-            
-        mregion = (L.ra < 80.)*(L.dec < 50.)#*(L.dec > 36.5)        
-        mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
-        mz      = (L.z_v >= z_min)*(L.z_v < z_max)
-        mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-        mlenses = mmass*mz*mq*mrcut
+        if idlist:
+                ides = np.loadtxt(folder+'catalogs/'+idlist).astype(int)
+                mlenses = np.in1d(L.unique_halo_id,ides)
+        else:
+        
+                try:
+                mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
+                except:
+                print(rprox+' NOT FINDED')
+        
+                mrcut   = np.ones(len(L.ra)).astype(bool)
+                
+                mregion = (L.ra < 80.)*(L.dec < 50.)#*(L.dec > 36.5)        
+                mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
+                mz      = (L.z_v >= z_min)*(L.z_v < z_max)
+                mq      = (L.q2d >= q_min)*(L.q2d < q_max)
+                mlenses = mmass*mz*mq*mrcut
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:

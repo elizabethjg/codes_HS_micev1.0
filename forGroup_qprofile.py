@@ -290,9 +290,9 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         else:
         
                 try:
-                mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
+                        mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
                 except:
-                print(rprox+' NOT FINDED')
+                        print(rprox+' NOT FINDED')
         
                 mrcut   = np.ones(len(L.ra)).astype(bool)
                 

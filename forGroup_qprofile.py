@@ -81,7 +81,8 @@ hcosmo = 1.0
 vmice = 2
 rmin = 0.
 rmax = 1000.
-rprox = 'Rprox_lM14cut'
+rprox = 'R2_14'
+idlist = '139_145_ides.list'
 '''
 
 

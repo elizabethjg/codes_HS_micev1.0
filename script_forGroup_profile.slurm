@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=pro
+#SBATCH --job-name=map
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=1:00:00

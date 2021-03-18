@@ -132,7 +132,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         #get cross ellipticities
         ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c
         # '''
-        
+        k  = catdata.kappa*sigma_c
           
         # del(e1)
         # del(e2)
@@ -151,6 +151,8 @@ def partial_profile(RA0,DEC0,Z,angles,
         an = np.tile(angles,(len(theta_ra),1))
         at     = t - an
         
+        
+        SIGMAwsum    = []
         DSIGMAwsum_T = []
         DSIGMAwsum_X = []
         N_inbin = []
@@ -165,6 +167,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         for nbin in range(ndots):
                 mbin = dig == nbin+1              
                 
+                SIGMAwsum    = np.append(SIGMAwsum,k[mbin].sum())
                 DSIGMAwsum_T = np.append(DSIGMAwsum_T,et[mbin].sum())
                 DSIGMAwsum_X = np.append(DSIGMAwsum_X,ex[mbin].sum())
 
@@ -193,7 +196,8 @@ def partial_profile(RA0,DEC0,Z,angles,
 
                 '''
                 
-        output = {'DSIGMAwsum_T':DSIGMAwsum_T,'DSIGMAwsum_X':DSIGMAwsum_X,
+        output = {'SIGMAwsum':SIGMAwsum,'DSIGMAwsum_T':DSIGMAwsum_T,
+                   'DSIGMAwsum_X':DSIGMAwsum_X,
                    'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
                    'COS2_2theta_wsum':COS2_2theta,'SIN2_2theta_wsum':SIN2_2theta,
                    'N_inbin':N_inbin,'Ntot':Ntot}
@@ -330,6 +334,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         # WHERE THE SUMS ARE GOING TO BE SAVED
         
+        SIGMAwsum    = np.zeros((101,ndots)) 
         DSIGMAwsum_T = np.zeros((101,ndots)) 
         DSIGMAwsum_X = np.zeros((101,ndots))
               
@@ -377,6 +382,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                         profilesums = salida[j]
                         km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
                                                 
+                        SIGMAwsum    += np.tile(profilesums['SIGMAwsum'],(101,1))*km[:,:,0]
                         DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]
                         DSIGMAwsum_X += np.tile(profilesums['DSIGMAwsum_X'],(101,1))*km[:,:,0]
                         
@@ -401,6 +407,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         # COMPUTING PROFILE        
         Ninbin[DSIGMAwsum_T == 0] = 1.
                 
+        Sigma     = (SIGMAwsum/Ninbin)
         DSigma_T  = (DSIGMAwsum_T/Ninbin)
         DSigma_X  = (DSIGMAwsum_X/Ninbin)
         
@@ -409,6 +416,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         # COMPUTE COVARIANCE
 
+        COV_S   = cov_matrix(Sigma[1:,:])
         COV_St  = cov_matrix(DSigma_T[1:,:])
         COV_Sx  = cov_matrix(DSigma_X[1:,:])
         
@@ -446,6 +454,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         # WRITING OUTPUT FITS FILE
         
         table_pro = [fits.Column(name='Rp', format='E', array=R),
+                fits.Column(name='Sigma', format='E', array=Sigma[0]),
                 fits.Column(name='DSigma_T', format='E', array=DSigma_T[0]),
                 fits.Column(name='DSigma_X', format='E', array=DSigma_X[0]),
                 fits.Column(name='GAMMA_Tcos_control', format='E', array=GAMMA_Tcos[:,0,0]),
@@ -457,6 +466,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 
                      
         table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
+                    fits.Column(name='COV_S', format='E', array=COV_S.flatten()),
                     fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
                     fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
                     fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),

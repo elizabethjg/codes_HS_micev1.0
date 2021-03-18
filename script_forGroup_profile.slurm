@@ -7,7 +7,7 @@
 ## Change "root" for your e-mail address
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mail-user=ejgonzalez@unc.edu.ar
-##SBATCH --lm_min=13.0
+
 
 . /etc/profile
 source $HOME/.bashrc

@@ -267,7 +267,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                                 
                 for j in range(len(entrada)):
                         
-                        print(Lsplit[l].unique_halo_id[j])
+                        # print(Lsplit[l].unique_halo_id[j])
                         
                         S,DS = salida[j]
                         

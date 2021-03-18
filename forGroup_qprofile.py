@@ -65,8 +65,8 @@ hcosmo     = float(args.h_cosmo)
 
 '''
 sample='pru'
-lM_min=13.5
-lM_max=14.
+lM_min=13.9
+lM_max=14.5
 z_min = 0.1
 z_max = 0.12
 q_min = 0.
@@ -77,7 +77,7 @@ ndots= 40
 ncores = 40
 hcosmo = 1.0 
 vmice = 2
-rmin = 10.
+rmin = 0.
 rmax = 1000.
 rprox = 'Rprox_lM14cut'
 '''

@@ -264,7 +264,6 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         print('Sample ',sample)
         print('Selecting groups with:')
         
-        print idlist
         
         if idlist:
                 print('From id list '+idlist)

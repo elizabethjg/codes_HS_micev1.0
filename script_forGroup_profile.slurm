@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=pru_hz
+#SBATCH --job-name=ind
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=8:00:00
@@ -19,6 +19,8 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
+srun python -u forGroup_qprofile_individual.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
+
 ##srun python -u forGroup_map.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u fit_profile_fullmodel_allmis.py -file 'profile_ebin_142.fits' -ncores $SLURM_CPUS_PER_TASK
@@ -29,15 +31,15 @@ conda activate py3env
 ##srun python -u compute_miss.py -sample pru_dens -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
 
-srun python -u forGroup_qprofile.py -sample 'pru_hz' -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'pru_round_hz' -q_min 0.7 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_map.py -sample 'pru_round_hz' -q_min 0.7 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'pru_elip_hz' -q_max 0.5 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_map.py -sample 'pru_elip_hz' -q_max 0.5 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'pru_dens_hz' -rmax 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_map.py -sample 'pru_dens_hz' -rmax 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample 'pru_iso_hz' -rmin 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_map.py -sample 'pru_iso_hz'-rmin 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'pru_hz' -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'pru_round_hz' -q_min 0.7 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_map.py -sample 'pru_round_hz' -q_min 0.7 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'pru_elip_hz' -q_max 0.5 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_map.py -sample 'pru_elip_hz' -q_max 0.5 -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'pru_dens_hz' -rmax 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_map.py -sample 'pru_dens_hz' -rmax 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_qprofile.py -sample 'pru_iso_hz' -rmin 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_map.py -sample 'pru_iso_hz'-rmin 30. -lM_min 13.4 -lM_max 14. -z_min 0.30 -z_max 0.31 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_map.py -sample 'bin_144' -lM_min 14.4 -lM_max 14.6 -ncores 56
 ##srun python -u forGroup_map.py -sample 'bin_142' -lM_min 14.2 -lM_max 14.4 -ncores 56

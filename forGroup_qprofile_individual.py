@@ -236,7 +236,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
 
                 
         Ntot         = np.array([])
-
+        tslice       = np.array([])
         table = [fits.Column(name='Rp', format='E', array=np.append(0,R))]
         
         for l in range(len(Lsplit)):

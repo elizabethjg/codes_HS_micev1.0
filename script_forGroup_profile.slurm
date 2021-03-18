@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=map
+#SBATCH --job-name=ind
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=4:00:00
@@ -19,9 +19,9 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-##srun python -u forGroup_qprofile_individual.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile_individual.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_map.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_map.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_map.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK
 

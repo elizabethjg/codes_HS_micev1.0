@@ -264,6 +264,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         print('Sample ',sample)
         print('Selecting groups with:')
         
+        print idlist
+        
         if idlist:
                 print('From id list '+idlist)
         else:
@@ -529,4 +531,4 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
 
 
-main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,hcosmo)
+main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,idlist,hcosmo)

@@ -265,15 +265,17 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                         salida = np.array(pool.map(partial_profile_unpack, entrada))
                         pool.terminate()
                                 
-                for j in range(len(salida)):
+                for j in range(len(entrada)):
+                        
+                        print(Lsplit[l].unique_halo_id[j])
                         
                         S,DS = salida[j]
                         
                         S = np.append(Lsplit[l].unique_halo_id[j],S)
                         DS = np.append(Lsplit[l].unique_halo_id[j],DS)
 
-                        table += [fits.Column(name='S'+str(Isplit[l][j]), format='E', array=S)]
-                        table += [fits.Column(name='DS'+str(Isplit[l][j]), format='E', array=DS)]
+                        table += [fits.Column(name='S'+str(Isplit[l][j]), format='D', array=S)]
+                        table += [fits.Column(name='DS'+str(Isplit[l][j]), format='D', array=DS)]
                 
                 t2 = time.time()
                 ts = (t2-t1)/60.

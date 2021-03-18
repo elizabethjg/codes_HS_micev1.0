@@ -84,7 +84,7 @@ rprox = 'Rprox_lM14cut'
 
 
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/'
-S      = fits.open(folder+'catalogs/MICE_sources_HS.fits')[1].data
+S      = fits.open(folder+'catalogs/MICE_sources_HSN.fits')[1].data
 
 
 def partial_profile(RA0,DEC0,Z,RIN,ROUT,ndots,h):

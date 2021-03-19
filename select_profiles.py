@@ -97,29 +97,30 @@ ides = np.zeros((nlens))
 
 for j in range(nlens):
     
-    plt.plot(p.Rp,p_ind['S'+str(j)][1:],'k',alpha=0.2)
-    pall[j,:] = p_ind['S'+str(j)][1:][mask]
-    ides[j] = p_ind['S'+str(j)][0]
+    plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'k',alpha=0.2)
+    pall[j,:] = p_ind['DS'+str(j)][1:][mask]
+    ides[j] = p_ind['DS'+str(j)][0]
     
 
 
 m   = np.tile(np.median(pall,axis=0),(nlens,1))
 q10 = np.tile(np.quantile(pall,0.1,axis=0),(nlens,1))
-q90 = np.tile(np.quantile(pall,0.9,axis=0),(nlens,1))
+q95 = np.tile(np.quantile(pall,0.97,axis=0),(nlens,1))
 
-conserve = np.all((pall > q10),axis=1)
+conserve = np.all((pall > q10)*(pall < q95),axis=1)
 
 for j in range(nlens):
     
     if conserve[j]:
     
-        plt.plot(p.Rp,p_ind['S'+str(j)][1:],'C0',alpha=0.2)
+        plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'C0',alpha=0.2)
         
 
 
 
 
-plt.plot(p.Rp,p.Sigma,'C3')
+plt.plot(p.Rp,p.DSigma_T,'C3')
 
     
-np.savetxt(folder+'139_145_ides.list', fmt='%.20j'
+np.savetxt(folder+'139_145_ides.list', ides[conserve],fmt='%100i')
+np.savetxt(folder+'139_145_ides_discard.list', ides[~conserve],fmt='%100i')

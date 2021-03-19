@@ -212,8 +212,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 lM_min=14.,lM_max=14.2,
                 z_min = 0.1, z_max = 0.4,
                 q_min = 0., q_max = 1.0,
-                RIN = 400., ROUT =5000.,
-                ndots= 40, ncores=10, 
+                ROUT =5000.,ndots= 40, ncores=10, 
                 idlist= None, hcosmo=1.0):
 
         '''

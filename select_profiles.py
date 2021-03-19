@@ -97,7 +97,7 @@ ides = np.zeros((nlens))
 
 for j in range(nlens):
     
-    plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'k',alpha=0.2)
+    plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'k')
     pall[j,:] = p_ind['DS'+str(j)][1:][mask]
     ides[j] = p_ind['DS'+str(j)][0]
     
@@ -113,7 +113,7 @@ for j in range(nlens):
     
     if conserve[j]:
     
-        plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'C0',alpha=0.2)
+        plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'C0')
         
 
 

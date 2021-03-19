@@ -65,8 +65,8 @@ hcosmo     = float(args.h_cosmo)
 
 '''
 sample='pru'
-lM_min=14.
-lM_max=14.4
+lM_min=13.6
+lM_max=14.5
 z_min = 0.1
 z_max = 0.12
 q_min = 0.
@@ -79,7 +79,7 @@ hcosmo = 1.0
 vmice = 2
 rmin = 0.
 rmax = 1000.
-rprox = 'Rprox_lM14cut'
+rprox = 'R2_14'
 '''
 
 
@@ -269,13 +269,13 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                         
                         # print(Lsplit[l].unique_halo_id[j])
                         
-                        S,DS = salida[j]
+                        Sigma,DSigma = salida[j]
                         
-                        S = np.append(Lsplit[l].unique_halo_id[j],S)
-                        DS = np.append(Lsplit[l].unique_halo_id[j],DS)
+                        Sigma = np.append(Lsplit[l].unique_halo_id[j],Sigma)
+                        DSigma = np.append(Lsplit[l].unique_halo_id[j],DSigma)
 
-                        table += [fits.Column(name='S'+str(Isplit[l][j]), format='D', array=S)]
-                        table += [fits.Column(name='DS'+str(Isplit[l][j]), format='D', array=DS)]
+                        table += [fits.Column(name='S'+str(Isplit[l][j]), format='D', array=Sigma)]
+                        table += [fits.Column(name='DS'+str(Isplit[l][j]), format='D', array=DSigma)]
                 
                 t2 = time.time()
                 ts = (t2-t1)/60.
@@ -291,7 +291,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         # WRITING OUTPUT FITS FILE
                 
-        tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
+        tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table4))
         
         h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
@@ -310,7 +310,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         hdul = fits.HDUList([primary_hdu, tbhdu])
         
-        hdul.writeto(folder+'profiles/profile_'+sample+'_individual.fits',overwrite=True)
+        hdul.writeto(folder+'profiles/profile_'+sample+'_individual_part2.fits',overwrite=True)
                 
         tfin = time.time()
         

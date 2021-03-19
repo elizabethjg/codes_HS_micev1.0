@@ -250,7 +250,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 print(rmin,' <= '+rprox+' < ',rmax)
                 print(z_min,' <= z < ',z_max)
                 print(q_min,' <= q < ',q_max)
-                print('Maps has ',ndots,'pixels')
+                print('Maps have ',ndots,'pixels')
                 print('up to ',ROUT,'kpc')
                 print('h ',hcosmo)
                 print('MICE version ',vmice)

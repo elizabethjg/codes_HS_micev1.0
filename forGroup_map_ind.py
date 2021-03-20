@@ -287,7 +287,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         for j in range(mlenses.sum()):
                 
-                idhalo = L.unique_halo_id_raw[j]       
+                idhalo = L.unique_halo_id[j]       
                 Nlenses = 1
         
                 if Nlenses < ncores:

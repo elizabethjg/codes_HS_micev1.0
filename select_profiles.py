@@ -14,24 +14,27 @@ pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
 mv = 2
-samp = '139_145'
+samp = '136_145'
     
 folder = '../../MICEv'+str(mv)+'.0/profiles/'
 
 
 p_name = 'profile_'+samp+'.fits'
 
-p_name_ind = 'profile_'+samp+'_individual.fits'
+p_name_ind1 = 'profile_'+samp+'_individual_part1.fits'
+p_name_ind2 = 'profile_'+samp+'_individual_part2.fits'
 
 profile = fits.open(folder+p_name)
-profile_ind = fits.open(folder+p_name_ind)
+profile_ind1 = fits.open(folder+p_name_ind1)
+profile_ind2 = fits.open(folder+p_name_ind2)
 
 print(p_name)
     
 # '''
 h   = profile[0].header
 p   = profile[1].data
-p_ind = profile_ind[1].data
+p_ind1 = profile_ind1[1].data
+p_ind2 = profile_ind2[1].data
 cov = profile[2].data
 
 cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
@@ -97,9 +100,16 @@ ides = np.zeros((nlens))
 
 for j in range(nlens):
     
-    plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'k')
-    pall[j,:] = p_ind['DS'+str(j)][1:][mask]
-    ides[j] = p_ind['DS'+str(j)][0]
+    try:
+    
+        plt.plot(p.Rp,p_ind1['DS'+str(j)][1:],'k')
+        pall[j,:] = p_ind1['DS'+str(j)][1:][mask]
+        ides[j] = p_ind1['DS'+str(j)][0]
+    except:
+        plt.plot(p.Rp,p_ind2['DS'+str(j)][1:],'k')
+        pall[j,:] = p_ind2['DS'+str(j)][1:][mask]
+        ides[j] = p_ind2['DS'+str(j)][0]
+
     
 
 
@@ -112,8 +122,10 @@ conserve = np.all((pall > q10)*(pall < q95),axis=1)
 for j in range(nlens):
     
     if conserve[j]:
-    
-        plt.plot(p.Rp,p_ind['DS'+str(j)][1:],'C0')
+        try:
+            plt.plot(p.Rp,p_ind1['DS'+str(j)][1:],'C0')
+        except:
+            plt.plot(p.Rp,p_ind2['DS'+str(j)][1:],'C0')
         
 
 
@@ -122,5 +134,5 @@ for j in range(nlens):
 plt.plot(p.Rp,p.DSigma_T,'C3')
 
     
-np.savetxt(folder+'139_145_ides.list', ides[conserve],fmt='%100i')
-np.savetxt(folder+'139_145_ides_discard.list', ides[~conserve],fmt='%100i')
+np.savetxt(folder+samp+'_ides.list', ides[conserve],fmt='%100i')
+np.savetxt(folder+samp+'_ides_discard.list', ides[~conserve],fmt='%100i')

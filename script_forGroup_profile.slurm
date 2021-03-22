@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=ind
+#SBATCH --job-name=map_miss
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
 #SBATCH --mail-type=FAIL,END
@@ -19,9 +19,10 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u comput_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
-srun python -u comput_miss.py -sample pru_dens -ncores $SLURM_CPUS_PER_TASK
-srun python -u comput_miss.py -sample pru_elip -ncores $SLURM_CPUS_PER_TASK
+srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
+srun python -u compute_miss.py -sample pru_dens -ncores $SLURM_CPUS_PER_TASK
+srun python -u compute_miss.py -sample pru_elip -ncores $SLURM_CPUS_PER_TASK
+srun python -u compute_miss.py -sample pru_round -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_qprofile_individual.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_qprofile.py -sample '139_145' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK

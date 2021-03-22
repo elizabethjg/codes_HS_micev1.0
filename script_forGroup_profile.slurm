@@ -2,7 +2,7 @@
 #SBATCH --job-name=map_miss
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
-#SBATCH --time=2:00:00
+#SBATCH --time=6:00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
 #SBATCH --mail-type=FAIL,END
@@ -19,7 +19,7 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
+##srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
 srun python -u compute_miss.py -sample pru_dens -ncores $SLURM_CPUS_PER_TASK
 srun python -u compute_miss.py -sample pru_elip -ncores $SLURM_CPUS_PER_TASK
 srun python -u compute_miss.py -sample pru_round -ncores $SLURM_CPUS_PER_TASK

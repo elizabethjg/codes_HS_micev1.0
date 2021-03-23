@@ -290,8 +290,9 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         
         # WRITING OUTPUT FITS FILE
-                
-        tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table4))
+        tbhdu0 = fits.BinTableHDU.from_columns(fits.ColDefs(table[583:]))
+        tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table[:583]))
+
         
         h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
@@ -308,8 +309,10 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         primary_hdu = fits.PrimaryHDU(header=h)
         
+        hdul0 = fits.HDUList([primary_hdu, tbhdu0])
         hdul = fits.HDUList([primary_hdu, tbhdu])
         
+        hdul0.writeto(folder+'profiles/profile_'+sample+'_individual_part1.fits',overwrite=True)
         hdul.writeto(folder+'profiles/profile_'+sample+'_individual_part2.fits',overwrite=True)
                 
         tfin = time.time()

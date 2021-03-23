@@ -17,12 +17,12 @@ Msun = M_sun.value # Solar mass (kg)
 folder = '../../MICEv2.0/'
 
 
-bnum = '134_140_zc'
+bnum = '136_145_zc4'
 
 p_name = 'profiles/profile_'+bnum+'.fits'
 m_name = 'mapas/mapa_'+bnum+'.fits'
 # m_name_miss = 'mapas/mapa_bin_'+bnum+'_miss.fits'
-m_name_miss = 'mapas/mapa_bin_pru_miss.fits'
+m_name_miss = 'mapas/mapa_bin_136_145_miss.fits'
 
 
 mapmodel_folder = 'mapas/'+bnum+'/map_models/'
@@ -35,7 +35,7 @@ os.system('mkdir '+folder+map_folder)
 os.system('mkdir '+folder+mapmodel_folder)
 
 # fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_'+bnum+'.fits')[0].header
-fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_pru.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_136_145.fits')[0].header
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data

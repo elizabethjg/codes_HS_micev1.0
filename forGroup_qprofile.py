@@ -82,13 +82,13 @@ vmice = 2
 rmin = 0.
 rmax = 1000.
 rprox = 'R2_14'
-idlist = '139_145_ides.list'
+idlist = None
 '''
 
 
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/'
 S      = fits.open(folder+'catalogs/MICE_sources_HSN.fits')[1].data
-
+S =  S[S.z_v < 0.8]
 
 def partial_profile(RA0,DEC0,Z,angles,
                     RIN,ROUT,ndots,h,nboot=100):

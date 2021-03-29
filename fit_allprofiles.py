@@ -51,6 +51,8 @@ if 'Gamma' in args.Proff:
 	Proff = Gamma
 elif 'Rayleigh' in args.Proff:
 	Proff = Rayleigh
+elif 'g' in args.Proff:
+    Proff = g
 
 
 	
@@ -62,7 +64,7 @@ ROUT      = float(args.ROUT)
 
 
 
-outfile     = 'fitresults_allprofiles_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
+outfile     = 'fitresults_allprofiles_'+args.Proff+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 plot_folder = folder+'plots_mcmc/'
 

@@ -98,8 +98,9 @@ rplot = np.arange(0.1,5,0.05)
 nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
 gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
 gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-DSmiss = Delta_Sigma_NFW_miss_parallel(p.Rp,zmean,10**lM200_miss,s_off=soff,c200=c200_miss,P_Roff = Rayleigh,angleint=[[-0.44,0.44],[2.71,3.58]],cosmo=cosmo,ncores=2)
-gt,gx = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, angleint=[[-0.44,0.44],[2.71,3.58]], cosmo=cosmo, ncores=2)
+DSmiss = Delta_Sigma_NFW_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,s_off=soff,c200=c200_miss,qmiss=0.8,cosmo=cosmo,ncores=2)
+gtmiss,gxmiss = GAMMA_components_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss,qmiss=0.8, cosmo=cosmo, ncores=2)
+
 mass = str(np.round(np.log10(nfw.M200),1))
 o = np.argsort(r)
 

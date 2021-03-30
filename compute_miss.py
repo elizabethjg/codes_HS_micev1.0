@@ -67,7 +67,7 @@ r = np.sqrt(x**2 + y**2)
 R = r*np.sqrt(q*(np.cos(theta))**2 + (np.sin(theta))**2 / q)
 
 print('Computing S0...')
-S0 = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo,ncores=ncores)
+S0 = Sigma_NFW_miss(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo,ncores=ncores)
 print('Computing DS0...')
 DS0 = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo,ncores=ncores)
 print('Computing S...')

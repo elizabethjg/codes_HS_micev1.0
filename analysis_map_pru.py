@@ -99,14 +99,14 @@ nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
 gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
 gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
 
-DSmissg = Delta_Sigma_NFW_miss_parallel(p.Rp,zmean,10**lM200_miss,s_off=soff,c200=c200_miss,P_Roff=g,cosmo=cosmo,ncores=2)
-gtmissg,gxmissg = GAMMA_components_miss_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,s_off=soff,P_Roff=g,c200 = c200_miss, cosmo=cosmo, ncores=2)
+DSmissg = Delta_Sigma_NFW_miss_parallel(p.Rp,zmean,10**lM200_miss,s_off=soff,c200=c200_miss,P_Roff=g,cosmo=cosmo,ncores=48)
+gtmissg,gxmissg = GAMMA_components_miss_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,s_off=soff,P_Roff=g,c200 = c200_miss, cosmo=cosmo, ncores=48)
 
-DSmisse = Delta_Sigma_NFW_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,soffx=soff,soffy=soff,c200=c200_miss,cosmo=cosmo,ncores=2)
-gtmisse,gxmisse = GAMMA_components_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,soffx=soff,soffy=soff,c200 = c200_miss, cosmo=cosmo, ncores=2)
+DSmisse = Delta_Sigma_NFW_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,soffx=soff,soffy=soff,c200=c200_miss,cosmo=cosmo,ncores=48)
+gtmisse,gxmisse = GAMMA_components_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,soffx=soff,soffy=soff,c200 = c200_miss, cosmo=cosmo, ncores=48)
 
-DSmiss1 = Delta_Sigma_NFW_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,soffx=0.1,soffy=0.05,c200=c200_miss,cosmo=cosmo,ncores=2)
-gtmiss1,gxmiss1 = GAMMA_components_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,soffx=0.1,soffy=0.05,c200 = c200_miss, cosmo=cosmo, ncores=2)
+DSmiss1 = Delta_Sigma_NFW_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,soffx=0.1,soffy=0.05,c200=c200_miss,cosmo=cosmo,ncores=48)
+gtmiss1,gxmiss1 = GAMMA_components_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,soffx=0.1,soffy=0.05,c200 = c200_miss, cosmo=cosmo, ncores=48)
 
 mass = str(np.round(np.log10(nfw.M200),1))
 o = np.argsort(r)

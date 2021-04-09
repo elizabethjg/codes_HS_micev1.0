@@ -25,7 +25,7 @@ conda activate py3env
 ##srun python -u compute_miss.py -sample pru_round -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_qprofile_individual.py -sample '136_145_zc' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_qprofile.py -sample '136_145_zM8' -lM_min 13.6 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample '136_145_nc' -lM_min 13.6 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_map.py -sample '136_145_nc' -lM_min 13.6 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_map.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK

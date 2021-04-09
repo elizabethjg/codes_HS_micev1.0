@@ -81,7 +81,7 @@ vmice = 2
 
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/'
 S      = fits.open(folder+'catalogs/MICE_sources_HSN.fits')[1].data
-S =  S[S.z_v > 0.8]
+
 
 def partial_map(RA0,DEC0,Z,angles,ROUT,ndots,h):
 
@@ -284,6 +284,13 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         print('Nlenses',Nlenses)
         
         L = L[mlenses]
+
+        ra = np.rad2deg(np.arctan(L.xc/L.yc))
+        dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
+        
+        L.ra = ra
+        L.dec = dec
+
         
         for j in range(mlenses.sum()):
                 

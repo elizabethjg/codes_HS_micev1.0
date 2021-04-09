@@ -88,7 +88,6 @@ idlist = None
 
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/'
 S      = fits.open(folder+'catalogs/MICE_sources_HSN.fits')[1].data
-S =  S[S.z_v > 0.8]
 
 def partial_profile(RA0,DEC0,Z,angles,
                     RIN,ROUT,ndots,h,nboot=100):
@@ -315,9 +314,11 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T
         # Define K masks
+        ra = np.rad2deg(np.arctan(L.xc/L.yc))
+        dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
         
-        ra = L.ra
-        dec = L.dec
+        L.ra = ra
+        L.dec = dec
         
         ramin  = np.min(ra)
         decmin = np.min(dec)

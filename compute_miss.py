@@ -31,7 +31,7 @@ m_name = 'mapas/mapa_'+sampname+'.fits'
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
 
-fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_g_0_2500_profile_'+sampname+'.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_'+sampname+'.fits')[0].header
 
 print(p_name)
 
@@ -67,15 +67,15 @@ r = np.sqrt(x**2 + y**2)
 R = r*np.sqrt(q*(np.cos(theta))**2 + (np.sin(theta))**2 / q)
 
 print('Computing S0...')
-S0 = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo,ncores=ncores)
+S0 = Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing DS0...')
-DS0 = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo,ncores=ncores)
+DS0 = Delta_Sigma_NFW_miss_parallel(r,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing S...')
-S = Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo,ncores=ncores)
+S = Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing DS...')
-DS = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo,ncores=ncores)
+DS = Delta_Sigma_NFW_miss_parallel(R,zmean,10**lM200_miss,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo,ncores=ncores)
 print('Computing gt,gx...')
-gt,gx,s2 = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= g, cosmo=cosmo, return_S2 = True, ncores=ncores)
+gt,gx,s2 = GAMMA_components_miss_parallel(r,zmean,10**lM200_miss,ellip=e,s_off = soff,c200 = c200_miss, P_Roff= Rayleigh, cosmo=cosmo, return_S2 = True, ncores=ncores)
 
 
 table = [fits.Column(name='rmpc', format='E', array=r),
@@ -102,4 +102,4 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'mapas/mapa_bin_'+sampname+'_g_miss.fits',overwrite=True)
+hdul.writeto(folder+'mapas/mapa_bin_'+sampname+'_miss.fits',overwrite=True)

@@ -17,12 +17,12 @@ Msun = M_sun.value # Solar mass (kg)
 folder = '../../MICEv2.0/'
 
 
-bnum = '136_145'
+bnum = '136_145_nc'
 
 p_name = 'profiles/profile_'+bnum+'.fits'
 m_name = 'mapas/mapa_'+bnum+'.fits'
 # m_name_miss = 'mapas/mapa_bin_'+bnum+'_miss.fits'
-m_name_miss = 'mapas/mapa_bin_136_145_g_miss.fits'
+m_name_miss = 'mapas/mapa_bin_136_145_miss.fits'
 
 
 mapmodel_folder = 'mapas/'+bnum+'/map_models/'
@@ -35,7 +35,7 @@ os.system('mkdir '+folder+map_folder)
 os.system('mkdir '+folder+mapmodel_folder)
 
 # fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_'+bnum+'.fits')[0].header
-fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_g_0_2500_profile_136_145.fits')[0].header
+fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_136_145.fits')[0].header
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
@@ -98,15 +98,6 @@ rplot = np.arange(0.1,5,0.05)
 nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
 gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
 gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-
-DSmissg = Delta_Sigma_NFW_miss_parallel(p.Rp,zmean,10**lM200_miss,s_off=soff,c200=c200_miss,P_Roff=g,cosmo=cosmo,ncores=48)
-gtmissg,gxmissg = GAMMA_components_miss_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,s_off=soff,P_Roff=g,c200 = c200_miss, cosmo=cosmo, ncores=48)
-
-DSmisse = Delta_Sigma_NFW_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,soffx=soff,soffy=soff,c200=c200_miss,cosmo=cosmo,ncores=48)
-gtmisse,gxmisse = GAMMA_components_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,soffx=soff,soffy=soff,c200 = c200_miss, cosmo=cosmo, ncores=48)
-
-DSmiss1 = Delta_Sigma_NFW_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,soffx=0.1,soffy=0.05,c200=c200_miss,cosmo=cosmo,ncores=48)
-gtmiss1,gxmiss1 = GAMMA_components_miss_elip_parallel(p.Rp,zmean,10**lM200_miss,ellip=e,soffx=0.1,soffy=0.05,c200 = c200_miss, cosmo=cosmo, ncores=48)
 
 mass = str(np.round(np.log10(nfw.M200),1))
 o = np.argsort(r)

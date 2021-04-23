@@ -36,7 +36,7 @@ def axis_neigh(indices,nfile):
                 t1 = time.time()
                 dist,ind=tree.query(np.array([xc[j],yc[j],zc[j]]).T,k=6)
                 
-                v3d,w3d,v2d,w2d = compute_axis(xc[ind],yc[ind],zc[ind])
+                v3d,w3d,v2d,w2d = compute_axis(xc[ind],yc[ind],zc[ind],10**cat.lgm)
                 
                 abc = str(np.sqrt(w3d[0]))+'   '+str(np.sqrt(w3d[1]))+'     '+str(np.sqrt(w3d[2]))+'   '
                 av  = str(v3d[0,0])+'   '+str(v3d[1,0])+'     '+str(v3d[2,0])+'   '

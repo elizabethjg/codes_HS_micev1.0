@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=mapu2
+#SBATCH --job-name=prou2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=6:00:00
@@ -25,8 +25,8 @@ conda activate py3env
 ##srun python -u compute_miss.py -sample pru_round -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_qprofile_individual.py -sample '136_145_zc' -lM_min 13.9 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
-##srun python -u forGroup_qprofile.py -sample '140_145_sel2' -lM_min 14.0 -lM_max 14.5 -z_max 0.25 -ncores $SLURM_CPUS_PER_TASK
-srun python -u forGroup_map.py -sample '140_145_unsel2' -lM_min 14.0 -lM_max 14.5 -z_max 0.25 -ncores $SLURM_CPUS_PER_TASK
+srun python -u forGroup_qprofile.py -sample '140_145_unsel2' -lM_min 14.0 -lM_max 14.5 -z_max 0.25 -ncores $SLURM_CPUS_PER_TASK
+##srun python -u forGroup_map.py -sample '140_145_unsel2' -lM_min 14.0 -lM_max 14.5 -z_max 0.25 -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u forGroup_map.py -sample '136_145_nc' -lM_min 13.6 -lM_max 14.5 -z_max 0.12 -ncores $SLURM_CPUS_PER_TASK
 
 ##srun python -u forGroup_map.py -sample 'bin_134' -lM_min 13.4 -lM_max 13.8 -ncores $SLURM_CPUS_PER_TASK

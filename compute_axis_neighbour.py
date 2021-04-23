@@ -11,7 +11,7 @@ from scipy import spatial
 
 t1 = time.time() 
 
-folder = './'
+folder = '../../MICEv2.0/catalogs/'
 cat = fits.open(folder+'MICE_halo_cat_withshapes.fits')[1].data
 
 t2 = time.time()

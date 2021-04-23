@@ -15,6 +15,7 @@ from multiprocessing import Pool
 from multiprocessing import Process
 import argparse
 from astropy.constants import G,c,M_sun,pc
+from medianas import select_medianas_disp as select
 
 #parameters
 cvel = c.value;   # Speed of light (m.s-1)
@@ -297,7 +298,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
                 mz      = (L.z_v >= z_min)*(L.z_v < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-                mlenses = mmass*mz*mq*mrcut
+                msel    = select(L.q3dr/L.q3d,L.s3dr/L.s3d)
+                mlenses = mmass*mz*mq*mrcut*msel
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:

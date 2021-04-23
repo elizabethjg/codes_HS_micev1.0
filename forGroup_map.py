@@ -15,6 +15,7 @@ import argparse
 from astropy.constants import G,c,M_sun,pc
 from astropy.wcs import WCS
 from scipy import stats
+from medianas import select_medianas_disp as select
 wcs = WCS(naxis=2)
 wcs.wcs.crpix = [0., 0.]
 wcs.wcs.cdelt = [1./3600., 1./3600.]
@@ -289,7 +290,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
                 mz      = (L.z_v >= z_min)*(L.z_v < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-                mlenses = mmass*mz*mq*mrcut
+                msel    = select(L.q3dr/L.q3d,L.s3dr/L.s3d)
+                mlenses = mmass*mz*mq*mrcut*msel
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:

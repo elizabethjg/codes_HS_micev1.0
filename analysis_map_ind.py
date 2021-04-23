@@ -13,15 +13,16 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
-bnum = '136_145_discarded'
+bnum = 'filtered'
     
 folder = '../../MICEv2.0/'
 
-ides = np.loadtxt(folder+'profiles/136_145_ides_discard.list').astype(int)
+ides = np.loadtxt(folder+'profiles/sel_ides_discard.list').astype(int)
+allids = np.loadtxt(folder+'mapas/'+bnum+'/list').astype(int)
 
-for j in ides:
+for j in allids:
 
-    m_name = 'mapas/mapa_ind_140_145_'+str(j)+'.fits'
+    m_name = 'mapas/'+bnum+'/mapa_ind_selec_'+str(j)+'.fits'
 
     try:
         mapa = fits.open(folder+m_name)[1].data
@@ -34,4 +35,7 @@ for j in ides:
     plt.figure()
     plt.scatter(x,y,c=mapa.K,vmin=-0.015,vmax=0.015)
     
-    plt.savefig(folder+'mapas/'+bnum+'/ind_discarded/mapa'+str(j)+'.png')
+    if np.in1d(j,ides)[0]:
+        plt.savefig(folder+'mapas/'+bnum+'/ind_discarded/mapa'+str(j)+'.png')
+    else:
+        plt.savefig(folder+'mapas/'+bnum+'/ind_selected/mapa'+str(j)+'.png')

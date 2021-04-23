@@ -9,8 +9,12 @@ from astropy.io import fits
 from member_distribution import *
 from scipy import spatial
 
+t1 = time.time() 
+
 folder = './'
 cat = fits.open(folder+'MICE_halo_cat_withshapes.fits')[1].data
+
+t2 = time.time()
 
 ncores = 32
 
@@ -39,7 +43,7 @@ def axis_neigh(indices,nfile):
                 bv  = str(v3d[0,1])+'   '+str(v3d[1,1])+'     '+str(v3d[2,1])+'   '
                 cv  = str(v3d[0,2])+'   '+str(v3d[1,2])+'     '+str(v3d[2,2])+'   '
                 
-                ab  = str(np.srt(w2d[0]))+'   '+str(np.sqrt(w2d[1]))+'    '
+                ab  = str(np.sqrt(w2d[0]))+'   '+str(np.sqrt(w2d[1]))+'    '
                 avp  = str(v2d[0,0])+'   '+str(v2d[1,0])+'     '
                 bvp  = str(v2d[0,1])+'   '+str(v2d[1,1])+'     '
 
@@ -80,3 +84,12 @@ pool = Pool(processes=(ncores))
 pool.map(axis_neigh_unpack, entrada)
 pool.terminate()
 
+
+t3 = time.time()
+
+print('Tiempo de lectura')
+print(t2 - t1)
+print('Tiempo de ejecución')
+print(t3 - t2)
+print('Tiempo total')
+print(t3 - t1)

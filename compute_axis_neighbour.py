@@ -13,6 +13,7 @@ t1 = time.time()
 
 folder = '../../MICEv2.0/catalogs/'
 cat = fits.open(folder+'MICE_halo_cat_withshapes.fits')[1].data
+pesos = False
 
 t2 = time.time()
 
@@ -21,12 +22,17 @@ ncores = 32
 xc = cat.xc
 yc = cat.yc
 zc = cat.zc
+lgm = cat.lgm
 
 tree=spatial.cKDTree(np.array([xc,yc,zc]).T)
 
-def axis_neigh(indices,nfile):
+def axis_neigh(indices,nfile,pesos = False):
 
-        f = open('out'+str(nfile),'w')
+        if pesos:
+
+                f = open('out_w_'+str(nfile),'w')
+        else:
+                f = open('out_'+str(nfile),'w')
 
         times = []
 
@@ -36,7 +42,10 @@ def axis_neigh(indices,nfile):
                 t1 = time.time()
                 dist,ind=tree.query(np.array([xc[j],yc[j],zc[j]]).T,k=6)
                 
-                v3d,w3d,v2d,w2d = compute_axis(xc[ind],yc[ind],zc[ind],10**cat.lgm)
+                if pesos:
+                        v3d,w3d,v2d,w2d = compute_axis(xc[ind],yc[ind],zc[ind],10**lgm[ind])
+                else:
+                        v3d,w3d,v2d,w2d = compute_axis(xc[ind],yc[ind],zc[ind])
                 
                 abc = str(np.sqrt(w3d[0]))+'   '+str(np.sqrt(w3d[1]))+'     '+str(np.sqrt(w3d[2]))+'   '
                 av  = str(v3d[0,0])+'   '+str(v3d[1,0])+'     '+str(v3d[2,0])+'   '
@@ -77,8 +86,12 @@ slices = slices[(slices <= len(index))]
 index_splitted = np.split(index,slices)
 
 files = np.arange(ncores)
+if pesos:
+        pesos = np.ones(ncores).astype(bool)
+else:
+        pesos = np.zeros(ncores).astype(bool)
 
-entrada = np.array([index_splitted,files]).T
+entrada = np.array([index_splitted,files,pesos]).T
 
 pool = Pool(processes=(ncores))
 pool.map(axis_neigh_unpack, entrada)

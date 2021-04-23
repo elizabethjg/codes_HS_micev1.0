@@ -58,7 +58,7 @@ def axis_neigh(indices,nfile):
                 if j == show:
                 
                         print('Estimated ramaining time')
-                        print((mean(times)*(len(indices)-show))/60.)
+                        print((np.mean(times)*(len(indices)-show))/60.)
                         
                         show += 5000
         

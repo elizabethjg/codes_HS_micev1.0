@@ -291,6 +291,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 mz      = (L.z_v >= z_min)*(L.z_v < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
                 # msel    = ~select(L.q3dr/L.q3d,L.s3dr/L.s3d)
+                rq      = L.q3dr/L.q3d
+                rs      = L.s3dr/L.s3d                
                 msel    = ~((rq/rs < 1.05)*(rq/rs > 0.95)*(rq < 1.7)*(rs < 1.7))
                 mlenses = mmass*mz*mq*mrcut*msel
         Nlenses = mlenses.sum()

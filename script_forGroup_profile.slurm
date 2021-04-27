@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=umap
+#SBATCH --job-name=map
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=6:00:00

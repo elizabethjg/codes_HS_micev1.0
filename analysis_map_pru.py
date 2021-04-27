@@ -17,7 +17,7 @@ Msun = M_sun.value # Solar mass (kg)
 folder = '../../MICEv2.0/'
 
 
-bnum = '140_145_sel'
+bnum = '140_145_unsel2'
 
 p_name = 'profiles/profile_'+bnum+'.fits'
 m_name = 'mapas/mapa_'+bnum+'.fits'
@@ -36,6 +36,12 @@ os.system('mkdir '+folder+mapmodel_folder)
 
 # fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_'+bnum+'.fits')[0].header
 fitmiss = fits.open(folder+'profiles/fitresults_allprofiles_0_2500_profile_136_145.fits')[0].header
+
+
+# central = fits.open(folder+'profiles/fitresults_allcentred_0_2500_profile_'+bnum+'.fits')
+
+# gtc,gxc   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+
 
 profile = fits.open(folder+p_name)
 mapa = fits.open(folder+m_name)[1].data
@@ -56,8 +62,8 @@ cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 
 
 zmean = h['z_mean']
-q  = fitmiss['q']# h['q2d_mean']
-qr = h['q2dr_mean']
+q  = fitmiss['q']*1.5# h['q2d_mean']
+qr = h['q2dr_mean']*1.5
 
 
 e = (1-q)/(1+q)

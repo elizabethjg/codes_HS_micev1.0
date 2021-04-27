@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=pro3
+#SBATCH --job-name=upro3
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=6:00:00

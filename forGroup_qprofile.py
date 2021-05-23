@@ -15,7 +15,6 @@ from multiprocessing import Pool
 from multiprocessing import Process
 import argparse
 from astropy.constants import G,c,M_sun,pc
-from medianas import select_medianas_disp as select
 
 #parameters
 cvel = c.value;   # Speed of light (m.s-1)
@@ -41,6 +40,7 @@ parser.add_argument('-ROUT', action='store', dest='ROUT', default=10000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
 parser.add_argument('-ncores', action='store', dest='ncores', default=10)
 parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
+parser.add_argument('-new_version', action='store', dest='nversion', default=1.)
 parser.add_argument('-ides_list', action='store', dest='idlist', default=None)
 args = parser.parse_args()
 
@@ -61,10 +61,11 @@ ndots      = int(args.nbins)
 ncores     = int(args.ncores)
 vmice      = int(args.vmice)
 hcosmo     = float(args.h_cosmo)
+newversion     = bool(float(args.nversion))
 
 '''
 sample='pru'
-lM_min=14.0
+lM_min=13.5
 lM_max=14.5
 z_min = 0.1
 z_max = 0.25
@@ -80,6 +81,7 @@ rmin = 0.
 rmax = 1000.
 rprox = 'R2_14'
 idlist = None
+newversion = True
 '''
 
 
@@ -232,7 +234,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 q_min = 0., q_max = 1.0,
                 RIN = 400., ROUT =5000.,
                 ndots= 40, ncores=10, 
-                idlist= None, hcosmo=1.0):
+                idlist= None, hcosmo=1.0,
+                newversion = True):
 
         '''
         
@@ -280,32 +283,52 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         #reading cats
         
-        L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes.fits')[1].data
+        if newversion:
+                
+                print('Using new version of catalog parameter')
+                L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes_new_test.fits')[1].data               
         
+                ra = L.ra_rc
+                dec = L.dec_rc
+                L.a2dx = L.a2D_0
+                L.a2dy = L.a2D_1
+                L.a2drx = L.a2Dr_0
+                L.a2dry = L.a2Dr_1
+                
+                L.q2d  =  L.b2D_mod/L.a2D_mod
+                L.q2dr =  L.b2Dr_mod/L.a2Dr_mod
+                L.q3d  =  L.b3D_mod/L.a3D_mod
+                L.q3dr =  L.b3Dr_mod/L.a3Dr_mod
+                L.s3d  =  L.c3D_mod/L.a3D_mod
+                L.s3dr =  L.c3Dr_mod/L.a3D_mod
+                
+                
+        else:
+                L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes.fits')[1].data
+                ra = np.rad2deg(np.arctan(L.xc/L.yc))
+                dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
+                
+                
+        L.ra = ra
+        L.dec = dec
+                
         if idlist:
                 ides = np.loadtxt(folder+'catalogs/'+idlist).astype(int)
                 mlenses = np.in1d(L.unique_halo_id,ides)
         else:
+        
+                mrcut   = np.ones(len(L.ra)).astype(bool)
         
                 try:
                         mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
                 except:
                         print(rprox+' NOT FINDED')
         
-                mrcut   = np.ones(len(L.ra)).astype(bool)
-                
-                mregion = (L.ra < 80.)*(L.dec < 50.)#*(L.dec > 36.5)        
                 mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
                 mz      = (L.z_v >= z_min)*(L.z_v < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-                msel1    = select(L.q3dr/L.q3d,L.s3dr/L.s3d)
-                rq      = L.q3dr/L.q3d
-                rs      = L.s3dr/L.s3d
-                msel2    = ((rq/rs < 1.05)*(rq/rs > 0.95)*(rq < 1.7)*(rs < 1.7))
-                msel3    = ((rq < 1.1)*(rq > 0.9)*(rs < 1.1)*(rs > 0.9))
-                msel     = msel3
-                mlenses = mmass*mz*mq*mrcut*msel
-                print(msel.sum()/float(len(msel)))
+                mlenses = mmass*mz*mq*mrcut
+                
         Nlenses = mlenses.sum()
 
         if Nlenses < ncores:
@@ -315,15 +338,13 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         print('CORRIENDO EN ',ncores,' CORES')
         
         L = L[mlenses]
+                
         
-        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T
-        # Define K masks
-        ra = np.rad2deg(np.arctan(L.xc/L.yc))
-        dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
+        #Computing SMA axis
+        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T                
+                        
         
-        L.ra = ra
-        L.dec = dec
-        
+        # Define K masks        
         ramin  = np.min(ra)
         decmin = np.min(dec)
         dra  = ((np.max(ra)+1)  - ramin)/10.
@@ -536,4 +557,4 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
 
 
-main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,idlist,hcosmo)
+main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,idlist,hcosmo,newversion)

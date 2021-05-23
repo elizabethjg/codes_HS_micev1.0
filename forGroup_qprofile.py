@@ -304,7 +304,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 
                 
         else:
-                L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes.fits')[1].data
+                L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes_new_test.fits')[1].data               
+                # L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes.fits')[1].data
                 ra = np.rad2deg(np.arctan(L.xc/L.yc))
                 dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
                 

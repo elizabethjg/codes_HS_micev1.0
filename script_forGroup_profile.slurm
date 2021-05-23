@@ -19,8 +19,8 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-##srun python -u forGroup_qprofile.py -sample 'test_newparam_NV' -lM_min 13.5 -z_max 2 -ncores 32 -new_version 1
-srun python -u forGroup_qprofile.py -sample 'test_newparam'    -lM_min 13.5 -z_max 2 -ncores 32 -new_version 0
+##srun python -u forGroup_qprofile.py -sample 'test_newparam_NV' -lM_min 13.5 -z_max 2 -ncores 56 -new_version 1
+srun python -u forGroup_qprofile.py -sample 'test_newparam'    -lM_min 13.5 -z_max 2 -ncores 56 -new_version 0
 
 ##srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK
 ##srun python -u compute_miss.py -sample pru_dens -ncores $SLURM_CPUS_PER_TASK

@@ -525,4 +525,4 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
 
 
-main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,idlist,hcosmo,newversion)
+main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,ROUT,ndots,ncores,idlist,hcosmo,newversion)

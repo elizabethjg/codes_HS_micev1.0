@@ -282,11 +282,11 @@ def main(lcat, sample='pru',
         print('Using new version of catalog parameter')
         L = fits.open(folder+'catalogs/'+lcat)[1].data               
         
-        # ra = L.ra_rc
-        # dec = L.dec_rc
+        ra = L.ra_rc
+        dec = L.dec_rc
         
-        ra = np.rad2deg(np.arctan(L.xc/L.yc))
-        dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
+        # ra = np.rad2deg(np.arctan(L.xc/L.yc))
+        # dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
 
                
         L.q2d  =  L.b2D_mod/L.a2D_mod

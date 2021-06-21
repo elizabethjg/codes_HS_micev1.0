@@ -289,10 +289,10 @@ def main(lcat, sample='pru',
         # dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
 
         
-        L.a2dx = L.a2D_0
-        L.a2dy = L.a2D_1
-        L.a2drx = L.a2Dr_0
-        L.a2dry = L.a2Dr_1
+        L.a2dx = L.a2D_x
+        L.a2dy = L.a2D_y
+        L.a2drx = L.a2Dr_x
+        L.a2dry = L.a2Dr_y
         
         L.q2d  =  L.b2D_mod/L.a2D_mod
         L.q2dr =  L.b2Dr_mod/L.a2Dr_mod

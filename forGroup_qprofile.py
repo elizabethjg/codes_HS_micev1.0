@@ -57,7 +57,6 @@ RIN        = float(args.RIN)
 ROUT       = float(args.ROUT)
 ndots      = int(args.nbins)
 ncores     = int(args.ncores)
-vmice      = int(args.vmice)
 hcosmo     = float(args.h_cosmo)
 
 

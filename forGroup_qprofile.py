@@ -461,10 +461,7 @@ def main(lcat, sample='pru',
         s3d_mean     = np.average(L.s3d,weights=Ntot)
         s3dr_mean    = np.average(L.s3dr,weights=Ntot)
         
-        if vmice == 2:
-            lM_v2_mean = np.average(L.lmhalo,weights=Ntot)
-        else:
-            lM_v2_mean = lM_mean
+        lM_v2_mean = np.average(L.lmhalo,weights=Ntot)
             
         # FITTING NFW PROFILE
         

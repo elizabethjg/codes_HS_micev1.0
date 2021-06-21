@@ -309,7 +309,7 @@ def main(lcat, sample='pru',
                 mlenses = np.in1d(L.unique_halo_id,ides)
         else:
                 
-                rs      = L.r_c/L.r_max
+                rs      = L.rc/L.r_max
                 mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
                 mz      = (L.z_v >= z_min)*(L.z_v < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)

@@ -282,18 +282,13 @@ def main(lcat, sample='pru',
         print('Using new version of catalog parameter')
         L = fits.open(folder+'catalogs/'+lcat)[1].data               
         
-        ra = L.ra_rc
-        dec = L.dec_rc
+        # ra = L.ra_rc
+        # dec = L.dec_rc
         
-        # ra = np.rad2deg(np.arctan(L.xc/L.yc))
-        # dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
+        ra = np.rad2deg(np.arctan(L.xc/L.yc))
+        dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
 
-        
-        L.a2dx = L.a2D_x
-        L.a2dy = L.a2D_y
-        L.a2drx = L.a2Dr_x
-        L.a2dry = L.a2Dr_y
-        
+               
         L.q2d  =  L.b2D_mod/L.a2D_mod
         L.q2dr =  L.b2Dr_mod/L.a2Dr_mod
         L.q3d  =  L.b3D_mod/L.a3D_mod
@@ -327,7 +322,7 @@ def main(lcat, sample='pru',
         L = L[mlenses]
                 
         #Computing SMA axis
-        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T                
+        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2D_y/L.a2D_x),np.arctan(L.a2Dr_y/L.a2Dr_x)]).T                
         
         # Define K masks        
         ramin  = np.min(ra)

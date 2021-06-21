@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=new_rel
+#SBATCH --job-name=old
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=8:00:00
@@ -19,7 +19,7 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample 'test_newparam_3_3' -lM_min 13.5 -z_max 0.6 -rs_max 0.1 -ncores 56 
+srun python -u forGroup_qprofile.py -sample 'test_newparam_3_3_oldcentre' -lM_min 13.5 -z_max 0.6 -ncores 56 
 ##srun python -u forGroup_qprofile.py -sample 'test_newparam'    -lM_min 13.5 -z_max 2 -ncores 56 -new_version 0
 
 ##srun python -u compute_miss.py -sample pru_iso -ncores $SLURM_CPUS_PER_TASK

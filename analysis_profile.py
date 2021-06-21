@@ -34,7 +34,7 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     h = profile[1].header
     p = profile[1].data
     '''
-    micev = str(h['MICE version'])
+
     
     zmean = h['z_mean']
     q  = h['q2d_mean']
@@ -171,7 +171,7 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     h = profile[1].header
     p = profile[1].data
     '''
-    micev = str(h['MICE version'])
+
     
     zmean = h['z_mean']
     q  = h['q2d_mean']

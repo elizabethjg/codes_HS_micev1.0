@@ -25,43 +25,41 @@ Msun = M_sun.value # Solar mass (kg)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-sample', action='store', dest='sample',default='pru')
-parser.add_argument('-vmice', action='store', dest='vmice',default='2')
-parser.add_argument('-rprox', action='store', dest='rprox',default='R2_14')
-parser.add_argument('-rmin', action='store', dest='rmin',default=0.)
-parser.add_argument('-rmax', action='store', dest='rmax',default=1000.)
+parser.add_argument('-lens_cat', action='store', dest='lcat',default='halo_props/halo_props2_3_3_plus.fits')
 parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
 parser.add_argument('-lM_max', action='store', dest='lM_max', default=15.5)
 parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
 parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
 parser.add_argument('-q_min', action='store', dest='q_min', default=0.)
 parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
+parser.add_argument('-rs_min', action='store', dest='rs_min', default=0.)
+parser.add_argument('-rs_max', action='store', dest='rs_max', default=1.)
 parser.add_argument('-RIN', action='store', dest='RIN', default=100.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=10000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
 parser.add_argument('-ncores', action='store', dest='ncores', default=10)
 parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
-parser.add_argument('-new_version', action='store', dest='nversion', default=1.)
 parser.add_argument('-ides_list', action='store', dest='idlist', default=None)
 args = parser.parse_args()
 
 sample     = args.sample
-rprox      = args.rprox
 idlist     = args.idlist
-rmin       = float(args.rmin)
-rmax       = float(args.rmax) 
+lcat       = args.lcat
 lM_min     = float(args.lM_min)
 lM_max     = float(args.lM_max) 
 z_min      = float(args.z_min) 
 z_max      = float(args.z_max) 
 q_min      = float(args.q_min) 
 q_max      = float(args.q_max) 
+rs_min     = float(args.rs_min) 
+rs_max     = float(args.rs_max) 
 RIN        = float(args.RIN)
 ROUT       = float(args.ROUT)
 ndots      = int(args.nbins)
 ncores     = int(args.ncores)
 vmice      = int(args.vmice)
 hcosmo     = float(args.h_cosmo)
-newversion     = bool(float(args.nversion))
+
 
 '''
 sample='pru'
@@ -85,7 +83,7 @@ newversion = True
 '''
 
 
-folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/'
+folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/'
 S      = fits.open(folder+'catalogs/MICE_sources_HSN.fits')[1].data
 
 def partial_profile(RA0,DEC0,Z,angles,
@@ -227,30 +225,28 @@ def cov_matrix(array):
         
         
 
-def main(sample='pru', rprox = 'Rprox_lM14cut', 
-                rmin = 0., rmax = 1000.,
-                lM_min=14.,lM_max=14.2,
-                z_min = 0.1, z_max = 0.4,
-                q_min = 0., q_max = 1.0,
-                RIN = 400., ROUT =5000.,
-                ndots= 40, ncores=10, 
-                idlist= None, hcosmo=1.0,
-                newversion = True):
+def main(lcat, sample='pru',
+         lM_min=14.,lM_max=14.2,
+         z_min = 0.1, z_max = 0.4,
+         q_min = 0., q_max = 1.0,
+         rs_min = 0., rs_max = 1.0,
+         RIN = 400., ROUT =5000.,
+         ndots= 40, ncores=10, 
+         idlist= None, hcosmo=1.0):
 
         '''
         
         INPUT
         ---------------------------------------------------------
         sample         (str) sample name
-        rprox          (str) radius to the neighbour criteria
-        rmin           (float) lower limit for rprox - >=
-        rmax           (float) higher limit for rprox - <
         lM_min         (float) lower limit for log(Mass) - >=
         lM_max         (float) higher limit for log(Mass) - <
         z_min          (float) lower limit for z - >=
         z_max          (float) higher limit for z - <
         q_min          (float) lower limit for q - >=
         q_max          (float) higher limit for q - <
+        rs_min         (float) lower limit r_scale = r_c/r_max
+        rs_max         (float) higher limit r_scale = r_c/r_max
         RIN            (float) Inner bin radius of profile
         ROUT           (float) Outer bin radius of profile
         ndots          (int) Number of bins of the profile
@@ -261,6 +257,7 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         cosmo = LambdaCDM(H0=100*hcosmo, Om0=0.25, Ode0=0.75)
         tini = time.time()
         
+        print('Lens catalog ',lcat)
         print('Sample ',sample)
         print('Selecting groups with:')
         
@@ -269,9 +266,9 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 print('From id list '+idlist)
         else:
                 print(lM_min,' <= log(M) < ',lM_max)
-                print(rmin,' <= '+rprox+' < ',rmax)
                 print(z_min,' <= z < ',z_max)
                 print(q_min,' <= q < ',q_max)
+                print(rs_min,' <= rs < ',rs_max)
                 print('Profile has ',ndots,'bins')
                 print('from ',RIN,'kpc to ',ROUT,'kpc')
                 print('h ',hcosmo)
@@ -282,33 +279,28 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         R = (bines[:-1] + np.diff(bines)*0.5)*1.e-3
         
         #reading cats
+                
+        print('Using new version of catalog parameter')
+        L = fits.open(folder+'catalogs/'+lcat)[1].data               
         
-        if newversion:
-                
-                print('Using new version of catalog parameter')
-                L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes_new_test.fits')[1].data               
+        ra = L.ra_rc
+        dec = L.dec_rc
         
-                ra = L.ra_rc
-                dec = L.dec_rc
-                L.a2dx = L.a2D_0
-                L.a2dy = L.a2D_1
-                L.a2drx = L.a2Dr_0
-                L.a2dry = L.a2Dr_1
-                
-                L.q2d  =  L.b2D_mod/L.a2D_mod
-                L.q2dr =  L.b2Dr_mod/L.a2Dr_mod
-                L.q3d  =  L.b3D_mod/L.a3D_mod
-                L.q3dr =  L.b3Dr_mod/L.a3Dr_mod
-                L.s3d  =  L.c3D_mod/L.a3D_mod
-                L.s3dr =  L.c3Dr_mod/L.a3D_mod
-                
-                
-        else:
-                L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes_new_test.fits')[1].data               
-                # L = fits.open(folder+'catalogs/MICE_halo_cat_withshapes.fits')[1].data
-                ra = np.rad2deg(np.arctan(L.xc/L.yc))
-                dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
-                
+        # ra = np.rad2deg(np.arctan(L.xc/L.yc))
+        # dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
+
+        
+        L.a2dx = L.a2D_0
+        L.a2dy = L.a2D_1
+        L.a2drx = L.a2Dr_0
+        L.a2dry = L.a2Dr_1
+        
+        L.q2d  =  L.b2D_mod/L.a2D_mod
+        L.q2dr =  L.b2Dr_mod/L.a2Dr_mod
+        L.q3d  =  L.b3D_mod/L.a3D_mod
+        L.q3dr =  L.b3Dr_mod/L.a3Dr_mod
+        L.s3d  =  L.c3D_mod/L.a3D_mod
+        L.s3dr =  L.c3Dr_mod/L.a3D_mod
                 
         L.ra = ra
         L.dec = dec
@@ -317,18 +309,13 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
                 ides = np.loadtxt(folder+'catalogs/'+idlist).astype(int)
                 mlenses = np.in1d(L.unique_halo_id,ides)
         else:
-        
-                mrcut   = np.ones(len(L.ra)).astype(bool)
-        
-                try:
-                        mrcut   = (L[rprox] >= rmin)*(L[rprox] < rmax)
-                except:
-                        print(rprox+' NOT FINDED')
-        
+                
+                rs      = L.r_c/L.r_max
                 mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
                 mz      = (L.z_v >= z_min)*(L.z_v < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
-                mlenses = mmass*mz*mq*mrcut
+                mrs     = (rs >= rs_min)*(rs < rs_max)
+                mlenses = mmass*mz*mq*mrs
                 
         Nlenses = mlenses.sum()
 
@@ -340,10 +327,8 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         L = L[mlenses]
                 
-        
         #Computing SMA axis
         theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2dy/L.a2dx),np.arctan(L.a2dry/L.a2drx)]).T                
-                        
         
         # Define K masks        
         ramin  = np.min(ra)
@@ -521,9 +506,9 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
         h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
-        h.append(('MICE version',vmice))
-        h.append((rprox+'_min',np.round(rmin,1)))
-        h.append((rprox+'_max',np.round(rmax,1)))
+        h.append(('Lens cat',lcat))
+        h.append(('rs_min',np.round(rs_min,1)))
+        h.append(('rs_max',np.round(rs_max,1)))
         h.append(('lM_min',np.round(lM_min,2)))
         h.append(('lM_max',np.round(lM_max,2)))
         h.append(('z_min',np.round(z_min,2)))
@@ -558,4 +543,4 @@ def main(sample='pru', rprox = 'Rprox_lM14cut',
         
 
 
-main(sample,rprox,rmin,rmax,lM_min,lM_max,z_min,z_max,q_min,q_max,RIN,ROUT,ndots,ncores,idlist,hcosmo,newversion)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,RIN,ROUT,ndots,ncores,idlist,hcosmo)

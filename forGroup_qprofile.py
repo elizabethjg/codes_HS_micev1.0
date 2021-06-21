@@ -271,7 +271,7 @@ def main(lcat, sample='pru',
                 print('Profile has ',ndots,'bins')
                 print('from ',RIN,'kpc to ',ROUT,'kpc')
                 print('h ',hcosmo)
-                print('MICE version ',vmice)
+                
               
         # Defining radial bins
         bines = np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1)

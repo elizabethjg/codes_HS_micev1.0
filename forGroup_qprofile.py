@@ -83,7 +83,8 @@ newversion = True
 
 
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/'
-S      = fits.open(folder+'catalogs/MICE_sources_HSN.fits')[1].data
+# S      = fits.open(folder+'catalogs/MICE_sources_HSN.fits')[1].data
+S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv1.0/catalogs/MICE_sources.fits')[1].data
 
 def partial_profile(RA0,DEC0,Z,angles,
                     RIN,ROUT,ndots,h,nboot=100):

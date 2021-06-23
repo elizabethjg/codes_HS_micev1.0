@@ -577,9 +577,9 @@ def plt_profile_wofit_onlystandard(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
 
 
 
-def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
+def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,fitout='allcentred'):
     
-    folder = '../../MICEv'+str(mv)+'.0/profiles/'
+    folder = '../../MICEv2.0/profiles/'
 
     p_name = 'profile_'+samp+'.fits'
     profile = fits.open(folder+p_name)
@@ -597,7 +597,6 @@ def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     h = profile[1].header
     p = profile[1].data
     '''
-    micev = str(h['MICE version'])
     
     zmean = h['z_mean']
     q  = h['q2d_mean']
@@ -645,27 +644,13 @@ def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     
     # MCMC results
 
-    fall = fits.open(folder+'fitresults_all_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    fq   = fits.open(folder+'fitresults_onlyq_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    fGX  = fits.open(folder+'fitresults_onlyGX_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    fGT  = fits.open(folder+'fitresults_onlyGT_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fall = fits.open(folder+'fitresults_'+fitout+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
   
     eall = (1. - fall['q']) / (1. + fall['q'])
-    eq   = (1. - fq['q']) / (1. + fq['q'])
-    eGX  = (1. - fGX['q']) / (1. + fGX['q'])
-    eGT  = (1. - fGT['q']) / (1. + fGT['q'])
   
-    DS_all = Delta_Sigma_NFW(rplot,zmean,10**fall['lM200'],cosmo=cosmo)
-    DS_q   = Delta_Sigma_NFW(rplot,zmean,10**fq['lM200'],cosmo=cosmo)
-    DS_GX  = Delta_Sigma_NFW(rplot,zmean,10**fGX['lM200'],cosmo=cosmo)
-    DS_GT  = Delta_Sigma_NFW(rplot,zmean,10**fGT['lM200'],cosmo=cosmo)
+    DS_all = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fall['lm200'],c200=fall['c200'],cosmo=cosmo)
     
-    gt_all,gx_all = GAMMA_components(rplot,zmean,ellip=eall,M200 =10**fall['lM200'],cosmo=cosmo)
-    gt_q  ,gx_q   = GAMMA_components(rplot,zmean,ellip=eq,M200 =10**fq['lM200'],cosmo=cosmo)
-    gt_GX ,gx_GX  = GAMMA_components(rplot,zmean,ellip=eGX,M200 =10**fGX['lM200'],cosmo=cosmo)
-    gt_GT ,gx_GT  = GAMMA_components(rplot,zmean,ellip=eGT,M200 =10**fGT['lM200'],cosmo=cosmo)
-    
-
+    gt_all,gx_all = GAMMA_components(rplot,zmean,ellip=e,M200 = 10**fall['lm200'],c200=fall['c200'],cosmo=cosmo)
     
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
@@ -676,18 +661,11 @@ def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     ax1.legend()
     ax2.legend()
     
-    ax.set_title('MICE v'+micev+'.0')
-    ax1.set_title('MICE v'+micev+'.0')
-    ax2.set_title('MICE v'+micev+'.0')
-    ax3.set_title('MICE v'+micev+'.0')
     
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(nfw.xplot,nfw.yplot,'C3',label='fited nfw')
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
     ax.plot(rplot,DS_all,'C1--',label='mcmc all')
-    ax.plot(rplot,DS_q,'C0--',label='mcmc q')
-    ax.plot(rplot,DS_GT,'C4--',label='mcmc gt')
-    ax.plot(rplot,DS_GX,'C2--',label='mcmc gx')
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma$')
@@ -709,9 +687,6 @@ def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     ax1.plot(rplot,gtr,'C3--')
 
     ax1.plot(rplot,gt_all,'C1--')
-    ax1.plot(rplot,gt_q,'C0--')
-    ax1.plot(rplot,gt_GT,'C4--')
-    ax1.plot(rplot,gt_GX,'C2--')
 
 
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
@@ -737,9 +712,6 @@ def plt_profile(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     ax2.plot(rplot,gxr,'C3--')
     
     ax2.plot(rplot,gx_all,'C1--')
-    ax2.plot(rplot,gx_q,'C0--')
-    ax2.plot(rplot,gx_GT,'C4--')
-    ax2.plot(rplot,gx_GX,'C2--')
     
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
     ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)

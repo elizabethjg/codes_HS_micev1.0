@@ -58,7 +58,7 @@ RIN       = float(args.RIN)
 ROUT      = float(args.ROUT)
 
 
-outfile     = 'fitresults_allcentred_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
+outfile     = 'fitresults_DSGT_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 plot_folder = folder+'plots_mcmc/'
 
@@ -90,17 +90,16 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
     e = (1.-q)/(1.+q)
 
-    ds, gt, gx = profiles
-    iCds, iCgt, iCgx = iCOV 
+    ds, gt = profiles
+    iCds, iCgt = iCOV 
 
     DS = Delta_Sigma_NFW(R,zmean,M200 = 10**lM200,c200=c200,cosmo=cosmo)
     GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo=cosmo)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
-    L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
 
-    return L_DS + L_GT + L_GX
+    return L_DS + L_GT
     
 
 def log_probability(data_model, R, profiles, iCOV):
@@ -132,7 +131,6 @@ mr = np.meshgrid(maskr,maskr)[1]*np.meshgrid(maskr,maskr)[0]
 
 CovDS  = cov.COV_ST.reshape(len(p.Rp),len(p.Rp))[mr]
 CovGT  = cov.COV_GT.reshape(len(p.Rp),len(p.Rp))[mr]
-CovGX  = cov.COV_GX.reshape(len(p.Rp),len(p.Rp))[mr]
 
 
 p  = p[maskr]
@@ -141,15 +139,14 @@ t1 = time.time()
 
 DSt = p.DSigma_T
 GT  = p.GAMMA_Tcos
-GX  = p.GAMMA_Xsin
 
 
 CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
 CovGT  = CovGT.reshape(maskr.sum(),maskr.sum())
-CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
 
-profiles = [DSt,GT,GX]
-iCov     = [np.linalg.inv(CovDS),np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
+
+profiles = [DSt,GT]
+iCov     = [np.linalg.inv(CovDS),np.linalg.inv(CovGT)]
 
 backend = emcee.backends.HDFBackend(backup)
 if not cont:

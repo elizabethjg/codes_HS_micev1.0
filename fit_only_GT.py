@@ -80,13 +80,11 @@ h       = profile[0].header
 p       = profile[1].data
 cov     = profile[2].data
 zmean   = h['Z_MEAN']    
-lMguess = np.log10(h['M200'])
-c200  = h['c200']
 
 cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 
 def log_likelihood(data_model, R, gt, iCgt):
-    lM200,q = data_model
+    lM200,q,c200 = data_model
 
     e = (1.-q)/(1.+q)
 
@@ -99,9 +97,9 @@ def log_likelihood(data_model, R, gt, iCgt):
 
 def log_probability(data_model, R, profiles, iCOV):
     
-    lM200,q = data_model
+    lM200,q,c200 = data_model
     
-    if 0.2 < q < 1.0 and 12.5 < lM200 < 16.0:
+    if 0.2 < q < 1.0 and 12.5 < lM200 < 16.0 and 1 < c200 < 7:
         return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
@@ -109,7 +107,8 @@ def log_probability(data_model, R, profiles, iCOV):
 # initializing
 
 pos = np.array([np.random.uniform(12.5,15.5,15),
-                np.random.uniform(0.2,0.9,15)]).T
+                np.random.uniform(0.2,0.9,15),
+                np.random.uniform(1,5,15)]).T
 
 qdist = pos[:,1]                
 pos[qdist > 1.,1] = 1.
@@ -161,22 +160,30 @@ print((time.time()-t1)/60.)
 
 mcmc_out = sampler.get_chain(flat=True).T
 
-table = [fits.Column(name='logM200', format='E', array=mcmc_out[0]),
-            fits.Column(name='q', format='E', array=mcmc_out[1])]
+table = [fits.Column(name='lM200', format='E', array=mcmc_out[0]),
+            fits.Column(name='q', format='E', array=mcmc_out[1]),
+            fits.Column(name='c200', format='E', array=mcmc_out[2])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
-lMout  = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
-qout  = np.percentile(mcmc_out[1][1500:], [16, 50, 84])
+lM     = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
+q      = np.percentile(mcmc_out[1][1500:], [16, 50, 84])
+c200   = np.percentile(mcmc_out[2][1500:], [16, 50, 84])
+
 
 h = fits.Header()
-h.append(('lM200',np.round(lMout[1],4)))
-h.append(('elM200M',np.round(np.diff(lMout)[0],4)))
-h.append(('elM200m',np.round(np.diff(lMout)[1],4)))
+h.append(('lM200',np.round(lM[1],4)))
+h.append(('elM200M',np.round(np.diff(lM)[0],4)))
+h.append(('elM200m',np.round(np.diff(lM)[1],4)))
 
-h.append(('q',np.round(qout[1],4)))
-h.append(('eqM',np.round(np.diff(qout)[0],4)))
-h.append(('eqm',np.round(np.diff(qout)[1],4)))
+h.append(('c200',np.round(c200[1],4)))
+h.append(('ec200M',np.round(np.diff(c200)[0],4)))
+h.append(('ec200m',np.round(np.diff(c200)[1],4)))
+
+h.append(('q',np.round(q[1],4)))
+h.append(('eqM',np.round(np.diff(q)[0],4)))
+h.append(('eqm',np.round(np.diff(q)[1],4)))
+
 
 primary_hdu = fits.PrimaryHDU(header=h)
 
@@ -184,23 +191,4 @@ hdul = fits.HDUList([primary_hdu, tbhdu])
 
 hdul.writeto(folder+outfile,overwrite=True)
 
-fig = corner.corner(mcmc_out.T, labels=['lM200','q'])
-plt.savefig(plot_folder+'corner_onlyGT_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
-
-f, ax = plt.subplots(2, 1, figsize=(6,3))
-
-ax[0].plot(mcmc_out[0],'k.',alpha=0.3)
-ax[0].axvline(1500)
-ax[0].axhline(lMout[1])
-ax[0].axhline(lMout[1] - np.diff(lMout)[0],ls='--')
-ax[0].axhline(lMout[1] + np.diff(lMout)[0],ls='--')
-
-ax[1].plot(mcmc_out[1],'k.',alpha=0.3)
-ax[1].axvline(1500)
-ax[1].axhline(qout[1])
-ax[1].axhline(qout[1] - np.diff(qout)[0],ls='--')
-ax[1].axhline(qout[1] + np.diff(qout)[0],ls='--')
-
-
-f.subplots_adjust(hspace=0,wspace=0)
-plt.savefig(plot_folder+'walk_onlyGT_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
+print('SAVED FILE')

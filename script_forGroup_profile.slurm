@@ -2,7 +2,7 @@
 #SBATCH --job-name=new_rel
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=55
-#SBATCH --time=8:00:00
+#SBATCH --time=3:00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
 #SBATCH --mail-type=FAIL,END
@@ -19,10 +19,10 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample 'test_v1_z13' -lM_min 13.5 -z_max 0.3 -ncores 55  -vmice 1
-srun python -u forGroup_qprofile.py -sample 'test_v1_z34' -lM_min 13.5 -z_min 0.3 -z_max 0.4  -ncores 55  -vmice 1
-srun python -u forGroup_qprofile.py -sample 'test_v2_z13' -lM_min 13.5 -z_max 0.3 -ncores 55  -vmice 2
-srun python -u forGroup_qprofile.py -sample 'test_v2_z34' -lM_min 13.5 -z_min 0.3 -z_max 0.4  -ncores 55  -vmice 2
+srun python -u forGroup_qprofile.py -sample 'test_v1_z15' -lM_min 13.5 -z_max 0.5 -ncores 55  -vmice 1
+srun python -u forGroup_qprofile.py -sample 'test_v1_z56' -lM_min 13.5 -z_min 0.5 -z_max 0.6  -ncores 55  -vmice 1
+srun python -u forGroup_qprofile.py -sample 'test_v2_z15' -lM_min 13.5 -z_max 0.5 -ncores 55  -vmice 2
+srun python -u forGroup_qprofile.py -sample 'test_v2_z56' -lM_min 13.5 -z_min 0.5 -z_max 0.6  -ncores 55  -vmice 2
 
 ##srun python -u forGroup_qprofile.py -sample 'test_newparam'    -lM_min 13.5 -z_max 2 -ncores 56 -new_version 0
 

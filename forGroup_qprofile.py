@@ -46,6 +46,7 @@ args = parser.parse_args()
 sample     = args.sample
 idlist     = args.idlist
 lcat       = args.lcat
+vmice      = args.vmice
 lM_min     = float(args.lM_min)
 lM_max     = float(args.lM_max) 
 z_min      = float(args.z_min) 
@@ -84,7 +85,7 @@ newversion = True
 
 
 folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/'
-S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+str(vmice)+'.0/catalogs/MICE_sources_HSN.fits')[1].data
+S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/MICE_sources_HSN.fits')[1].data
 
 def partial_profile(RA0,DEC0,Z,angles,
                     RIN,ROUT,ndots,h,nboot=100):
@@ -232,7 +233,7 @@ def main(lcat, sample='pru',
          rs_min = 0., rs_max = 1.0,
          RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
-         idlist= None, hcosmo=1.0):
+         idlist= None, hcosmo=1.0, vmice = '2'):
 
         '''
         
@@ -499,6 +500,7 @@ def main(lcat, sample='pru',
         h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
         h.append(('Lens cat',lcat))
+        h.append(('MICE version sources',vmice))
         h.append(('rs_min',np.round(rs_min,1)))
         h.append(('rs_max',np.round(rs_max,1)))
         h.append(('lM_min',np.round(lM_min,2)))
@@ -535,4 +537,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,RIN,ROUT,ndots,ncores,idlist,hcosmo)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)

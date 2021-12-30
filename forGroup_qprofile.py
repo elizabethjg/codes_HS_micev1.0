@@ -26,7 +26,7 @@ Msun = M_sun.value # Solar mass (kg)
 parser = argparse.ArgumentParser()
 parser.add_argument('-sample', action='store', dest='sample',default='pru')
 parser.add_argument('-vmice', action='store', dest='vmice',default='2')
-parser.add_argument('-lens_cat', action='store', dest='lcat',default='halo_props/halo_props2_3_3_plus.fits')
+parser.add_argument('-lens_cat', action='store', dest='lcat',default='HALO_Props_MICE.fits')
 parser.add_argument('-lM_min', action='store', dest='lM_min', default=14.)
 parser.add_argument('-lM_max', action='store', dest='lM_max', default=15.5)
 parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
@@ -84,7 +84,7 @@ newversion = True
 '''
 
 
-folder = '/mnt/projects/lensing/HALO_SHAPE/MICEv2.0/'
+folder = '/home/elizabeth/MICE_shapes/'
 S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/MICE_sources_HSN.fits')[1].data
 
 def partial_profile(RA0,DEC0,Z,angles,
@@ -221,11 +221,7 @@ def cov_matrix(array):
         
         COV *= (K-1)/K
         return COV
-
-            
         
-        
-
 def main(lcat, sample='pru',
          lM_min=14.,lM_max=14.2,
          z_min = 0.1, z_max = 0.4,
@@ -282,33 +278,22 @@ def main(lcat, sample='pru',
         #reading cats
                 
         print('Using new version of catalog parameter')
-        L = fits.open(folder+'catalogs/'+lcat)[1].data               
+        L = fits.open(folder+lcat)[1].data               
         
         ra = L.ra_rc
         dec = L.dec_rc
         
         # ra = np.rad2deg(np.arctan(L.xc/L.yc))
         # dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
-
-               
-        L.q2d  =  L.b2D_mod/L.a2D_mod
-        L.q2dr =  L.b2Dr_mod/L.a2Dr_mod
-        L.q3d  =  L.b3D_mod/L.a3D_mod
-        L.q3dr =  L.b3Dr_mod/L.a3Dr_mod
-        L.s3d  =  L.c3D_mod/L.a3D_mod
-        L.s3dr =  L.c3Dr_mod/L.a3D_mod
-                
-        L.ra = ra
-        L.dec = dec
-                
+                               
         if idlist:
-                ides = np.loadtxt(folder+'catalogs/'+idlist).astype(int)
+                ides = np.loadtxt(idlist).astype(int)
                 mlenses = np.in1d(L.unique_halo_id,ides)
         else:
                 
-                rs      = L.rc/L.r_max
-                mmass   = (L.lgm >= lM_min)*(L.lgm < lM_max)
-                mz      = (L.z_v >= z_min)*(L.z_v < z_max)
+                rs      = L.offset
+                mmass   = (L.lgM >= lM_min)*(L.lgM < lM_max)
+                mz      = (L.z >= z_min)*(L.z < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mlenses = mmass*mz*mq*mrs
@@ -324,7 +309,7 @@ def main(lcat, sample='pru',
         L = L[mlenses]
                 
         #Computing SMA axis
-        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2D_y/L.a2D_x),np.arctan(L.a2Dr_y/L.a2Dr_x)]).T                
+        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2Dy/L.a2Dx),np.arctan(L.a2Dyr/L.a2Dxr)]).T                
         
         # Define K masks        
         ramin  = np.min(ra)
@@ -453,8 +438,8 @@ def main(lcat, sample='pru',
         
         # AVERAGE LENS PARAMETERS
         
-        zmean        = np.average(L.z_v,weights=Ntot)
-        lM_mean      = np.average(L.lgm,weights=Ntot)
+        zmean        = np.average(L.z,weights=Ntot)
+        lM_mean      = np.log10(np.average(10**L.lgM,weights=Ntot))
         
         q2d_mean     = np.average(L.q2d,weights=Ntot)
         q2dr_mean    = np.average(L.q2dr,weights=Ntot)
@@ -462,14 +447,15 @@ def main(lcat, sample='pru',
         q3dr_mean    = np.average(L.q3dr,weights=Ntot)
         s3d_mean     = np.average(L.s3d,weights=Ntot)
         s3dr_mean    = np.average(L.s3dr,weights=Ntot)
-        
-        lM_v2_mean = np.average(L.lmhalo,weights=Ntot)
             
         # FITTING NFW PROFILE
         
         nfw    = Delta_Sigma_fit(R,DSigma_T[0],np.diag(COV_St),zmean,cosmo,True)
-        
-        
+
+        M200_NFW   = nfw.M200
+        e_M200_NFW = nfw.error_M200
+        le_M200    = (np.log(10.)/M200_NFW)*e_M200_NFW
+
         # WRITING OUTPUT FITS FILE
         
         table_pro = [fits.Column(name='Rp', format='E', array=R),
@@ -511,13 +497,10 @@ def main(lcat, sample='pru',
         h.append(('q_max',np.round(q_max,2)))
         h.append(('hcosmo',np.round(hcosmo,4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
-        h.append(('lM_v2_mean',np.round(lM_v2_mean,4)))
         h.append(('z_mean',np.round(zmean,4)))
-        h.append(('M200',np.round(nfw.M200/1.e14,4)))
-        h.append(('e_M200',np.round(nfw.error_M200/1.e14,4)))
-        h.append(('c200',np.round(nfw.c200,4)))
-        h.append(('e_c200',np.round(nfw.error_c200,4)))
-        h.append(('chi2',np.round(nfw.chi2,4)))
+        h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
+        h.append(('elM200_NFW',np.round(le_M200,4)))
+        h.append(('CHI2_NFW',np.round(nfw.chi2,4)))
         h.append(('q2d_mean',np.round(q2d_mean,4)))
         h.append(('q2dr_mean',np.round(q2dr_mean,4)))
         h.append(('q3d_mean',np.round(q3d_mean,4)))

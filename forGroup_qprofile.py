@@ -309,7 +309,7 @@ def main(lcat, sample='pru',
         L = L[mlenses]
                 
         #Computing SMA axis
-        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2Dy/L.a2Dx),np.arctan(L.a2Dyr/L.a2Dxr)]).T                
+        theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2Dy/L.a2Dx),np.arctan(L.a2Dry/L.a2Drx)]).T                
         
         # Define K masks        
         ramin  = np.min(ra)

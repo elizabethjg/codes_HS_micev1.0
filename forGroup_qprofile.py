@@ -35,6 +35,7 @@ parser.add_argument('-q_min', action='store', dest='q_min', default=0.)
 parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
 parser.add_argument('-rs_min', action='store', dest='rs_min', default=0.)
 parser.add_argument('-rs_max', action='store', dest='rs_max', default=1.)
+parser.add_argument('-relax', action='store', dest='relax', default='False')
 parser.add_argument('-RIN', action='store', dest='RIN', default=100.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=10000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
@@ -60,27 +61,32 @@ ROUT       = float(args.ROUT)
 ndots      = int(args.nbins)
 ncores     = int(args.ncores)
 hcosmo     = float(args.h_cosmo)
-
+if args.relax == 'True':
+    relax = True
+elif args.relax == 'False':
+    relax = False
 
 '''
+lcat = 'HALO_Props_MICE.fits'
 sample='pru'
-lM_min=13.5
+lM_min=14.0
 lM_max=14.5
 z_min = 0.1
-z_max = 0.25
+z_max = 0.2
 q_min = 0.
 q_max = 1.
+rs_min = 0
+rs_max = 1
 RIN = 100.
 ROUT = 10000.
 ndots= 40
 ncores = 32
 hcosmo = 1.0 
-vmice = 2
+vmice = '2'
 rmin = 0.
 rmax = 1000.
-rprox = 'R2_14'
 idlist = None
-newversion = True
+relax = False
 '''
 
 
@@ -100,7 +106,8 @@ def partial_profile(RA0,DEC0,Z,angles,
         
         t0 = time.time()
         mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
-                       
+        t1 = time.time()  
+        print(t1-t0)             
         catdata = S[mask]
 
         ds  = cosmo.angular_diameter_distance(catdata.z_v).value
@@ -112,13 +119,14 @@ def partial_profile(RA0,DEC0,Z,angles,
         Dl = dl*1.e6*pc
         sigma_c = (((cvel**2.0)/(4.0*np.pi*G*Dl))*(1./BETA_array))*(pc**2/Msun)
 
+        t2 = time.time()
+        print(RA0,DEC0,t2-t1)
 
         rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
                                         np.deg2rad(catdata.dec),
                                         np.deg2rad(RA0),
                                         np.deg2rad(DEC0))
-
-
+        
         theta2 = (2.*np.pi - theta) +np.pi/2.
         theta_ra = theta2
         theta_ra[theta2 > 2.*np.pi] = theta2[theta2 > 2.*np.pi] - 2.*np.pi
@@ -162,8 +170,7 @@ def partial_profile(RA0,DEC0,Z,angles,
                 
         COS2_2theta = np.zeros((ndots,3))
         SIN2_2theta = np.zeros((ndots,3))
-        
-               
+                       
         for nbin in range(ndots):
                 mbin = dig == nbin+1              
                 
@@ -195,7 +202,7 @@ def partial_profile(RA0,DEC0,Z,angles,
                         BOOTwsum_Xsin[:,nbin,:] = np.sum(((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T))[:,INDEX],axis=2).T
 
                 '''
-                
+        
         output = {'SIGMAwsum':SIGMAwsum,'DSIGMAwsum_T':DSIGMAwsum_T,
                    'DSIGMAwsum_X':DSIGMAwsum_X,
                    'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
@@ -226,7 +233,7 @@ def main(lcat, sample='pru',
          lM_min=14.,lM_max=14.2,
          z_min = 0.1, z_max = 0.4,
          q_min = 0., q_max = 1.0,
-         rs_min = 0., rs_max = 1.0,
+         rs_min = 0., rs_max = 1.0,relax=False,
          RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
          idlist= None, hcosmo=1.0, vmice = '2'):
@@ -244,6 +251,7 @@ def main(lcat, sample='pru',
         q_max          (float) higher limit for q - <
         rs_min         (float) lower limit r_scale = r_c/r_max
         rs_max         (float) higher limit r_scale = r_c/r_max
+        relax          (bool)  Select only relaxed halos
         RIN            (float) Inner bin radius of profile
         ROUT           (float) Outer bin radius of profile
         ndots          (int) Number of bins of the profile
@@ -283,6 +291,7 @@ def main(lcat, sample='pru',
         ra = L.ra_rc
         dec = L.dec_rc
         
+        Eratio = (2.*L.K/abs(L.U))
         # ra = np.rad2deg(np.arctan(L.xc/L.yc))
         # dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
                                
@@ -297,6 +306,9 @@ def main(lcat, sample='pru',
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mlenses = mmass*mz*mq*mrs
+                
+        if relax:
+            mlenses = mlenses*(L.offset < 0.1)*(Eratio < 1.35)
                 
         Nlenses = mlenses.sum()
 
@@ -333,6 +345,7 @@ def main(lcat, sample='pru',
         # SPLIT LENSING CAT
         
         lbins = int(round(Nlenses/float(ncores), 0))
+        # lbins  = ncores#int(round(Nlenses/float(ncores), 0))
         slices = ((np.arange(lbins)+1)*ncores).astype(int)
         slices = slices[(slices < Nlenses)]
         Lsplit = np.split(L,slices)
@@ -443,10 +456,10 @@ def main(lcat, sample='pru',
         
         q2d_mean     = np.average(L.q2d,weights=Ntot)
         q2dr_mean    = np.average(L.q2dr,weights=Ntot)
-        q3d_mean     = np.average(L.q3d,weights=Ntot)
-        q3dr_mean    = np.average(L.q3dr,weights=Ntot)
-        s3d_mean     = np.average(L.s3d,weights=Ntot)
-        s3dr_mean    = np.average(L.s3dr,weights=Ntot)
+        q3d_mean     = np.average(L.q,weights=Ntot)
+        q3dr_mean    = np.average(L.qr,weights=Ntot)
+        s3d_mean     = np.average(L.s,weights=Ntot)
+        s3dr_mean    = np.average(L.sr,weights=Ntot)
             
         # FITTING NFW PROFILE
         
@@ -520,4 +533,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,relax,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)

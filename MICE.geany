@@ -27,18 +27,18 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=16
+current_page=9
 FILE_NAME_0=11084;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2FforGroup_qprofile_individual.py;0;8
-FILE_NAME_1=2855;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2FforGroup_qprofile.py;0;8
-FILE_NAME_2=9785;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2FforGroup_map_ind.py;0;8
-FILE_NAME_3=10069;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2FforGroup_map.py;0;8
+FILE_NAME_1=19204;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2FforGroup_qprofile.py;0;8
+FILE_NAME_2=1014;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2FforGroup_map_ind.py;0;8
+FILE_NAME_3=18284;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2FforGroup_map.py;0;8
 FILE_NAME_4=2699;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Ffit_only_GX.py;0;4
 FILE_NAME_5=5078;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Ffit_only_GT.py;0;4
 FILE_NAME_6=3274;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Ffit_allprofiles.py;0;4
 FILE_NAME_7=136;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fcompute_miss.py;0;6
 FILE_NAME_8=3111;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fselect_profiles.py;0;4
-FILE_NAME_9=566;Sh;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fscript_forGroup_profile.slurm;0;4
-FILE_NAME_10=17858;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fanalysis_profile.py;0;4
+FILE_NAME_9=928;Sh;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fscript_forGroup_profile.slurm;0;4
+FILE_NAME_10=0;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fanalysis_profile.py;0;4
 FILE_NAME_11=556;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fanalysis_map_pru.py;0;4
 FILE_NAME_12=711;Python;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fanalysis_map.py;0;4
 FILE_NAME_13=311;Sh;0;EUTF-8;0;1;0;%2Fhome%2Feli%2FDocumentos%2FAstronomia%2Fproyectos%2FHALO-SHAPE%2FMICEv1.0%2Fcodes_HS_micev1.0%2Fscript_sersic.sh;0;4

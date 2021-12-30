@@ -370,14 +370,14 @@ def main(lcat, sample='pru',
                 h_array   = hcosmo*np.ones(num)
                 
                 if num == 1:
-                        entrada = [Lsplit[l].ra[0], Lsplit[l].dec[0],
-                                   Lsplit[l].z_v[0],Tsplit[l][0],
+                        entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
+                                   Lsplit[l].z[0],Tsplit[l][0],
                                    RIN,ROUT,ndots,hcosmo]
                         
                         salida = [partial_profile_unpack(entrada)]
                 else:          
-                        entrada = np.array([Lsplit[l].ra,Lsplit[l].dec,
-                                        Lsplit[l].z_v,Tsplit[l].tolist(),
+                        entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
+                                        Lsplit[l].z,Tsplit[l].tolist(),
                                         rin,rout,nd,h_array]).T
                         
                         pool = Pool(processes=(num))

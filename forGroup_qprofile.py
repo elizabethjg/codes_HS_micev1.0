@@ -16,7 +16,7 @@ from multiprocessing import Pool
 from multiprocessing import Process
 import argparse
 from astropy.constants import G,c,M_sun,pc
-
+from scipy import stats
 # For map
 wcs = WCS(naxis=2)
 wcs.wcs.crpix = [0., 0.]

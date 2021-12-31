@@ -7,6 +7,7 @@ import numpy as np
 from astropy.io import fits
 from astropy.table import Table
 from astropy.cosmology import LambdaCDM
+from astropy.wcs import WCS
 from maria_func import *
 from fit_profiles_curvefit import *
 from astropy.stats import bootstrap
@@ -15,6 +16,12 @@ from multiprocessing import Pool
 from multiprocessing import Process
 import argparse
 from astropy.constants import G,c,M_sun,pc
+
+# For map
+wcs = WCS(naxis=2)
+wcs.wcs.crpix = [0., 0.]
+wcs.wcs.cdelt = [1./3600., 1./3600.]
+wcs.wcs.ctype = ["RA---TAN", "DEC--TAN"]    
 
 #parameters
 cvel = c.value;   # Speed of light (m.s-1)
@@ -93,6 +100,7 @@ rmin = 0.
 rmax = 1000.
 idlist = None
 relax = False
+domap = True
 '''
 
 

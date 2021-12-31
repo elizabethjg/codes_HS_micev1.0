@@ -13,6 +13,8 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
+folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
+
 def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     
     folder = '../../MICEv'+str(mv1)+'.0/profiles/'
@@ -294,10 +296,8 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax3.set_xticklabels([0.1,1,5,7])
     ax3.legend()
 
-def plt_profile_wofit(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
+def plt_profile_wofit(samp):
     
-    folder = '../../MICEv'+str(mv)+'.0/profiles/'
-
 
     p_name = 'profile_'+samp+'.fits'
     profile = fits.open(folder+p_name)
@@ -315,7 +315,7 @@ def plt_profile_wofit(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     h = profile[1].header
     p = profile[1].data
     '''
-    micev = str(h['MICE version'])
+
     
     zmean = h['z_mean']
     q  = h['q2d_mean']
@@ -360,7 +360,10 @@ def plt_profile_wofit(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     
     mass = str(np.round(np.log10(nfw.M200),1))
     
-    
+    f, ax = plt.subplots()
+    f1, ax1 = plt.subplots()
+    f2, ax2 = plt.subplots()
+    f3, ax3 = plt.subplots()
     
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
@@ -370,12 +373,7 @@ def plt_profile_wofit(samp,ax,ax1,ax2,ax3,RIN,ROUT,mv):
     
     ax1.legend()
     ax2.legend()
-    
-    ax.set_title('MICE v'+micev+'.0')
-    ax1.set_title('MICE v'+micev+'.0')
-    ax2.set_title('MICE v'+micev+'.0')
-    ax3.set_title('MICE v'+micev+'.0')
-    
+        
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(nfw.xplot,nfw.yplot,'C3',label='fited nfw')
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)

@@ -15,6 +15,7 @@ from astropy.utils import NumpyRNGContext
 from multiprocessing import Pool
 from multiprocessing import Process
 import argparse
+from scipy import stats
 from astropy.constants import G,c,M_sun,pc
 
 # FOR MAP
@@ -109,6 +110,8 @@ S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/M
 
 def partial_map(RA0,DEC0,Z,angles,
                 RIN,ROUT,ndots,h):
+
+        ndots = int(ndots)
 
         lsize = int(np.sqrt(ndots))
 
@@ -353,8 +356,10 @@ def run_profile_for_list(list_data):
     
     for j in range(len(L)):
             
-            profilesums = [L.ra_rc[j], L.dec_rc[j], L.z[j], T[j],
-                            RIN,ROUT,ndots,hcosmo]
+            print j
+            
+            profilesums = partial_profile(L.ra_rc[j], L.dec_rc[j], L.z[j], T[j],
+                            RIN,ROUT,ndots,hcosmo)
     
             km          = np.tile(K[j],(3,ndots,1)).T
                                     
@@ -505,8 +510,8 @@ def main(lcat, sample='pru',
         
         # SPLIT LENSING CAT
         
-        lbins = ncores#int(round(Nlenses/float(ncores), 0))
-        slices = ((np.arange(lbins)+1)*ncores).astype(int)
+        lbins = int(round(Nlenses/float(ncores), 0))
+        slices = ((np.arange(ncores-1)+1)*lbins).astype(int)
         slices = slices[(slices < Nlenses)]
         Lsplit = np.split(L,slices)
         Tsplit = np.split(theta,slices)        
@@ -575,33 +580,17 @@ def main(lcat, sample='pru',
         
         Ntot         = np.array([])
         tslice       = np.array([])
+
+        entrada = []
         
         for l in range(len(Lsplit)):
                 
-                print('RUN ',l+1,' OF ',len(Lsplit))
+                entrada += [[Lsplit[l],Tsplit[l],Ksplit[l],RIN,ROUT,ndots,hcosmo]]
                 
-                t1 = time.time()
                 
-                num = len(Lsplit[l])
-                
-                rin  = RIN*np.ones(num)
-                rout = ROUT*np.ones(num)
-                nd   = ndots*np.ones(num)
-                h_array   = hcosmo*np.ones(num)
-                
-                if num == 1:
-                        entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
-                                   Lsplit[l].z[0],Tsplit[l][0],
-                                   RIN,ROUT,ndots,hcosmo]
                         
-                        salida = [partial(entrada)]
-                else:          
-                        entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
-                                        Lsplit[l].z,Tsplit[l].tolist(),
-                                        rin,rout,nd,h_array]).T
-                        
-                        pool = Pool(processes=(num))
-                        salida = np.array(pool.map(partial, entrada))
+                        pool = Pool(processes=(ncores))
+                        salida = np.array(pool.map(run_profile_for_list, entrada))
                         pool.terminate()
                                 
                 for j in range(len(salida)):

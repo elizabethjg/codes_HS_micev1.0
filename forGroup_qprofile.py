@@ -214,6 +214,56 @@ def partial_profile(RA0,DEC0,Z,angles,
 def partial_profile_unpack(minput):
 	return partial_profile(*minput)
 
+
+def run_profile_for_list(L,T,K,RIN,ROUT,ndots,hcosmo):
+    
+    SIGMAwsum    = np.zeros((101,ndots)) 
+    DSIGMAwsum_T = np.zeros((101,ndots)) 
+    DSIGMAwsum_X = np.zeros((101,ndots))
+        
+    GAMMATcos_wsum = np.zeros((101,ndots,3))
+    GAMMAXsin_wsum = np.zeros((101,ndots,3))
+    
+    COS2_2theta_wsum = np.zeros((101,ndots,3))
+    SIN2_2theta_wsum = np.zeros((101,ndots,3))
+                            
+    Ninbin = np.zeros((101,ndots))
+    Ntot   = np.array([]) 
+    
+    
+    for j in range(len(L)):
+            
+            profilesums = [L.ra_rc[j], L.dec_rc[j], L.z[j], T[j],
+                            RIN,ROUT,ndots,hcosmo]
+    
+            km          = np.tile(K[j],(3,ndots,1)).T
+                                    
+            SIGMAwsum    += np.tile(profilesums['SIGMAwsum'],(101,1))*km[:,:,0]
+            DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]
+            DSIGMAwsum_X += np.tile(profilesums['DSIGMAwsum_X'],(101,1))*km[:,:,0]
+            
+            Ninbin += np.tile(profilesums['N_inbin'],(101,1))*km[:,:,0]
+            
+            GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
+            GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
+    
+            COS2_2theta_wsum += np.tile(profilesums['COS2_2theta_wsum'],(101,1,1))*km
+            SIN2_2theta_wsum += np.tile(profilesums['SIN2_2theta_wsum'],(101,1,1))*km
+            
+            Ntot         = np.append(Ntot,profilesums['Ntot'])
+            
+    output = {'SIGMAwsum':SIGMAwsum,'DSIGMAwsum_T':DSIGMAwsum_T,
+                'DSIGMAwsum_X':DSIGMAwsum_X,
+                'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
+                'COS2_2theta_wsum':COS2_2theta,'SIN2_2theta_wsum':SIN2_2theta,
+                'N_inbin':N_inbin,'Ntot':Ntot}
+                
+    return output
+
+def run_profile_for_list_unpack(minput):
+	return run_profile_for_list(*minput)
+
+
 def cov_matrix(array):
         
         K = len(array)
@@ -344,8 +394,8 @@ def main(lcat, sample='pru',
         
         # SPLIT LENSING CAT
         
-        lbins = int(round(Nlenses/float(ncores), 0))
-        # lbins  = ncores#int(round(Nlenses/float(ncores), 0))
+        # lbins = int(round(Nlenses/float(ncores), 0))
+        lbins  = ncores
         slices = ((np.arange(lbins)+1)*ncores).astype(int)
         slices = slices[(slices < Nlenses)]
         Lsplit = np.split(L,slices)
@@ -381,38 +431,35 @@ def main(lcat, sample='pru',
                 rout = ROUT*np.ones(num)
                 nd   = ndots*np.ones(num)
                 h_array   = hcosmo*np.ones(num)
+
+                entrada = [Lsplit[l],Tsplit[l].tolist(),Ksplit[l],
+                                        rin,rout,nd,h_array]
+
                 
                 if num == 1:
-                        entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
-                                   Lsplit[l].z[0],Tsplit[l][0],
-                                   RIN,ROUT,ndots,hcosmo]
                         
-                        salida = [partial_profile_unpack(entrada)]
+                        salida = [run_profile_for_list_unpack(entrada)]
                 else:          
-                        entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
-                                        Lsplit[l].z,Tsplit[l].tolist(),
-                                        rin,rout,nd,h_array]).T
                         
                         pool = Pool(processes=(num))
-                        salida = np.array(pool.map(partial_profile_unpack, entrada))
+                        salida = np.array(pool.map(run_profile_for_list_unpack, entrada))
                         pool.terminate()
                                 
-                for j in range(len(salida)):
+                for j in range(ncores):
                         
                         profilesums = salida[j]
-                        km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
                                                 
-                        SIGMAwsum    += np.tile(profilesums['SIGMAwsum'],(101,1))*km[:,:,0]
-                        DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]
-                        DSIGMAwsum_X += np.tile(profilesums['DSIGMAwsum_X'],(101,1))*km[:,:,0]
+                        SIGMAwsum    += profilesums['SIGMAwsum']
+                        DSIGMAwsum_T += profilesums['DSIGMAwsum_T']
+                        DSIGMAwsum_X += profilesums['DSIGMAwsum_X']
                         
-                        Ninbin += np.tile(profilesums['N_inbin'],(101,1))*km[:,:,0]
+                        Ninbin += profilesums['N_inbin']
                         
-                        GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
-                        GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
+                        GAMMATcos_wsum += profilesums['GAMMATcos_wsum']
+                        GAMMAXsin_wsum += profilesums['GAMMAXsin_wsum']
 
-                        COS2_2theta_wsum += np.tile(profilesums['COS2_2theta_wsum'],(101,1,1))*km
-                        SIN2_2theta_wsum += np.tile(profilesums['SIN2_2theta_wsum'],(101,1,1))*km
+                        COS2_2theta_wsum += profilesums['COS2_2theta_wsum']
+                        SIN2_2theta_wsum += profilesums['SIN2_2theta_wsum']
                         
                         Ntot         = np.append(Ntot,profilesums['Ntot'])
                 

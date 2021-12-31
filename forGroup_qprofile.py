@@ -460,7 +460,7 @@ def main(lcat, sample='pru',
             print('Maps have ',ndots,'pixels')
             print('up to ',ROUT,'kpc')
             
-            output_file = 'profiles/map_'+sample+'.fits'
+            output_file = 'maps/map_'+sample+'.fits'
 
             # Defining 2D bins
             

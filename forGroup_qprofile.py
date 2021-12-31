@@ -205,7 +205,7 @@ def partial_map(RA0,DEC0,Z,angles,
         Ntot = m.sum()
    
         output = {'GTsum':GTsum,'GXsum':GXsum,
-                   'Ksum': Ksum, 'Ninbin':Ninbin,
+                   'Ksum': Ksum, 'N_inbin':Ninbin,
                    'Ntot': Ntot}
         
         return output

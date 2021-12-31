@@ -230,7 +230,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         sigma_c = (((cvel**2.0)/(4.0*np.pi*G*Dl))*(1./BETA_array))*(pc**2/Msun)
 
         t2 = time.time()
-        print(RA0,DEC0,t2-t1)
+        # print(RA0,DEC0,t2-t1)
 
         rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
                                         np.deg2rad(catdata.dec),
@@ -512,7 +512,7 @@ def main(lcat, sample='pru',
             partial = partial_profile_unpack
             
 
-        print('Saved in '+output_file)
+        print('Saved in '+folder+output_file)
                                    
         Ninbin = np.zeros((101,ndots))
         

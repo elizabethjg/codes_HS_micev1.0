@@ -36,6 +36,7 @@ parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
 parser.add_argument('-rs_min', action='store', dest='rs_min', default=0.)
 parser.add_argument('-rs_max', action='store', dest='rs_max', default=1.)
 parser.add_argument('-relax', action='store', dest='relax', default='False')
+parser.add_argument('-domap', action='store', dest='domap', default='False')
 parser.add_argument('-RIN', action='store', dest='RIN', default=100.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=10000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
@@ -66,6 +67,11 @@ if args.relax == 'True':
 elif args.relax == 'False':
     relax = False
 
+if args.domap == 'True':
+    domap = True
+elif args.domap == 'False':
+    domap = False
+
 '''
 lcat = 'HALO_Props_MICE.fits'
 sample='pru'
@@ -90,11 +96,115 @@ relax = False
 '''
 
 
-folder = '/home/elizabeth/MICE_shapes/'
+folder = '/home/elizabeth/MICE/HS-lensing/'
 S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/MICE_sources_HSN.fits')[1].data
 
+def partial_map(RA0,DEC0,Z,angles,
+                RIN,ROUT,ndots,h):
+
+        lsize = int(np.sqrt(ndots))
+
+        cosmo = LambdaCDM(H0=100*h, Om0=0.25, Ode0=0.75)
+        dl  = cosmo.angular_diameter_distance(Z).value
+        KPCSCALE   = dl*(((1.0/3600.0)*np.pi)/180.0)*1000.0
+        
+        delta = (ROUT*1.5)/(3600*KPCSCALE)
+        rarray = [[-1.*(ROUT*1.e-3),(ROUT*1.e-3)],[-1.*(ROUT*1.e-3),(ROUT*1.e-3)]]
+        
+        t0 = time.time()
+        mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
+                       
+        catdata = S[mask]
+
+        ds  = cosmo.angular_diameter_distance(catdata.z_v).value
+        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_v).value
+                
+        
+        BETA_array = dls/ds
+        
+        Dl = dl*1.e6*pc
+        sigma_c = (((cvel**2.0)/(4.0*np.pi*G*Dl))*(1./BETA_array))*(pc**2/Msun)
+
+
+
+        rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
+                                        np.deg2rad(catdata.dec),
+                                        np.deg2rad(RA0),
+                                        np.deg2rad(DEC0))
+
+
+        theta2 = (2.*np.pi - theta) +np.pi/2.
+        theta_ra = theta2
+        theta_ra[theta2 > 2.*np.pi] = theta2[theta2 > 2.*np.pi] - 2.*np.pi
+                       
+        e1     = catdata.gamma1
+        e2     = -1.*catdata.gamma2
+        
+       
+        #get tangential ellipticities 
+        et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c
+        #get cross ellipticities
+        ex = (-e1*np.sin(2*theta)+e2*np.cos(2*theta))*sigma_c
+        # '''
+        k  = catdata.kappa*sigma_c
+                
+        wcs.wcs.crval = [RA0,DEC0]
+        dx, dy = wcs.wcs_world2pix(catdata.ra,catdata.dec, 0)
+
+        dx = dx*KPCSCALE*1.e-3
+        dy = dy*KPCSCALE*1.e-3
+          
+        del(e1)
+        del(e2)
+        
+        r=np.rad2deg(rads)*3600*KPCSCALE
+        del(rads)
+        
+        
+        Ntot = len(catdata)
+        del(catdata)    
+        
+        
+        t = np.tile(theta_ra,(3,1)).T
+        an = np.tile(angles,(len(theta_ra),1))
+        at     = t - an
+        
+        GTsum = np.zeros((ndots,3))
+        GXsum = np.zeros((ndots,3))
+        Ksum  = np.zeros((ndots,3))
+        Ninbin  = np.zeros((ndots,3))
+        
+        
+        for j in range(3):
+                x_t  = (dx*np.cos(an[:,j]) + dy*np.sin(an[:,j])) 
+                y_t = (-1.*dx*np.sin(an[:,j]) + dy*np.cos(an[:,j])) 
+                m   =  (abs(x_t) < (ROUT*1.e-3))*(abs(y_t) < (ROUT*1.e-3)) 
+                out = stats.binned_statistic_2d(x_t[m], y_t[m], et[m], 
+                                               'count',bins=lsize, range = rarray)
+                Ninbin[:,j] = out.statistic.flatten()
+                out = stats.binned_statistic_2d(x_t[m], y_t[m], et[m], 
+                                               'sum',bins=lsize, range = rarray)
+                GTsum[:,j] = out.statistic.flatten()
+                out = stats.binned_statistic_2d(x_t[m], y_t[m], ex[m], 
+                                               'sum',bins=lsize, range = rarray)
+                GXsum[:,j] = out.statistic.flatten()
+                out = stats.binned_statistic_2d(x_t[m], y_t[m], k[m], 
+                                               'sum',bins=lsize, range = rarray)
+                Ksum[:,j] = out.statistic.flatten()
+
+        Ntot = m.sum()
+   
+        output = {'GTsum':GTsum,'GXsum':GXsum,
+                   'Ksum': Ksum, 'Ninbin':Ninbin,
+                   'Ntot': Ntot}
+        
+        return output
+
+def partial_map_unpack(minput):
+	return partial_map(*minput)
+
 def partial_profile(RA0,DEC0,Z,angles,
-                    RIN,ROUT,ndots,h,nboot=100):
+                    RIN,ROUT,ndots,h):
 
         ndots = int(ndots)
 
@@ -107,7 +217,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         t0 = time.time()
         mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
         t1 = time.time()  
-        print(t1-t0)             
+        # print(t1-t0)             
         catdata = S[mask]
 
         ds  = cosmo.angular_diameter_distance(catdata.z_v).value
@@ -120,7 +230,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         sigma_c = (((cvel**2.0)/(4.0*np.pi*G*Dl))*(1./BETA_array))*(pc**2/Msun)
 
         t2 = time.time()
-        print(RA0,DEC0,t2-t1)
+        # print(RA0,DEC0,t2-t1)
 
         rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
                                         np.deg2rad(catdata.dec),
@@ -142,15 +252,15 @@ def partial_profile(RA0,DEC0,Z,angles,
         # '''
         k  = catdata.kappa*sigma_c
           
-        # del(e1)
-        # del(e2)
+        del(e1)
+        del(e2)
         
         r=np.rad2deg(rads)*3600*KPCSCALE
         del(rads)
         
         
         Ntot = len(catdata)
-        # del(catdata)    
+        del(catdata)    
         
         bines = np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1)
         dig = np.digitize(r,bines)
@@ -213,8 +323,8 @@ def partial_profile(RA0,DEC0,Z,angles,
 
 def partial_profile_unpack(minput):
 	return partial_profile(*minput)
-
-
+    
+    
 def run_profile_for_list(L,T,K,RIN,ROUT,ndots,hcosmo):
     
     SIGMAwsum    = np.zeros((101,ndots)) 
@@ -284,7 +394,7 @@ def main(lcat, sample='pru',
          z_min = 0.1, z_max = 0.4,
          q_min = 0., q_max = 1.0,
          rs_min = 0., rs_max = 1.0,relax=False,
-         RIN = 400., ROUT =5000.,
+         domap = False, RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
          idlist= None, hcosmo=1.0, vmice = '2'):
 
@@ -302,6 +412,8 @@ def main(lcat, sample='pru',
         rs_min         (float) lower limit r_scale = r_c/r_max
         rs_max         (float) higher limit r_scale = r_c/r_max
         relax          (bool)  Select only relaxed halos
+        domap          (bool) Instead of computing a profile it 
+                       will compute a map with 2D bins ndots lsize
         RIN            (float) Inner bin radius of profile
         ROUT           (float) Outer bin radius of profile
         ndots          (int) Number of bins of the profile
@@ -324,18 +436,10 @@ def main(lcat, sample='pru',
                 print(z_min,' <= z < ',z_max)
                 print(q_min,' <= q < ',q_max)
                 print(rs_min,' <= rs < ',rs_max)
-                print('Profile has ',ndots,'bins')
-                print('from ',RIN,'kpc to ',ROUT,'kpc')
                 print('h ',hcosmo)
-                
-              
-        # Defining radial bins
-        bines = np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1)
-        R = (bines[:-1] + np.diff(bines)*0.5)*1.e-3
-        
+                        
         #reading cats
                 
-        print('Using new version of catalog parameter')
         L = fits.open(folder+lcat)[1].data               
         
         ra = L.ra_rc
@@ -394,25 +498,71 @@ def main(lcat, sample='pru',
         
         # SPLIT LENSING CAT
         
-        # lbins = int(round(Nlenses/float(ncores), 0))
-        lbins  = ncores
+        lbins = int(round(Nlenses/float(ncores), 0))
         slices = ((np.arange(lbins)+1)*ncores).astype(int)
         slices = slices[(slices < Nlenses)]
         Lsplit = np.split(L,slices)
         Tsplit = np.split(theta,slices)        
         Ksplit = np.split(kmask.T,slices)
         
-        # WHERE THE SUMS ARE GOING TO BE SAVED
-        
-        SIGMAwsum    = np.zeros((101,ndots)) 
-        DSIGMAwsum_T = np.zeros((101,ndots)) 
-        DSIGMAwsum_X = np.zeros((101,ndots))
-              
-        GAMMATcos_wsum = np.zeros((101,ndots,3))
-        GAMMAXsin_wsum = np.zeros((101,ndots,3))
+        if domap:
 
-        COS2_2theta_wsum = np.zeros((101,ndots,3))
-        SIN2_2theta_wsum = np.zeros((101,ndots,3))
+            print('Maps have ',ndots,'pixels')
+            print('up to ',ROUT,'kpc')
+            
+            output_file = 'maps/map_'+sample+'.fits'
+
+            # Defining 2D bins
+            
+            lsize = int(np.sqrt(ndots))
+            
+            ndots = int(lsize**2)
+            
+            Rmpc = 1.e-3*ROUT
+            
+            xb = np.linspace(-1.*Rmpc+(Rmpc/lsize),Rmpc-(Rmpc/lsize),lsize)
+            
+            ybin, xbin = np.meshgrid(xb,xb)
+            
+            ybin = ybin.flatten()
+            xbin = xbin.flatten()
+
+            # WHERE THE SUMS ARE GOING TO BE SAVED
+            GTsum = np.zeros((101,ndots,3))
+            GXsum = np.zeros((101,ndots,3))
+            Ksum  = np.zeros((101,ndots,3))        
+            
+            # FUNCTION TO RUN IN PARALLEL
+            partial = partial_map_unpack
+            
+
+        else:
+
+            print('Profile has ',ndots,'bins')
+            print('from ',RIN,'kpc to ',ROUT,'kpc')
+
+            output_file = 'profiles/profile_'+sample+'.fits'
+
+            # Defining radial bins
+            bines = np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1)
+            R = (bines[:-1] + np.diff(bines)*0.5)*1.e-3
+
+            # WHERE THE SUMS ARE GOING TO BE SAVED
+            SIGMAwsum    = np.zeros((101,ndots)) 
+            DSIGMAwsum_T = np.zeros((101,ndots)) 
+            DSIGMAwsum_X = np.zeros((101,ndots))
+                
+            GAMMATcos_wsum = np.zeros((101,ndots,3))
+            GAMMAXsin_wsum = np.zeros((101,ndots,3))
+    
+            COS2_2theta_wsum = np.zeros((101,ndots,3))
+            SIN2_2theta_wsum = np.zeros((101,ndots,3))
+            
+            # FUNCTION TO RUN IN PARALLEL
+            partial = partial_profile_unpack
+            
+
+        print('Saved in '+folder+output_file)
                                    
         Ninbin = np.zeros((101,ndots))
         
@@ -431,37 +581,48 @@ def main(lcat, sample='pru',
                 rout = ROUT*np.ones(num)
                 nd   = ndots*np.ones(num)
                 h_array   = hcosmo*np.ones(num)
-
-                entrada = [Lsplit[l],Tsplit[l].tolist(),Ksplit[l],
-                                        rin,rout,nd,h_array]
-
                 
                 if num == 1:
+                        entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
+                                   Lsplit[l].z[0],Tsplit[l][0],
+                                   RIN,ROUT,ndots,hcosmo]
                         
-                        salida = [run_profile_for_list_unpack(entrada)]
+                        salida = [partial(entrada)]
                 else:          
+                        entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
+                                        Lsplit[l].z,Tsplit[l].tolist(),
+                                        rin,rout,nd,h_array]).T
                         
                         pool = Pool(processes=(num))
-                        salida = np.array(pool.map(run_profile_for_list_unpack, entrada))
+                        salida = np.array(pool.map(partial, entrada))
                         pool.terminate()
                                 
-                for j in range(ncores):
+                for j in range(len(salida)):
                         
                         profilesums = salida[j]
-                                                
-                        SIGMAwsum    += profilesums['SIGMAwsum']
-                        DSIGMAwsum_T += profilesums['DSIGMAwsum_T']
-                        DSIGMAwsum_X += profilesums['DSIGMAwsum_X']
-                        
-                        Ninbin += profilesums['N_inbin']
-                        
-                        GAMMATcos_wsum += profilesums['GAMMATcos_wsum']
-                        GAMMAXsin_wsum += profilesums['GAMMAXsin_wsum']
+                        km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
 
-                        COS2_2theta_wsum += profilesums['COS2_2theta_wsum']
-                        SIN2_2theta_wsum += profilesums['SIN2_2theta_wsum']
-                        
+                        Ninbin += np.tile(profilesums['N_inbin'],(101,1))*km[:,:,0]
                         Ntot         = np.append(Ntot,profilesums['Ntot'])
+                        
+                        if domap:
+
+                            GTsum += np.tile(profilesums['GTsum'],(101,1,1))*km
+                            GXsum += np.tile(profilesums['GXsum'],(101,1,1))*km
+                            Ksum  += np.tile(profilesums['Ksum'],(101,1,1))*km
+                            
+                        else:
+                                                
+                            SIGMAwsum    += np.tile(profilesums['SIGMAwsum'],(101,1))*km[:,:,0]
+                            DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]
+                            DSIGMAwsum_X += np.tile(profilesums['DSIGMAwsum_X'],(101,1))*km[:,:,0]
+                            
+                            GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
+                            GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
+    
+                            COS2_2theta_wsum += np.tile(profilesums['COS2_2theta_wsum'],(101,1,1))*km
+                            SIN2_2theta_wsum += np.tile(profilesums['SIN2_2theta_wsum'],(101,1,1))*km
+                        
                 
                 t2 = time.time()
                 ts = (t2-t1)/60.
@@ -470,33 +631,8 @@ def main(lcat, sample='pru',
                 print(ts)
                 print('Estimated ramaining time')
                 print(np.mean(tslice)*(len(Lsplit)-(l+1)))
-        
-        # COMPUTING PROFILE        
-        Ninbin[DSIGMAwsum_T == 0] = 1.
-                
-        Sigma     = (SIGMAwsum/Ninbin)
-        DSigma_T  = (DSIGMAwsum_T/Ninbin)
-        DSigma_X  = (DSIGMAwsum_X/Ninbin)
-        
-        GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
-        GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0)
-        
-        # COMPUTE COVARIANCE
 
-        COV_S   = cov_matrix(Sigma[1:,:])
-        COV_St  = cov_matrix(DSigma_T[1:,:])
-        COV_Sx  = cov_matrix(DSigma_X[1:,:])
-        
-        COV_Gtc = cov_matrix(GAMMA_Tcos[:,0,1:].T)
-        COV_Gt  = cov_matrix(GAMMA_Tcos[:,1,1:].T)
-        COV_Gtr = cov_matrix(GAMMA_Tcos[:,2,1:].T)
-        
-        COV_Gxc = cov_matrix(GAMMA_Xsin[:,0,1:].T)
-        COV_Gx  = cov_matrix(GAMMA_Xsin[:,1,1:].T)
-        COV_Gxr = cov_matrix(GAMMA_Xsin[:,2,1:].T)
-        
-        
-        # AVERAGE LENS PARAMETERS
+        # AVERAGE LENS PARAMETERS AND SAVE IT IN HEADER
         
         zmean        = np.average(L.z,weights=Ntot)
         lM_mean      = np.log10(np.average(10**L.lgM,weights=Ntot))
@@ -507,42 +643,7 @@ def main(lcat, sample='pru',
         q3dr_mean    = np.average(L.qr,weights=Ntot)
         s3d_mean     = np.average(L.s,weights=Ntot)
         s3dr_mean    = np.average(L.sr,weights=Ntot)
-            
-        # FITTING NFW PROFILE
-        
-        nfw    = Delta_Sigma_fit(R,DSigma_T[0],np.diag(COV_St),zmean,cosmo,True)
 
-        M200_NFW   = nfw.M200
-        e_M200_NFW = nfw.error_M200
-        le_M200    = (np.log(10.)/M200_NFW)*e_M200_NFW
-
-        # WRITING OUTPUT FITS FILE
-        
-        table_pro = [fits.Column(name='Rp', format='E', array=R),
-                fits.Column(name='Sigma', format='E', array=Sigma[0]),
-                fits.Column(name='DSigma_T', format='E', array=DSigma_T[0]),
-                fits.Column(name='DSigma_X', format='E', array=DSigma_X[0]),
-                fits.Column(name='GAMMA_Tcos_control', format='E', array=GAMMA_Tcos[:,0,0]),
-                fits.Column(name='GAMMA_Tcos', format='E', array=GAMMA_Tcos[:,1,0]),
-                fits.Column(name='GAMMA_Tcos_reduced', format='E', array=GAMMA_Tcos[:,2,0]),
-                fits.Column(name='GAMMA_Xsin_control', format='E', array=GAMMA_Xsin[:,0,0]),
-                fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
-                fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0])]
-                
-                     
-        table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
-                    fits.Column(name='COV_S', format='E', array=COV_S.flatten()),
-                    fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
-                    fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
-                    fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
-                    fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),
-                    fits.Column(name='COV_GX_control', format='E', array=COV_Gxc.flatten()),
-                    fits.Column(name='COV_GX', format='E', array=COV_Gx.flatten()),
-                    fits.Column(name='COV_GX_reduced', format='E', array=COV_Gxr.flatten())]
-        
-        tbhdu_pro = fits.BinTableHDU.from_columns(fits.ColDefs(table_pro))
-        tbhdu_cov = fits.BinTableHDU.from_columns(fits.ColDefs(table_cov))
-        
         h = fits.Header()
         h.append(('N_LENSES',np.int(Nlenses)))
         h.append(('Lens cat',lcat))
@@ -558,9 +659,6 @@ def main(lcat, sample='pru',
         h.append(('hcosmo',np.round(hcosmo,4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
         h.append(('z_mean',np.round(zmean,4)))
-        h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
-        h.append(('elM200_NFW',np.round(le_M200,4)))
-        h.append(('CHI2_NFW',np.round(nfw.chi2,4)))
         h.append(('q2d_mean',np.round(q2d_mean,4)))
         h.append(('q2dr_mean',np.round(q2dr_mean,4)))
         h.append(('q3d_mean',np.round(q3d_mean,4)))
@@ -568,11 +666,122 @@ def main(lcat, sample='pru',
         h.append(('s3d_mean',np.round(s3d_mean,4)))        
         h.append(('s3dr_mean',np.round(s3dr_mean,4))) 
         
+        if domap:
+            
+            # COMPUTING PROFILE        
+                
+            GT  = (GTsum/Ninbin)
+            GX  = (GXsum/Ninbin)
+            K   = (Ksum/Ninbin)
+                    
+            # COMPUTE COVARIANCE
+            
+            COV_Gtc = cov_matrix(GT[1:,:,0])
+            COV_Gt  = cov_matrix(GT[1:,:,1])
+            COV_Gtr = cov_matrix(GT[1:,:,2])
+            
+            COV_Gxc = cov_matrix(GX[1:,:,0])
+            COV_Gx  = cov_matrix(GX[1:,:,1])
+            COV_Gxr = cov_matrix(GX[1:,:,2])
+    
+            COV_Kc = cov_matrix(GX[1:,:,0])
+            COV_K  = cov_matrix(GX[1:,:,1])
+            COV_Kr = cov_matrix(GX[1:,:,2])
+            
+            table_pro = [fits.Column(name='xmpc', format='E', array=xbin),
+                    fits.Column(name='ympc', format='E', array=ybin),
+                    fits.Column(name='GT_control', format='E', array=GT[0,:,0]),
+                    fits.Column(name='GT', format='E', array=GT[0,:,1]),
+                    fits.Column(name='GT_reduced', format='E', array=GT[0,:,2]),
+                    fits.Column(name='GX_control', format='E', array=GX[0,:,0]),
+                    fits.Column(name='GX', format='E', array=GX[0,:,1]),
+                    fits.Column(name='GX_reduced', format='E', array=GX[0,:,2]),
+                    fits.Column(name='K_control', format='E', array=K[0,:,0]),
+                    fits.Column(name='K', format='E', array=K[0,:,1]),
+                    fits.Column(name='K_reduced', format='E', array=K[0,:,2])]
+                    
+                        
+            table_cov = [fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
+                        fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
+                        fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),
+                        fits.Column(name='COV_GX_control', format='E', array=COV_Gxc.flatten()),
+                        fits.Column(name='COV_GX', format='E', array=COV_Gx.flatten()),
+                        fits.Column(name='COV_GX_reduced', format='E', array=COV_Gxr.flatten()),
+                        fits.Column(name='COV_K_control', format='E', array=COV_Kc.flatten()),
+                        fits.Column(name='COV_K', format='E', array=COV_K.flatten()),
+                        fits.Column(name='COV_K_reduced', format='E', array=COV_Kr.flatten())]
+    
+    
+        else:
+            # COMPUTING PROFILE        
+            Ninbin[DSIGMAwsum_T == 0] = 1.
+                    
+            Sigma     = (SIGMAwsum/Ninbin)
+            DSigma_T  = (DSIGMAwsum_T/Ninbin)
+            DSigma_X  = (DSIGMAwsum_X/Ninbin)
+            
+            GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
+            GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0)
+            
+            # COMPUTE COVARIANCE
+    
+            COV_S   = cov_matrix(Sigma[1:,:])
+            COV_St  = cov_matrix(DSigma_T[1:,:])
+            COV_Sx  = cov_matrix(DSigma_X[1:,:])
+            
+            COV_Gtc = cov_matrix(GAMMA_Tcos[:,0,1:].T)
+            COV_Gt  = cov_matrix(GAMMA_Tcos[:,1,1:].T)
+            COV_Gtr = cov_matrix(GAMMA_Tcos[:,2,1:].T)
+            
+            COV_Gxc = cov_matrix(GAMMA_Xsin[:,0,1:].T)
+            COV_Gx  = cov_matrix(GAMMA_Xsin[:,1,1:].T)
+            COV_Gxr = cov_matrix(GAMMA_Xsin[:,2,1:].T)
+            
+            # FITTING NFW PROFILE AND SAVE IT IN HEADER
+            
+            nfw    = Delta_Sigma_fit(R,DSigma_T[0],np.diag(COV_St),zmean,cosmo,True)
+    
+            M200_NFW   = nfw.M200
+            e_M200_NFW = nfw.error_M200
+            le_M200    = (np.log(10.)/M200_NFW)*e_M200_NFW
+        
+            h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
+            h.append(('elM200_NFW',np.round(le_M200,4)))
+            h.append(('CHI2_NFW',np.round(nfw.chi2,4)))
+
+            # WRITING OUTPUT FITS FILE
+            
+            table_pro = [fits.Column(name='Rp', format='E', array=R),
+                    fits.Column(name='Sigma', format='E', array=Sigma[0]),
+                    fits.Column(name='DSigma_T', format='E', array=DSigma_T[0]),
+                    fits.Column(name='DSigma_X', format='E', array=DSigma_X[0]),
+                    fits.Column(name='GAMMA_Tcos_control', format='E', array=GAMMA_Tcos[:,0,0]),
+                    fits.Column(name='GAMMA_Tcos', format='E', array=GAMMA_Tcos[:,1,0]),
+                    fits.Column(name='GAMMA_Tcos_reduced', format='E', array=GAMMA_Tcos[:,2,0]),
+                    fits.Column(name='GAMMA_Xsin_control', format='E', array=GAMMA_Xsin[:,0,0]),
+                    fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
+                    fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0])]
+                    
+                        
+            table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
+                        fits.Column(name='COV_S', format='E', array=COV_S.flatten()),
+                        fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
+                        fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
+                        fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
+                        fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),
+                        fits.Column(name='COV_GX_control', format='E', array=COV_Gxc.flatten()),
+                        fits.Column(name='COV_GX', format='E', array=COV_Gx.flatten()),
+                        fits.Column(name='COV_GX_reduced', format='E', array=COV_Gxr.flatten())]
+        
+        tbhdu_pro = fits.BinTableHDU.from_columns(fits.ColDefs(table_pro))
+        tbhdu_cov = fits.BinTableHDU.from_columns(fits.ColDefs(table_cov))
+        
+        
         primary_hdu = fits.PrimaryHDU(header=h)
         
         hdul = fits.HDUList([primary_hdu, tbhdu_pro, tbhdu_cov])
         
-        hdul.writeto(folder+'profiles/profile_'+sample+'.fits',overwrite=True)
+        hdul.writeto(folder+output_file,overwrite=True)
                 
         tfin = time.time()
         
@@ -580,4 +789,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,relax,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,relax,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)

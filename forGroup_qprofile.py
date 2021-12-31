@@ -110,8 +110,10 @@ S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/M
 def partial_map(RA0,DEC0,Z,angles,
                 RIN,ROUT,ndots,h):
 
+        
         lsize = int(np.sqrt(ndots))
-
+        ndots = int(ndots)
+        
         cosmo = LambdaCDM(H0=100*h, Om0=0.25, Ode0=0.75)
         dl  = cosmo.angular_diameter_distance(Z).value
         KPCSCALE   = dl*(((1.0/3600.0)*np.pi)/180.0)*1000.0

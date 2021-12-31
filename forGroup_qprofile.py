@@ -93,6 +93,7 @@ rmin = 0.
 rmax = 1000.
 idlist = None
 relax = False
+domap = False
 '''
 
 
@@ -325,7 +326,9 @@ def partial_profile_unpack(minput):
 	return partial_profile(*minput)
     
     
-def run_profile_for_list(L,T,K,RIN,ROUT,ndots,hcosmo):
+def run_profile_for_list(list_data):
+    
+    L,T,K,RIN,ROUT,ndots,hcosmo = list_data
     
     SIGMAwsum    = np.zeros((101,ndots)) 
     DSIGMAwsum_T = np.zeros((101,ndots)) 
@@ -369,9 +372,6 @@ def run_profile_for_list(L,T,K,RIN,ROUT,ndots,hcosmo):
                 'N_inbin':N_inbin,'Ntot':Ntot}
                 
     return output
-
-def run_profile_for_list_unpack(minput):
-	return run_profile_for_list(*minput)
 
 
 def cov_matrix(array):
@@ -498,7 +498,7 @@ def main(lcat, sample='pru',
         
         # SPLIT LENSING CAT
         
-        lbins = int(round(Nlenses/float(ncores), 0))
+        lbins = ncores#int(round(Nlenses/float(ncores), 0))
         slices = ((np.arange(lbins)+1)*ncores).astype(int)
         slices = slices[(slices < Nlenses)]
         Lsplit = np.split(L,slices)

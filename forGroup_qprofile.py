@@ -565,7 +565,7 @@ def main(lcat, sample='pru',
                         if domap:
                             
                             km      = np.tile(Ksplit[l][j],(3,ndots,1)).T
-                            Ninbin += np.tile(profilesums['Ninbin'],(101,1,1))*km
+                            Ninbin += np.tile(profilesums['N_inbin'],(101,1,1))*km
 
                             GTsum += np.tile(profilesums['GTsum'],(101,1,1))*km
                             GXsum += np.tile(profilesums['GXsum'],(101,1,1))*km

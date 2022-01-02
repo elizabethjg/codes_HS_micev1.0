@@ -356,7 +356,7 @@ def run_profile_for_list(list_data):
     
     for j in range(len(L)):
             
-            print j
+            print(j)
             
             profilesums = partial_profile(L.ra_rc[j], L.dec_rc[j], L.z[j], T[j],
                             RIN,ROUT,ndots,hcosmo)
@@ -380,7 +380,7 @@ def run_profile_for_list(list_data):
     output = {'SIGMAwsum':SIGMAwsum,'DSIGMAwsum_T':DSIGMAwsum_T,
                 'DSIGMAwsum_X':DSIGMAwsum_X,
                 'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
-                'COS2_2theta_wsum':COS2_2theta,'SIN2_2theta_wsum':SIN2_2theta,
+                'COS2_2theta_wsum':COS2_2theta_wsum,'SIN2_2theta_wsum':SIN2_2theta_wsum,
                 'N_inbin':N_inbin,'Ntot':Ntot}
                 
     return output
@@ -586,12 +586,11 @@ def main(lcat, sample='pru',
         for l in range(len(Lsplit)):
                 
                 entrada += [[Lsplit[l],Tsplit[l],Ksplit[l],RIN,ROUT,ndots,hcosmo]]
-                
-                
+                                
                         
-                        pool = Pool(processes=(ncores))
-                        salida = np.array(pool.map(run_profile_for_list, entrada))
-                        pool.terminate()
+        pool = Pool(processes=(ncores))
+        salida = np.array(pool.map(run_profile_for_list, entrada))
+        pool.terminate()
                                 
                 for j in range(len(salida)):
                         

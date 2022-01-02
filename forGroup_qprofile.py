@@ -560,18 +560,22 @@ def main(lcat, sample='pru',
                 for j in range(len(salida)):
                         
                         profilesums = salida[j]
-                        km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
-
-                        Ninbin += np.tile(profilesums['N_inbin'],(101,1))*km[:,:,0]
                         Ntot         = np.append(Ntot,profilesums['Ntot'])
                         
                         if domap:
+                            
+                            km      = np.tile(Ksplit[l][j],(3,ndots,1)).T
+                            Ninbin += np.tile(profilesums['Ninbin'],(101,1,1))*km
 
                             GTsum += np.tile(profilesums['GTsum'],(101,1,1))*km
                             GXsum += np.tile(profilesums['GXsum'],(101,1,1))*km
                             Ksum  += np.tile(profilesums['Ksum'],(101,1,1))*km
                             
                         else:
+
+                            km      = np.tile(Ksplit[l][j],(3,ndots,1)).T
+
+                            Ninbin += np.tile(profilesums['N_inbin'],(101,1))*km[:,:,0]
                                                 
                             SIGMAwsum    += np.tile(profilesums['SIGMAwsum'],(101,1))*km[:,:,0]
                             DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]

@@ -381,7 +381,7 @@ def run_profile_for_list(list_data):
                 'DSIGMAwsum_X':DSIGMAwsum_X,
                 'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
                 'COS2_2theta_wsum':COS2_2theta_wsum,'SIN2_2theta_wsum':SIN2_2theta_wsum,
-                'N_inbin':N_inbin,'Ntot':Ntot}
+                'N_inbin':Ninbin,'Ntot':Ntot}
                 
     return output
 

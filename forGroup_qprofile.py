@@ -401,13 +401,21 @@ def main(lcat, sample='pru',
         #reading cats
                 
         L = fits.open(folder+lcat)[1].data               
+
+        # '''
+        # To try all centre
         
-        ra = L.ra_rc
-        dec = L.dec_rc
+        ra = np.rad2deg(np.arctan(L.xc/L.yc))
+        ra[L.yc==0] = 90.
+        dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
+
+        L.ra = ra
+        L.dec = dec
+        # '''
+        # ra = L.ra_rc
+        # dec = L.dec_rc
         
         Eratio = (2.*L.K/abs(L.U))
-        # ra = np.rad2deg(np.arctan(L.xc/L.yc))
-        # dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
                                
         if idlist:
                 ides = np.loadtxt(idlist).astype(int)

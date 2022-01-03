@@ -492,6 +492,8 @@ def main(lcat, sample='pru',
             GXsum = np.zeros((101,ndots,3))
             Ksum  = np.zeros((101,ndots,3))        
             
+            Ninbin = np.zeros((101,ndots,3))
+            
             # FUNCTION TO RUN IN PARALLEL
             partial = partial_map_unpack
             
@@ -508,6 +510,9 @@ def main(lcat, sample='pru',
             R = (bines[:-1] + np.diff(bines)*0.5)*1.e-3
 
             # WHERE THE SUMS ARE GOING TO BE SAVED
+            
+            Ninbin = np.zeros((101,ndots))
+            
             SIGMAwsum    = np.zeros((101,ndots)) 
             DSIGMAwsum_T = np.zeros((101,ndots)) 
             DSIGMAwsum_X = np.zeros((101,ndots))
@@ -524,7 +529,7 @@ def main(lcat, sample='pru',
 
         print('Saved in '+folder+output_file)
                                    
-        Ninbin = np.zeros((101,ndots))
+        
         
         Ntot         = np.array([])
         tslice       = np.array([])

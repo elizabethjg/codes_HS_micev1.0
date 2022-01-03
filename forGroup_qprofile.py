@@ -338,7 +338,7 @@ def partial_profile_unpack(minput):
     
 def run_profile_for_list(list_data):
     
-    L,T,K,RIN,ROUT,ndots,hcosmo = list_data
+    L,T,K,RIN,ROUT,ndots,hcosmo,toprint = list_data
     
     SIGMAwsum    = np.zeros((101,ndots)) 
     DSIGMAwsum_T = np.zeros((101,ndots)) 
@@ -356,7 +356,8 @@ def run_profile_for_list(list_data):
     
     for j in range(len(L)):
             
-            print(j)
+            if toprint:
+                print(j+1,' de ',len(L))
             
             profilesums = partial_profile(L.ra_rc[j], L.dec_rc[j], L.z[j], T[j],
                             RIN,ROUT,ndots,hcosmo)
@@ -540,6 +541,9 @@ def main(lcat, sample='pru',
             xbin = xbin.flatten()
 
             # WHERE THE SUMS ARE GOING TO BE SAVED
+            
+            Ninbin = np.zeros((101,ndots,3))
+            
             GTsum = np.zeros((101,ndots,3))
             GXsum = np.zeros((101,ndots,3))
             Ksum  = np.zeros((101,ndots,3))        
@@ -569,63 +573,64 @@ def main(lcat, sample='pru',
     
             COS2_2theta_wsum = np.zeros((101,ndots,3))
             SIN2_2theta_wsum = np.zeros((101,ndots,3))
+
+            Ninbin = np.zeros((101,ndots))
             
             # FUNCTION TO RUN IN PARALLEL
             partial = partial_profile_unpack
             
 
+
         print('Saved in '+folder+output_file)
                                    
-        Ninbin = np.zeros((101,ndots))
         
         Ntot         = np.array([])
         tslice       = np.array([])
 
         entrada = []
         
+        toprint = np.zeros(len(Lsplit))
+        toprint[0] = 1
+        toprint = toprint.astype(bool)
+        
         for l in range(len(Lsplit)):
                 
-                entrada += [[Lsplit[l],Tsplit[l],Ksplit[l],RIN,ROUT,ndots,hcosmo]]
+                entrada += [[Lsplit[l],Tsplit[l],Ksplit[l],RIN,ROUT,ndots,hcosmo,toprint[l]]]
                                 
                         
         pool = Pool(processes=(ncores))
         salida = np.array(pool.map(run_profile_for_list, entrada))
         pool.terminate()
                                 
-                for j in range(len(salida)):
+        for j in range(len(salida)):
                         
-                        profilesums = salida[j]
-                        km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
+               profilesums = salida[j]
+               km          = np.tile(Ksplit[l][j],(3,ndots,1)).T
 
-                        Ninbin += np.tile(profilesums['N_inbin'],(101,1))*km[:,:,0]
-                        Ntot         = np.append(Ntot,profilesums['Ntot'])
-                        
-                        if domap:
+               
+               Ntot         = np.append(Ntot,profilesums['Ntot'])
+               
+               if domap:
 
-                            GTsum += np.tile(profilesums['GTsum'],(101,1,1))*km
-                            GXsum += np.tile(profilesums['GXsum'],(101,1,1))*km
-                            Ksum  += np.tile(profilesums['Ksum'],(101,1,1))*km
-                            
-                        else:
-                                                
-                            SIGMAwsum    += np.tile(profilesums['SIGMAwsum'],(101,1))*km[:,:,0]
-                            DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]
-                            DSIGMAwsum_X += np.tile(profilesums['DSIGMAwsum_X'],(101,1))*km[:,:,0]
-                            
-                            GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
-                            GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
+                   GTsum += np.tile(profilesums['GTsum'],(101,1,1))*km
+                   GXsum += np.tile(profilesums['GXsum'],(101,1,1))*km
+                   Ksum  += np.tile(profilesums['Ksum'],(101,1,1))*km
+                   
+               else:
+                   
+                   Ninbin +=    profilesums['N_inbin']
+                                       
+                   SIGMAwsum    += profilesums['SIGMAwsum']
+                   DSIGMAwsum_T += profilesums['DSIGMAwsum_T']
+                   DSIGMAwsum_X += profilesums['DSIGMAwsum_X']
+                   
+                   GAMMATcos_wsum += profilesums['GAMMATcos_wsum']
+                   GAMMAXsin_wsum += profilesums['GAMMAXsin_wsum']
     
-                            COS2_2theta_wsum += np.tile(profilesums['COS2_2theta_wsum'],(101,1,1))*km
-                            SIN2_2theta_wsum += np.tile(profilesums['SIN2_2theta_wsum'],(101,1,1))*km
-                        
+                   COS2_2theta_wsum += profilesums['COS2_2theta_wsum']
+                   SIN2_2theta_wsum += profilesums['SIN2_2theta_wsum']
+               
                 
-                t2 = time.time()
-                ts = (t2-t1)/60.
-                tslice = np.append(tslice,ts)
-                print('TIME SLICE')
-                print(ts)
-                print('Estimated ramaining time')
-                print(np.mean(tslice)*(len(Lsplit)-(l+1)))
 
         # AVERAGE LENS PARAMETERS AND SAVE IT IN HEADER
         

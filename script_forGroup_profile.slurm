@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=well_fitted
+#SBATCH --job-name=low_z
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=02:00:00
@@ -19,4 +19,4 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample 'wellNFW_fitted' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2 -ncores 56 -resNFW_max 0.1
+srun python -u forGroup_qprofile.py -sample 'low_z' -lM_min 14.0 -lM_max 14.5 -z_min 0. -z_max 0.12 -ncores 56 

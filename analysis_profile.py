@@ -15,11 +15,8 @@ Msun = M_sun.value # Solar mass (kg)
 
 folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
 
-def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
+def plt_profile_compare(samp1,samp2):
     
-    folder = '../../MICEv'+str(mv1)+'.0/profiles/'
-
-
     p_name = 'profile_'+samp1+'.fits'
     profile = fits.open(folder+p_name)
 
@@ -81,7 +78,10 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     
     mass = str(np.round(np.log10(nfw.M200),1))
     
-    
+    f, ax = plt.subplots()
+    f1, ax1 = plt.subplots()
+    f2, ax2 = plt.subplots()
+    f3, ax3 = plt.subplots()
     
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
@@ -91,72 +91,23 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     
     ax1.legend()
     ax2.legend()
-    
-    
-    ax.plot(p.Rp,p.DSigma_T,'C0')
+        
     ax.plot(nfw.xplot,nfw.yplot,'C0',label=samp1)
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C0',alpha=0.2)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax.set_ylim(2,200)
-    ax.set_xlim(0.5,10)
-    ax.xaxis.set_ticks([0.1,1,5,7])
-    ax.set_xticklabels([0.1,1,5,7])
-    ax.yaxis.set_ticks([1,10,100])
-    ax.set_yticklabels([1,10,100])
-    ax.legend()
     
-    # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
-    # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
-    
-    ax1.plot(p.Rp,GT,'C0',label = samp1)
     ax1.plot(rplot,gt,'C0')
-
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C0',alpha=0.2)
-    ax1.set_xscale('log')
-    ax1.set_yscale('log')
-    ax1.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax1.set_ylim(1,100)
-    ax1.set_xlim(0.1,10)
-    ax1.xaxis.set_ticks([0.1,1,5,7])
-    ax1.set_xticklabels([0.1,1,5,7])
-    ax1.yaxis.set_ticks([0.1,10,100])
-    ax1.set_yticklabels([0.1,10,100])
     
-    # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
-    # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
-    
-    ax2.plot([0,5],[0,0],'C7')
-    ax2.plot(p.Rp,GX,'C0')
-    ax2.plot(rplot,gx,'C0')
-    
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C0',alpha=0.2)
-    ax2.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax2.set_xscale('log')
-    ax2.set_xlim(0.1,10)
-    ax2.set_ylim(-20,20)
-    ax2.xaxis.set_ticks([0.1,1,5,7])
-    ax2.set_xticklabels([0.1,1,5,7])
-    
-    
-    ax3.plot([0,5],[0,0],'C7')
+    ax2.plot(rplot,gx,'C0')    
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C0',alpha=0.2)        
+
     ax3.plot(p.Rp,GTc,'C0', label = 'GT control')
     ax3.plot(p.Rp,GXc,'C0--', label = 'GX control')
     ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C0',alpha=0.2)
     ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C0',alpha=0.2)
-    ax3.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax3.set_xscale('log')
-    ax3.set_xlim(0.1,10)
-    ax3.set_ylim(-10,7)
-    ax3.xaxis.set_ticks([0.1,1,5,7])
-    ax3.set_xticklabels([0.1,1,5,7])
-    ax3.legend()
-
-
-    folder = '../../MICEv'+str(mv2)+'.0/profiles/'
-
-
+    
+    ##### SECOND PROFILE
+    
     p_name = 'profile_'+samp2+'.fits'
     profile = fits.open(folder+p_name)
 
@@ -217,39 +168,33 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     
     mass = str(np.round(np.log10(nfw.M200),1))
-    
-    
-    
+        
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
     ax2.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
     ax3.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
 
     
-    
-    
-    ax.plot(p.Rp,p.DSigma_T,'C1')
+    ax1.legend()
+    ax2.legend()
+        
     ax.plot(nfw.xplot,nfw.yplot,'C1',label=samp2)
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlabel('r [$h^{-1}$ Mpc]')
     ax.set_ylabel(r'$\Delta\Sigma$')
-    ax.set_ylim(0.5,200)
+    ax.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax.set_ylim(2,200)
     ax.set_xlim(0.1,10)
     ax.xaxis.set_ticks([0.1,1,5,7])
     ax.set_xticklabels([0.1,1,5,7])
-    ax.yaxis.set_ticks([1,10,100])
-    ax.set_yticklabels([1,10,100])
+    ax.yaxis.set_ticks([5,10,100])
+    ax.set_yticklabels([5,10,100])
     ax.legend()
-    
-    # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
-    # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
-    
-    ax1.plot(p.Rp,GT,'C1',label = samp2)
+        
     ax1.plot(rplot,gt,'C1')
-
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C1',alpha=0.2)
+
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -258,19 +203,13 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax1.set_xlim(0.1,10)
     ax1.xaxis.set_ticks([0.1,1,5,7])
     ax1.set_xticklabels([0.1,1,5,7])
-    ax1.yaxis.set_ticks([0.1,10,100])
-    ax1.set_yticklabels([0.1,10,100])
-
-
-    
-    # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
-    # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
-    
+    ax1.yaxis.set_ticks([0.3,10,100])
+    ax1.set_yticklabels([0.3,10,100])
+        
     ax2.plot([0,5],[0,0],'C7')
-    ax2.plot(p.Rp,GX,'C1')
     ax2.plot(rplot,gx,'C1')
-    
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C1',alpha=0.2)
+    
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
     ax2.set_ylabel(r'$\Gamma_\times$')
     ax2.set_xscale('log')
@@ -278,9 +217,6 @@ def plt_profile_compare(samp1,samp2,ax,ax1,ax2,ax3,RIN,ROUT,mv1,mv2):
     ax2.set_ylim(-20,20)
     ax2.xaxis.set_ticks([0.1,1,5,7])
     ax2.set_xticklabels([0.1,1,5,7])
-
-    ax1.legend()
-    ax2.legend()
     
     
     ax3.plot([0,5],[0,0],'C7')

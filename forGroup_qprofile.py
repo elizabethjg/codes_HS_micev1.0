@@ -409,8 +409,8 @@ def main(lcat, sample='pru',
         ra[L.yc==0] = 90.
         dec = np.rad2deg(np.arcsin(L.zc/sqrt(L.xc**2 + L.yc**2 + L.zc**2)))
 
-        L.ra = ra
-        L.dec = dec
+        L.ra_rc = ra
+        L.dec_rc = dec
         # '''
         # ra = L.ra_rc
         # dec = L.dec_rc

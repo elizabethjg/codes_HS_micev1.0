@@ -278,6 +278,7 @@ def plt_profile_wofit(samp):
     
     # '''
     CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovS   = cov.COV_S.reshape(len(GT),len(GT))
     
     CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
     CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
@@ -290,25 +291,43 @@ def plt_profile_wofit(samp):
     # FIT MONOPOLE
     rplot = np.arange(0.1,5,0.05)
     
-    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
+    nfwS    = Sigma_fit(p.Rp,p.Sigma*(1.e6**2),np.diag(CovS)*(1.e6**2),zmean,cosmo,True)
+    nfw     = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     
-    mass = str(np.round(np.log10(nfw.M200),1))
+    mass = str(np.round(np.log10(nfw.M200),2))
+    massS = str(np.round(np.log10(nfwS.M200),2))
     
     f, ax = plt.subplots()
+    f0, ax0 = plt.subplots()
     f1, ax1 = plt.subplots()
     f2, ax2 = plt.subplots()
     f3, ax3 = plt.subplots()
     
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
+    ax0.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+massS)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
     ax2.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
     ax3.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
 
-    
     ax1.legend()
     ax2.legend()
+
+    ax0.plot(p.Rp,p.Sigma,'C1')
+    ax0.plot(nfwS.xplot,nfwS.yplot,'C3',label='fited nfw')
+    ax0.fill_between(p.Rp,p.Sigma+np.diag(CovS),p.DSigma_T-np.diag(CovS),color='C1',alpha=0.2)
+    ax0.set_xscale('log')
+    ax0.set_yscale('log')
+    ax0.set_ylabel(r'$\Sigma$')
+    ax0.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax0.set_ylim(2,500)
+    ax0.set_xlim(0.1,10)
+    ax0.xaxis.set_ticks([0.1,1,5,7])
+    ax0.set_xticklabels([0.1,1,5,7])
+    ax0.yaxis.set_ticks([5,10,100])
+    ax0.set_yticklabels([5,10,100])
+    ax0.legend()
         
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(nfw.xplot,nfw.yplot,'C3',label='fited nfw')

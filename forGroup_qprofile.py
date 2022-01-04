@@ -402,7 +402,7 @@ def main(lcat, sample='pru',
                 
         L = fits.open(folder+lcat)[1].data               
 
-        # '''
+        '''
         # To try all centre
         
         ra = np.rad2deg(np.arctan(L.xc/L.yc))
@@ -411,9 +411,9 @@ def main(lcat, sample='pru',
 
         L.ra_rc = ra
         L.dec_rc = dec
-        # '''
-        # ra = L.ra_rc
-        # dec = L.dec_rc
+        '''
+        ra = L.ra_rc
+        dec = L.dec_rc
         
         Eratio = (2.*L.K/abs(L.U))
                                
@@ -430,6 +430,7 @@ def main(lcat, sample='pru',
                 mlenses = mmass*mz*mq*mrs
                 
         if relax:
+            sample = sample+'_relaxed'
             mlenses = mlenses*(L.offset < 0.1)*(Eratio < 1.35)
                 
         Nlenses = mlenses.sum()

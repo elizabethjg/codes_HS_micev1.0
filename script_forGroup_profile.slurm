@@ -19,4 +19,4 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate py3env
 
-srun python -u forGroup_qprofile.py -sample 'low_z' -lM_min 14.0 -lM_max 14.5 -z_min 0. -z_max 0.12 -ncores 56 
+srun python -u forGroup_qprofile.py -sample 'high_z' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 

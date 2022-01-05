@@ -16,6 +16,13 @@ from models_profiles import *
 from astropy.cosmology import LambdaCDM
 # import corner
 import os
+from colossus.cosmology import cosmology  
+params = {'flat': True, 'H0': 70.0, 'Om0': 0.25, 'Ob0': 0.044, 'sigma8': 0.8, 'ns': 0.95}
+cosmology.addCosmology('MICE', params)
+cosmo = cosmology.setCosmology('MICE')
+from colossus.halo import concentration
+cmodel = 'diemer19'
+
 
 '''
 folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv2.0/profiles/'
@@ -62,7 +69,7 @@ elif angle == 'reduced':
     ang = '_reduced'
 
 
-outfile     = 'fitresults_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+outfile     = 'fitresults_wc_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 plot_folder = folder+'plots_mcmc/'
 
@@ -87,18 +94,20 @@ cov     = profile[2].data
 zmean   = h['Z_MEAN']    
 lMguess = h['lM200_NFW']
 
-cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
+cosmo_as = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
 
 def log_likelihood(data_model, R, profiles, iCOV):
-    lM200,q, c200 = data_model
+    lM200,q = data_model
+    
+    c200 = concentration.concentration(10**lM200, '200c', zmean, model = cmodel)
 
     e = (1.-q)/(1.+q)
 
     ds, gt, gx = profiles
     iCds, iCgt, iCgx = iCOV 
 
-    DS = Delta_Sigma_NFW(R,zmean,M200 = 10**lM200,c200=c200,cosmo=cosmo)
-    GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo=cosmo)
+    DS = Delta_Sigma_NFW(R,zmean,M200 = 10**lM200,c200=c200,cosmo=cosmo_as)
+    GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo=cosmo_as)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
@@ -109,9 +118,9 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
 def log_probability(data_model, R, profiles, iCOV):
     
-    lM200,q,c200 = data_model
+    lM200,q = data_model
     
-    if 0.2 < q < 1.0 and 12.5 < lM200 < 16.0 and 1 < c200 < 7:
+    if 0.2 < q < 1.0 and 12.5 < lM200 < 16.0:
         return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
@@ -119,8 +128,7 @@ def log_probability(data_model, R, profiles, iCOV):
 # initializing
 
 pos = np.array([np.random.uniform(12.5,15.5,15),
-                np.random.uniform(0.2,0.9,15),
-                np.random.uniform(1,5,15)]).T
+                np.random.uniform(0.2,0.9,15)]).T
 
 qdist = pos[:,1]                
 pos[qdist > 1.,1] = 1.
@@ -183,14 +191,14 @@ print((time.time()-t1)/60.)
 mcmc_out = sampler.get_chain(flat=True).T
 
 table = [fits.Column(name='lM200', format='E', array=mcmc_out[0]),
-            fits.Column(name='q', format='E', array=mcmc_out[1]),
-            fits.Column(name='c200', format='E', array=mcmc_out[2])]
+            fits.Column(name='q', format='E', array=mcmc_out[1])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
 lM     = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
 q      = np.percentile(mcmc_out[1][1500:], [16, 50, 84])
-c200   = np.percentile(mcmc_out[2][1500:], [16, 50, 84])
+c200 = concentration.concentration(10**lM[1], '200c', zmean, model = cmodel)
+
 
 
 h = fits.Header()
@@ -198,9 +206,7 @@ h.append(('lM200',np.round(lM[1],4)))
 h.append(('elM200M',np.round(np.diff(lM)[0],4)))
 h.append(('elM200m',np.round(np.diff(lM)[1],4)))
 
-h.append(('c200',np.round(c200[1],4)))
-h.append(('ec200M',np.round(np.diff(c200)[0],4)))
-h.append(('ec200m',np.round(np.diff(c200)[1],4)))
+h.append(('c200',np.round(c200,4)))
 
 h.append(('q',np.round(q[1],4)))
 h.append(('eqM',np.round(np.diff(q)[0],4)))
@@ -215,26 +221,3 @@ hdul.writeto(folder+outfile,overwrite=True)
 
 print('SAVED FILE')
 
-'''
-
-fig = corner.corner(mcmc_out.T, labels=['lM200','s_off'])
-plt.savefig(plot_folder+'corner_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
-
-f, ax = plt.subplots(2, 1, figsize=(6,3))
-
-ax[0].plot(mcmc_out[0],'k.',alpha=0.3)
-ax[0].axvline(1500)
-ax[0].axhline(lMout[1])
-ax[0].axhline(lMout[1] - np.diff(lMout)[0],ls='--')
-ax[0].axhline(lMout[1] + np.diff(lMout)[0],ls='--')
-
-ax[1].plot(mcmc_out[1],'k.',alpha=0.3)
-ax[1].axvline(1500)
-ax[1].axhline(qout[1])
-ax[1].axhline(qout[1] - np.diff(qout)[0],ls='--')
-ax[1].axhline(qout[1] + np.diff(qout)[0],ls='--')
-
-
-f.subplots_adjust(hspace=0,wspace=0)
-plt.savefig(plot_folder+'walk_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name[8:-4]+'png')
-'''

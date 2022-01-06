@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=HM
+#SBATCH --job-name=HM_Lz
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=2-00:00:00
@@ -18,8 +18,8 @@ cd /home/elizabeth/MICE/HS-lensing/codes_HS_micev1.0/
 
 conda activate py3env
 
-srun ./run_fit.sh ($SLURM_JOB_NAME)_Lz
-srun ./run_fit.sh ($SLURM_JOB_NAME)_Hz
+srun ./run_fit.sh $SLURM_JOB_NAME
+srun ./run_fit.sh $SLURM_JOB_NAME
 
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Lz.fits -RIN 250 -ROUT 2000 -ncores 56
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Hz.fits -RIN 250 -ROUT 2000 -ncores 56

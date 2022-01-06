@@ -8,25 +8,17 @@
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mail-user=ejgonzalez@unc.edu.ar
 
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 . /etc/profile
 source $HOME/.bashrc
 
 cd /mnt/projects/lensing/HALO_SHAPE/MICEv1.0/codes_HS_micev1.0/
 
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
-
 conda activate py3env
 
-srun python -u fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7
-srun python -u fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7
-srun python -u fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced'
-srun python -u fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced'
-srun python -u fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7
-srun python -u fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7
-srun python -u fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced'
-srun python -u fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced'
+srun ./run_fit.sh $SLURM_JOB_NAME
 
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Lz.fits -RIN 250 -ROUT 2000 -ncores 56
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Hz.fits -RIN 250 -ROUT 2000 -ncores 56

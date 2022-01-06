@@ -1,14 +1,14 @@
 #!/bin/bash
 . /etc/profile
-source $HOME/.bashrc
+source /home/elizabeth/.bashrc
 
 conda activate py3env
 
-python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7 &
-python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 &
-python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
-python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
-python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7 &
-python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 &
-python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
-python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$SLURM_JOB_NAME_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
+python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1.fits -RIN 250 -ROUT 2000 -ncores 7 &
+python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 &
+python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
+python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
+python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1.fits -RIN 250 -ROUT 2000 -ncores 7 &
+python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 &
+python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
+python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced'

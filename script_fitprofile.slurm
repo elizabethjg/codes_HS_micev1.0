@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=HM
+#SBATCH --job-name=LM
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=2-00:00:00

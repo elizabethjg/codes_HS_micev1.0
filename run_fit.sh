@@ -1,4 +1,6 @@
 #!/bin/bash
+. /etc/profile
+source $HOME/.bashrc
 
 conda activate py3env
 

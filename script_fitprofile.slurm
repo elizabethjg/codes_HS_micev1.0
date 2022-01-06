@@ -14,7 +14,7 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 . /etc/profile
 source $HOME/.bashrc
 
-cd /mnt/projects/lensing/HALO_SHAPE/MICEv1.0/codes_HS_micev1.0/
+cd /home/elizabeth/MICE/HS-lensing/codes_HS_micev1.0/
 
 conda activate py3env
 

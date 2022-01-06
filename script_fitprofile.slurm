@@ -18,8 +18,8 @@ cd /home/elizabeth/MICE/HS-lensing/codes_HS_micev1.0/
 
 conda activate py3env
 
-srun ./run_fit.sh $SLURM_JOB_NAME_Lz
-srun ./run_fit.sh $SLURM_JOB_NAME_Hz
+srun ./run_fit.sh ($SLURM_JOB_NAME)_Lz
+srun ./run_fit.sh ($SLURM_JOB_NAME)_Hz
 
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Lz.fits -RIN 250 -ROUT 2000 -ncores 56
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Hz.fits -RIN 250 -ROUT 2000 -ncores 56

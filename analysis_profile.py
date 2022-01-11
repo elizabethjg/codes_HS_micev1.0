@@ -400,7 +400,7 @@ def plt_profile_wofit(samp):
 
 
 
-def plt_profile_fitted(samp,RIN,ROUT,fittype=''):
+def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     
     p_name = 'profile_'+samp+'.fits'
     profile = fits.open(folder+p_name)
@@ -462,8 +462,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype=''):
         
     # MCMC results
 
-    fitpar = fits.open(folder+'fitresults'+fittype+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    fitpar_red = fits.open(folder+'fitresults'+fittype+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
+    fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
   
     efit = (1. - fitpar['q']) / (1. + fitpar['q'])
     efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
@@ -490,8 +490,15 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype=''):
     f, ax_all = plt.subplots(2,2, figsize=(12,8),sharex = True)
     f.subplots_adjust(hspace=0)
     ax,ax1,ax2,ax3 = ax_all[0,0],ax_all[0,1],ax_all[1,0],ax_all[1,1]
+    
+    if substract:
+        GT  = GT - GTc
+        GTr = GTr - GTc
+        GX  = GX - GXc
+        GXr = GXr - GXc
+        p.DSigma_T = p.DSigma_T - p.DSigma_X
 
-    ax.set_title(p_name+fittype)
+    ax.set_title(p_name+fittype+component)
 
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(rplot,DS,'C3',label='$\log M_{200}=$'+mass+', $c_{200} = $'+c200)
@@ -571,7 +578,10 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype=''):
     ax3.set_xticklabels([0.1,1,5,7])
     ax3.legend(frameon=False)
     
-    f.savefig(folder+'plots/profile_'+samp+fittype+'.png',bbox_inches='tight')
+    if substract == True:
+        f.savefig(folder+'plots/profile_'+samp+fittype+component+'_substracted.png',bbox_inches='tight')
+    else:
+        f.savefig(folder+'plots/profile_'+samp+fittype+component+'.png',bbox_inches='tight')
     
 def plt_map_fitted(samp,RIN,ROUT,fittype=''):
     
@@ -617,20 +627,22 @@ def plt_map_fitted(samp,RIN,ROUT,fittype=''):
     ndots = p.shape[0]
     
     
+    S   = m.K
+    Sr  = m.K_reduced
+    Sc  = m.K_control
+    
     GT  = m.GT
     GTr = m.GT_reduced
-    GTc = p.GT_control
+    GTc = m.GT_control
     
     GX  = m.GX
     GXr = m.GX_reduced
-    GXc = p.GX_control
+    GXc = m.GX_control
     
     x = m.xmpc
     y = m.ympc
     theta  = np.arctan2(m.ympc,m.xmpc)
-    rplot = np.sqrt(m.xmpc**2 + m.ympc**2)
-
-
+    r = np.sqrt(m.xmpc**2 + m.ympc**2)
         
     # MCMC results
 
@@ -639,111 +651,253 @@ def plt_map_fitted(samp,RIN,ROUT,fittype=''):
   
     efit = (1. - fitpar['q']) / (1. + fitpar['q'])
     efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
-  
-    DS = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
-    DSr = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
-    gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
-    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
+
+    R = r*np.sqrt(fitpar['q']*(np.cos(theta))**2 + (np.sin(theta))**2 / fitpar['q'])
+    Rr = r*np.sqrt(fitpar_red['q']*(np.cos(theta))**2 + (np.sin(theta))**2 / fitpar_red['q'])
+
+    S0_fit = Sigma_NFW(r,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)/(1.e6**2)
+    Se_fit  = Sigma_NFW(R,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)/(1.e6**2)
+    Se_fit_red  = Sigma_NFW(Rr,zmean,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)/(1.e6**2)
     
+    S2_fit  = quadrupole(r,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
+    
+    gt0 = Delta_Sigma_NFW(r,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
+
+    gtc,gxs  = GAMMA_components(r,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
+    gtc_red,gxs_red  = GAMMA_components(r,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
+    
+    GTfit = gt0 + gtc*np.cos(2*theta)
+    GTfit_red = gt0 + gtc_red*np.cos(2*theta)
+
+    GXfit = gxs*np.sin(2*theta)
+    GXfit_red = gxs_red*np.sin(2*theta)
+        
+    Sfit = S0_fit+efit*S2_fit*np.cos(2*theta)
+    Sfit_red = S0_fit+efit_red*S2_fit*np.cos(2*theta)
+      
     print('Results standard fit')
     print('log(M200) = ',fitpar['lM200'],' c200 = ',fitpar['c200'],' q ',fitpar['q'])
     print('Results reduced fit')
     print('log(M200) = ',fitpar_red['lM200'],' c200 = ',fitpar_red['c200'],' q ',fitpar_red['q'])
     
     ##############
-    mass = str(np.round(fitpar['lM200'],2))
-    c200 = str(np.round(fitpar['c200'],2))
-    qfit = str(np.round(fitpar['q'],2))
+    # SURFACE DENSITY PLOT
+    # JUST MONOPOLE
+    f, ax = plt.subplots(1,2, figsize=(6.5,3), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
 
-    mass_red = str(np.round(fitpar_red['lM200'],2))
-    c200_red = str(np.round(fitpar_red['c200'],2))
-    qfit_red = str(np.round(fitpar_red['q'],2))
-    
-    f, ax_all = plt.subplots(2,2, figsize=(12,8),sharex = True)
-    f.subplots_adjust(hspace=0)
-    ax,ax1,ax2,ax3 = ax_all[0,0],ax_all[0,1],ax_all[1,0],ax_all[1,1]
+    im0 = ax[0].scatter(x,y,c=Sc,vmin=-10,cmap='cividis',vmax=50.)
+    ax[1].scatter(x,y,c=S0_fit,vmin=-10,cmap='cividis',vmax=50.)
 
-    ax.set_title(p_name+fittype)
+    ax[0].set_title('S0_MICE')
+    ax[1].set_title('S0_fit')
 
-    ax.plot(p.Rp,p.DSigma_T,'C1')
-    ax.plot(rplot,DS,'C3',label='$\log M_{200}=$'+mass+', $c_{200} = $'+c200)
-    ax.plot(rplot,DSr,'C3--',label='$\log M_{200}=$'+mass_red+', $c_{200} = $'+c200_red)
-    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_ylabel(r'$\Delta\Sigma$')
-    ax.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax.set_ylim(2,200)
-    ax.set_xlim(0.1,10)
-    ax.xaxis.set_ticks([0.1,1,5,7])
-    ax.set_xticklabels([0.1,1,5,7])
-    ax.yaxis.set_ticks([5,10,100])
-    ax.set_yticklabels([5,10,100])
-    ax.axvline(RIN/1000.,color='C7')
-    ax.axvline(ROUT/1000.,color='C7')
-    ax.legend(loc=3,frameon=False)
-    
-    # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
-    # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
-    
-    ax1.plot(p.Rp,GT,'C4')
-    ax1.plot(p.Rp,GTr,'C0--')
-    ax1.plot(rplot,gt,'C3',label = '$q_{fit} = $'+qfit+', $q = $'+str(q))
-    ax1.plot(rplot,gtr,'C3--',label = '$q_{fit} = $'+qfit_red+', $q = $'+str(qr))
-    ax1.legend(loc=3,frameon=False)
+    ax[0].set_ylabel('y [Mpc]')
+    ax[1].set_xlabel('x [Mpc]')
+    ax[0].set_xlabel('x [Mpc]')
 
-    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
-    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
-    ax1.set_xscale('log')
-    ax1.set_yscale('log')
-    ax1.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax1.set_ylabel(r'$\Gamma_T$')
-    ax1.set_ylim(1,100)
-    ax1.set_xlim(0.1,10)
-    ax1.xaxis.set_ticks([0.1,1,5,7])
-    ax1.set_xticklabels([0.1,1,5,7])
-    ax1.yaxis.set_ticks([0.3,10,100])
-    ax1.set_yticklabels([0.3,10,100])
-    ax1.axvline(RIN/1000.,color='C7')
-    ax1.axvline(ROUT/1000.,color='C7')
-    
-    # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
-    # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
-    
-    ax2.plot([0,10],[0,0],'C7')
-    ax2.plot(p.Rp,GX,'C2')
-    ax2.plot(p.Rp,GXr,'C5--')
-    ax2.plot(rplot,gx,'C3')
-    ax2.plot(rplot,gxr,'C3--')
-    ax2.axvline(RIN/1000.,color='C7')
-    ax2.axvline(ROUT/1000.,color='C7')
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_S0_'+samp+fittype+'.png',bbox_inches='tight')    
 
+    # Res
+    f, ax = plt.subplots(1,1, figsize=(3.5,3), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax.scatter(x,y,c=Sc-S0_fit,vmin=-10,cmap='cividis',vmax=10.)
+
+    ax.set_title('S0_MICE - S0_fit')
+
+    ax.set_ylabel('y [Mpc]')
+    ax.set_xlabel('x [Mpc]')
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_S0_res_'+samp+fittype+'.png',bbox_inches='tight')    
     
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
-    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
-    ax2.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax2.set_ylabel(r'$\Gamma_\times$')
-    ax2.set_xscale('log')
-    ax2.set_xlim(0.1,10)
-    ax2.set_ylim(-20,22)
-    ax2.xaxis.set_ticks([0.1,1,5,7])
-    ax2.set_xticklabels([0.1,1,5,7])
+    # S(R)
     
+    f, ax = plt.subplots(2,2, figsize=(6.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0,0].scatter(x,y,c=S,vmin=-10,cmap='cividis',vmax=50.)
+    ax[0,1].scatter(x,y,c=Se_fit,vmin=-10,cmap='cividis',vmax=50.)
+
+    ax[1,0].scatter(x,y,c=Sr,vmin=-10,cmap='cividis',vmax=50.)
+    ax[1,1].scatter(x,y,c=Se_fit_red,vmin=-10,cmap='cividis',vmax=50.)
     
-    ax3.plot([0,10],[0,0],'C7')
-    ax3.plot(p.Rp,GTc,'k', label = 'GT control')
-    ax3.plot(p.Rp,GXc,'C8--', label = 'GX control')
-    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.2)
-    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.2)
-    ax3.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax3.set_xscale('log')
-    ax3.set_xlim(0.1,10)
-    ax3.set_ylim(-20,22)
-    ax3.xaxis.set_ticks([0.1,1,5,7])
-    ax3.set_xticklabels([0.1,1,5,7])
-    ax3.legend(frameon=False)
+
+    ax[0,0].set_ylabel('y [Mpc]')
+    ax[1,0].set_ylabel('y [Mpc]')
+    ax[1,1].set_xlabel('x [Mpc]')
+    ax[1,0].set_xlabel('x [Mpc]')
+
+    ax[0,0].set_title('S_MICE')
+    ax[0,1].set_title('S_fit(R)')
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_SR_'+samp+fittype+'.png',bbox_inches='tight')    
     
-    f.savefig(folder+'plots/profile_'+samp+fittype+'.png',bbox_inches='tight')    
+    # Res
+    f, ax = plt.subplots(2, figsize=(3.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0].scatter(x,y,c=S - Se_fit,vmin=-10,cmap='cividis',vmax=10.)
+    ax[1].scatter(x,y,c=Sr - Se_fit_red,vmin=-10,cmap='cividis',vmax=10.)
+
+    ax[0].set_ylabel('y [Mpc]')
+    ax[1].set_ylabel('y [Mpc]')
+    ax[1].set_xlabel('x [Mpc]')
+
+    ax[0].set_title('S_MICE - S_fit(R)')
+
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_SR_res_'+samp+fittype+'.png',bbox_inches='tight')    
+
+    # S(r) + S2
+
+    f, ax = plt.subplots(2,2, figsize=(6.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0,0].scatter(x,y,c=S,vmin=-10,cmap='cividis',vmax=50.)
+    ax[0,1].scatter(x,y,c=Sfit,vmin=-10,cmap='cividis',vmax=50.)
+
+    ax[1,0].scatter(x,y,c=Sr,vmin=-10,cmap='cividis',vmax=50.)
+    ax[1,1].scatter(x,y,c=Sfit_red,vmin=-10,cmap='cividis',vmax=50.)
+    
+
+    ax[0,0].set_ylabel('y [Mpc]')
+    ax[1,0].set_ylabel('y [Mpc]')
+    ax[1,1].set_xlabel('x [Mpc]')
+    ax[1,0].set_xlabel('x [Mpc]')
+
+    ax[0,0].set_title('S_MICE')
+    ax[0,1].set_title('S0 + e*S2')
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_S_'+samp+fittype+'.png',bbox_inches='tight')    
+    
+    # Res
+    f, ax = plt.subplots(2, figsize=(3.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0].scatter(x,y,c=S - Se_fit,vmin=-10,cmap='cividis',vmax=10.)
+    ax[1].scatter(x,y,c=Sr - Se_fit_red,vmin=-10,cmap='cividis',vmax=10.)
+
+    ax[0].set_ylabel('y [Mpc]')
+    ax[1].set_ylabel('y [Mpc]')
+    ax[1].set_xlabel('x [Mpc]')
+
+    ax[0].set_title('S_MICE - (S0 + e*S2)')
+
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_S_res_'+samp+fittype+'.png',bbox_inches='tight')    
+    
+    # QUADRUPOLES
+    # GTcos
+    
+    f, ax = plt.subplots(2,2, figsize=(6.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0,0].scatter(x,y,c=GT-gt0,vmin=-10,cmap='cividis',vmax=50.)
+    ax[0,1].scatter(x,y,c=gtc*np.cos(2.*theta),vmin=-10,cmap='cividis',vmax=50.)
+
+    ax[1,0].scatter(x,y,c=GTr-gt0,vmin=-10,cmap='cividis',vmax=50.)
+    ax[1,1].scatter(x,y,c=gtc_red*np.cos(2.*theta),vmin=-10,cmap='cividis',vmax=50.)
+    
+
+    ax[0,0].set_ylabel('y [Mpc]')
+    ax[1,0].set_ylabel('y [Mpc]')
+    ax[1,1].set_xlabel('x [Mpc]')
+    ax[1,0].set_xlabel('x [Mpc]')
+
+    ax[0,0].set_title('GT_MICE')
+    ax[0,1].set_title('GT_fit')
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_GTcos_'+samp+fittype+'.png',bbox_inches='tight')    
+    
+    f, ax = plt.subplots(2,2, figsize=(6.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0,0].scatter(x,y,c=GT,vmin=-10,cmap='cividis',vmax=50.)
+    ax[0,1].scatter(x,y,c=GTfit,vmin=-10,cmap='cividis',vmax=50.)
+
+    ax[1,0].scatter(x,y,c=GTr,vmin=-10,cmap='cividis',vmax=50.)
+    ax[1,1].scatter(x,y,c=GTfit_red,vmin=-10,cmap='cividis',vmax=50.)
+    
+
+    ax[0,0].set_ylabel('y [Mpc]')
+    ax[1,0].set_ylabel('y [Mpc]')
+    ax[1,1].set_xlabel('x [Mpc]')
+    ax[1,0].set_xlabel('x [Mpc]')
+
+    ax[0,0].set_title('GT_MICE')
+    ax[0,1].set_title('GT_fit')
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_GT_'+samp+fittype+'.png',bbox_inches='tight')    
+    
+    # Res
+    f, ax = plt.subplots(2, figsize=(3.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0].scatter(x,y,c=GT - GTfit,vmin=-10,cmap='cividis',vmax=10.)
+    ax[1].scatter(x,y,c=GTr - GTfit_red,vmin=-10,cmap='cividis',vmax=10.)
+
+    ax[0].set_ylabel('y [Mpc]')
+    ax[1].set_ylabel('y [Mpc]')
+    ax[1].set_xlabel('x [Mpc]')
+
+    ax[0].set_title('GT - (gt0 + e*gt2)')
+
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_GT_res_'+samp+fittype+'.png',bbox_inches='tight')    
+
+
+
+    # QUADRUPOLES
+    # GX
+    
+    f, ax = plt.subplots(2,2, figsize=(6.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0,0].scatter(x,y,c=GX,vmin=-10,cmap='cividis',vmax=10.)
+    ax[0,1].scatter(x,y,c=GXfit,vmin=-10,cmap='cividis',vmax=10.)
+
+    ax[1,0].scatter(x,y,c=GXr,vmin=-10,cmap='cividis',vmax=10.)
+    ax[1,1].scatter(x,y,c=GXfit_red,vmin=-10,cmap='cividis',vmax=10.)
+    
+
+    ax[0,0].set_ylabel('y [Mpc]')
+    ax[1,0].set_ylabel('y [Mpc]')
+    ax[1,1].set_xlabel('x [Mpc]')
+    ax[1,0].set_xlabel('x [Mpc]')
+
+    ax[0,0].set_title('GX_MICE')
+    ax[0,1].set_title('GX_fit')
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_GX_'+samp+fittype+'.png',bbox_inches='tight')    
+    
+    # Res
+    f, ax = plt.subplots(2, figsize=(3.5,6), sharex=True, sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+
+    im0 = ax[0].scatter(x,y,c=GX - GXfit,vmin=-10,cmap='cividis',vmax=10.)
+    ax[1].scatter(x,y,c=GXr - GXfit_red,vmin=-10,cmap='cividis',vmax=10.)
+
+    ax[0].set_ylabel('y [Mpc]')
+    ax[1].set_ylabel('y [Mpc]')
+    ax[1].set_xlabel('x [Mpc]')
+
+    ax[0].set_title('GX - (e*gx2)')
+
+
+    f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
+    f.savefig(folder+'../maps/plots/map_GX_res_'+samp+fittype+'.png',bbox_inches='tight')    
+
     
 '''
 folder = '../../MICEv2.0/profiles/'

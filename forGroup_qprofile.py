@@ -621,6 +621,8 @@ def main(lcat, sample='pru',
         
         zmean        = np.average(L.z,weights=Ntot)
         lM_mean      = np.log10(np.average(10**L.lgM,weights=Ntot))
+        c200_mean    = np.average(L.cNFW_S,weights=Ntot)
+        lM200_mean   = np.log10(np.average(10**L.lgMNFW_S,weights=Ntot))
         
         q2d_mean     = np.average(L.q2d,weights=Ntot)
         q2dr_mean    = np.average(L.q2dr,weights=Ntot)
@@ -644,6 +646,8 @@ def main(lcat, sample='pru',
         h.append(('resNFW_max',np.round(resNFW_max,2)))
         h.append(('hcosmo',np.round(hcosmo,4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
+        h.append(('lM200_mean',np.round(lM200_mean,4)))
+        h.append(('c200_mean',np.round(c200_mean,4)))
         h.append(('z_mean',np.round(zmean,4)))
         h.append(('q2d_mean',np.round(q2d_mean,4)))
         h.append(('q2dr_mean',np.round(q2dr_mean,4)))
@@ -728,11 +732,15 @@ def main(lcat, sample='pru',
             nfw    = Delta_Sigma_fit(R,DSigma_T[0],np.diag(COV_St),zmean,cosmo,True)
     
             M200_NFW   = nfw.M200
+            c200_NFW   = nfw.c200
+            e_c200_NFW = nfw.error_c200
             e_M200_NFW = nfw.error_M200
             le_M200    = (np.log(10.)/M200_NFW)*e_M200_NFW
         
             h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
             h.append(('elM200_NFW',np.round(le_M200,4)))
+            h.append(('c200_NFW',np.round(c200_NFW,4)))
+            h.append(('ec200_NFW',np.round(e_c200_NFW,4)))
             h.append(('CHI2_NFW',np.round(nfw.chi2,4)))
 
             # WRITING OUTPUT FITS FILE

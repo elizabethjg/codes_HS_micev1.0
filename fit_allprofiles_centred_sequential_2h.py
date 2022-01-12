@@ -113,7 +113,7 @@ def log_likelihood_DS(data_model, R, ds, iCds):
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
         
-    return L
+    return L_DS
     
 
 def log_probability_DS(data_model, R, profiles, iCOV):

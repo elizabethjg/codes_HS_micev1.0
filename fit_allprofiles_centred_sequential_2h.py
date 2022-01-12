@@ -26,14 +26,14 @@ cmodel = 'diemer19'
 
 
 '''
-folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv2.0/profiles/'
+folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
 cont = False
-file_name = 'profile_bin_140.fits'
+file_name = 'profile_LM_Lz_relaxed.fits'
 angle = 'standard'
-ncores = 3
+ncores = 2
 nit = 250
-RIN = 0.
-ROUT =5000.
+RIN = 250.
+ROUT =2500.
 # '''
 
 parser = argparse.ArgumentParser()
@@ -109,7 +109,7 @@ def log_likelihood_DS(data_model, R, ds, iCds):
     
     lM200, c200 = data_model
     
-    DS   = Delta_Sigma_NFW_2h(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo_params=params)
+    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
         
@@ -189,9 +189,6 @@ iCds     =  np.linalg.inv(CovDS)
 
 pos = np.array([np.random.uniform(12.5,15.5,15),
                 np.random.uniform(1,5,15)]).T
-
-qdist = pos[:,1]                
-pos[qdist > 1.,1] = 1.
 
 nwalkers, ndim = pos.shape
 

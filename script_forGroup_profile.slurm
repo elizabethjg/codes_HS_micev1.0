@@ -12,7 +12,7 @@
 . /etc/profile
 source $HOME/.bashrc
 
-cd /mnt/projects/lensing/HALO_SHAPE/MICEv1.0/codes_HS_micev1.0/
+##cd /mnt/projects/lensing/HALO_SHAPE/MICEv1.0/codes_HS_micev1.0/
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK

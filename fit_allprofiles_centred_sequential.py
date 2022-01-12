@@ -75,7 +75,7 @@ if args.comp == 'all':
 else:
     outfile     = 'fitresults_onlyq_'+args.comp+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
-plot_folder = folder+'plots_mcmc/'
+
 
 
 print('fitting profiles')

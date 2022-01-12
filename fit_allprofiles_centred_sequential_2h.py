@@ -30,8 +30,8 @@ folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/p
 cont = False
 file_name = 'profile_LM_Lz_relaxed.fits'
 angle = 'standard'
-ncores = 2
-nit = 250
+ncores = 32
+nit = 10
 RIN = 250.
 ROUT =2500.
 # '''
@@ -237,13 +237,13 @@ mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 mcmc_out_GC = sampler_GC.get_chain(flat=True).T
 
 table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
-            fits.Column(name='q', format='E', array=mcmc_out_GC),
+            fits.Column(name='q', format='E', array=mcmc_out_GC[0]),
             fits.Column(name='c200', format='E', array=mcmc_out_DS[1])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
 lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
-q      = np.percentile(mcmc_out_GC[1500:], [16, 50, 84])
+q      = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
 c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
 
 

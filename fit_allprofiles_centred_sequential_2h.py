@@ -14,8 +14,16 @@ from astropy.constants import G,c,M_sun,pc
 import emcee
 from models_profiles import *
 from astropy.cosmology import LambdaCDM
+from fit_profiles_curvefit import *
 # import corner
 import os
+from colossus.cosmology import cosmology  
+params = {'flat': True, 'H0': 70.0, 'Om0': 0.25, 'Ob0': 0.044, 'sigma8': 0.8, 'ns': 0.95}
+cosmology.addCosmology('MICE', params)
+cosmo = cosmology.setCosmology('MICE')
+from colossus.halo import concentration
+cmodel = 'diemer19'
+
 
 '''
 folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICEv2.0/profiles/'
@@ -37,6 +45,7 @@ parser.add_argument('-ncores', action='store', dest='ncores', default=2)
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
 parser.add_argument('-nit', action='store', dest='nit', default=250)
+parser.add_argument('-continue', action='store', dest='cont', default='False')
 parser.add_argument('-components', action='store', dest='comp', default='all')
 args = parser.parse_args()
 
@@ -44,6 +53,11 @@ args = parser.parse_args()
 folder    = args.folder
 file_name = args.file_name
 angle     = args.angle
+
+if 'True' in args.cont:
+	cont      = True
+elif 'False' in args.cont:
+	cont      = False
 
 	
 nit       = int(args.nit)
@@ -57,10 +71,11 @@ elif angle == 'reduced':
     ang = '_reduced'
 
 if args.comp == 'all':
-    outfile     = 'fitresults_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
-    outfile     = 'fitresults_'+args.comp+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_'+args.comp+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
+
 
 
 print('fitting profiles')
@@ -71,67 +86,80 @@ print('ncores = ',ncores)
 print('RIN ',RIN)
 print('ROUT ',ROUT)
 print('nit', nit)
+# print('continue',cont)
 print('outfile',outfile)
+print('fitting components ',args.comp)
 
 
 profile = fits.open(folder+file_name)
 h       = profile[0].header
 p       = profile[1].data
 cov     = profile[2].data
-zmean   = h['Z_MEAN']    
-lMguess = h['lM200_NFW']
+zmean   = h['Z_MEAN'] 
 
-cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
+CovDS  = cov.COV_ST.reshape(p.shape[0],p.shape[0])
 
-def log_likelihood(data_model, R, profiles, iCOV):
-    lM200,q, c200 = data_model
+cosmo_as = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
+nfw     = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo_as,True)
+   
+lM200 = np.log10(nfw.M200)
+c200  = nfw.c200
 
-    e = (1.-q)/(1.+q)
-
-    ds, gt, gx = profiles
-    iCds, iCgt, iCgx = iCOV 
-
-    DS = Delta_Sigma_NFW(R,zmean,M200 = 10**lM200,c200=c200,cosmo=cosmo)
-    GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo=cosmo)
+def log_likelihood_DS(data_model, R, ds, iCds):
+    
+    lM200, c200 = data_model
+    
+    DS   = Delta_Sigma_NFW_2h(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo_params=params)
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
+        
+    return L
+    
+
+def log_probability_DS(data_model, R, profiles, iCOV):
+    
+    lM200,c200 = data_model
+    
+    if 12.5 < lM200 < 16.0 and 1 < c200 < 7:
+        return log_likelihood_DS(data_model, R, profiles, iCOV)
+        
+    return -np.inf
+
+
+def log_likelihood(data_model, R, profiles, iCOV):
+    
+    q = data_model
+    
+    e = (1.-q)/(1.+q)
+
+    gt, gx = profiles
+    iCgt, iCgx = iCOV 
+
+    GT,GX   = GAMMA_components_2h(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo_params=params)
+
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
-
+    
     if args.comp == 'all':
-        L = L_GT + L_GX + L_DS
+        L = L_GT + L_GX
     elif args.comp == 'tangential':
         L = L_GT
     elif args.comp == 'cross':
         L = L_GX
     
     return L
-
     
 
 def log_probability(data_model, R, profiles, iCOV):
     
-    lM200,q,c200 = data_model
+    q = data_model
     
-    if 0.2 < q < 1.0 and 12.5 < lM200 < 16.0 and 1 < c200 < 7:
+    if 0.2 < q < 1.0:
         return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
 
-# initializing
-
-pos = np.array([np.random.uniform(12.5,15.5,15),
-                np.random.uniform(0.2,0.9,15),
-                np.random.uniform(1,5,15)]).T
-
-qdist = pos[:,1]                
-pos[qdist > 1.,1] = 1.
-
-nwalkers, ndim = pos.shape
-
-#-------------------
-# running emcee
-
+# extracting data from profile
 maskr   = (p.Rp > (RIN/1000.))*(p.Rp < (ROUT/1000.))
 
 mr = np.meshgrid(maskr,maskr)[1]*np.meshgrid(maskr,maskr)[0]
@@ -152,20 +180,55 @@ CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
 CovGT  = CovGT.reshape(maskr.sum(),maskr.sum())
 CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
 
-profiles = [DSt,GT,GX]
-iCov     = [np.linalg.inv(CovDS),np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
+profiles = [GT,GX]
+iCov     = [np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
+iCds     =  np.linalg.inv(CovDS)
 
+# First running for DS
+# initializing
+
+pos = np.array([np.random.uniform(12.5,15.5,15),
+                np.random.uniform(1,5,15)]).T
+
+qdist = pos[:,1]                
+pos[qdist > 1.,1] = 1.
+
+nwalkers, ndim = pos.shape
 
 t1 = time.time()
 
 pool = Pool(processes=(ncores))    
-sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
+sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS, 
+                                args=(p.Rp,DSt,iCds),pool = pool)
+
+sampler_DS.run_mcmc(pos, nit, progress=True)
+pool.terminate()
+
+t2 = time.time()
+
+print('TIME DS')    
+print((t2-t1)/60.)
+
+# NOW FIT q with Gamma components
+# initializing
+
+pos = np.array([np.random.uniform(0.2,0.9,15)]).T
+
+nwalkers, ndim = pos.shape
+
+pool = Pool(processes=(ncores))    
+sampler_GC = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
                                 args=(p.Rp,profiles,iCov),pool = pool)
 				
-
-
-sampler.run_mcmc(pos, nit, progress=True)
+sampler_GC.run_mcmc(pos, nit, progress=True)
 pool.terminate()
+
+t3 = time.time()
+
+print('TIME G components')    
+print((t3-t2)/60.)
+
+    
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
@@ -173,17 +236,18 @@ print((time.time()-t1)/60.)
 #-------------------
 # saving mcmc out
 
-mcmc_out = sampler.get_chain(flat=True).T
+mcmc_out_DS = sampler_DS.get_chain(flat=True).T
+mcmc_out_GC = sampler_GC.get_chain(flat=True).T
 
-table = [fits.Column(name='lM200', format='E', array=mcmc_out[0]),
-            fits.Column(name='q', format='E', array=mcmc_out[1]),
-            fits.Column(name='c200', format='E', array=mcmc_out[2])]
+table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
+            fits.Column(name='q', format='E', array=mcmc_out_GC),
+            fits.Column(name='c200', format='E', array=mcmc_out_DS[1])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
-lM     = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
-q      = np.percentile(mcmc_out[1][1500:], [16, 50, 84])
-c200   = np.percentile(mcmc_out[2][1500:], [16, 50, 84])
+lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
+q      = np.percentile(mcmc_out_GC[1500:], [16, 50, 84])
+c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
 
 
 h = fits.Header()

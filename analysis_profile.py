@@ -413,6 +413,7 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     cov = profile[2].data
     
     cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
+    params = {'flat': True, 'H0': 100*h['hcosmo'], 'Om0': 0.25, 'Ob0': 0.044, 'sigma8': 0.8, 'ns': 0.95}
     '''
     
     h = profile[1].header
@@ -472,6 +473,7 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     DSr = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
     gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
+    gt2h,gx2h   = GAMMA_components_2h(p.Rp,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params)
     
     print('Results standard fit')
     print('log(M200) = ',fitpar['lM200'],' c200 = ',fitpar['c200'],' q ',fitpar['q'])

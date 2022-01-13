@@ -473,7 +473,6 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     DSr = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
     gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
-    gt2h,gx2h   = GAMMA_components_2h(p.Rp,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params)
     
     print('Results standard fit')
     print('log(M200) = ',fitpar['lM200'],' c200 = ',fitpar['c200'],' q ',fitpar['q'])
@@ -584,6 +583,191 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
         f.savefig(folder+'plots/profile_'+samp+fittype+component+'_substracted.png',bbox_inches='tight')
     else:
         f.savefig(folder+'plots/profile_'+samp+fittype+component+'.png',bbox_inches='tight')
+
+def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,component=''):
+    
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    # '''
+    h   = profile[0].header
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
+    params = {'flat': True, 'H0': 100*h['hcosmo'], 'Om0': 0.25, 'Ob0': 0.044, 'sigma8': 0.8, 'ns': 0.95}
+    '''
+    
+    h = profile[1].header
+    p = profile[1].data
+    '''
+
+    
+    zmean = h['z_mean']
+    q  = np.round(h['q2d_mean'],2)
+    qr = np.round(h['q2dr_mean'],2)
+    
+    print('mean q standard',q)
+    print('mean q reduced',qr)
+    
+    e = (1-q)/(1+q)
+    er = (1-qr)/(1+qr)
+    
+    H        = cosmo.H(zmean).value/(1.0e3*pc) #H at z_pair s-1 
+    roc      = (3.0*(H**2.0))/(8.0*np.pi*G) #critical density at z_pair (kg.m-3)
+    roc_mpc  = roc*((pc*1.0e6)**3.0)
+    
+    
+    ndots = p.shape[0]
+    
+    
+    GT  = p.GAMMA_Tcos
+    GTr = p.GAMMA_Tcos_reduced
+    GTc = p.GAMMA_Tcos_control
+    
+    GX  = p.GAMMA_Xsin
+    GXr = p.GAMMA_Xsin_reduced
+    GXc = p.GAMMA_Xsin_control
+    
+    # '''
+    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovS   = cov.COV_S.reshape(len(GT),len(GT))
+    
+    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
+    CovGTc = cov.COV_GT_control.reshape(len(GT),len(GT))
+    
+    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
+    CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
+    CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
+
+    rplot = p.Rp
+        
+    # MCMC results
+
+    fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
+  
+    efit = (1. - fitpar['q']) / (1. + fitpar['q'])
+    efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
+    DS = Delta_Sigma_NFW_2h(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params)
+    DSr = DS
+
+    gt,gx   = GAMMA_components_2h(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params)
+    gtr,gxr   = GAMMA_components_2h(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params)
+    
+    print('Results standard fit')
+    print('log(M200) = ',fitpar['lM200'],' c200 = ',fitpar['c200'],' q ',fitpar['q'])
+    print('Results reduced fit')
+    print('log(M200) = ',fitpar_red['lM200'],' c200 = ',fitpar_red['c200'],' q ',fitpar_red['q'])
+    
+    ##############
+    mass = str(np.round(fitpar['lM200'],2))
+    c200 = str(np.round(fitpar['c200'],2))
+    qfit = str(np.round(fitpar['q'],2))
+
+    mass_red = str(np.round(fitpar_red['lM200'],2))
+    c200_red = str(np.round(fitpar_red['c200'],2))
+    qfit_red = str(np.round(fitpar_red['q'],2))
+    
+    f, ax_all = plt.subplots(2,2, figsize=(12,8),sharex = True)
+    f.subplots_adjust(hspace=0)
+    ax,ax1,ax2,ax3 = ax_all[0,0],ax_all[0,1],ax_all[1,0],ax_all[1,1]
+    
+    if substract:
+        GT  = GT - GTc
+        GTr = GTr - GTc
+        GX  = GX - GXc
+        GXr = GXr - GXc
+        p.DSigma_T = p.DSigma_T - p.DSigma_X
+
+    ax.set_title(p_name+fittype+component)
+
+    ax.plot(p.Rp,p.DSigma_T,'C1')
+    ax.plot(rplot,DS,'C3',label='$\log M_{200}=$'+mass+', $c_{200} = $'+c200)
+    ax.plot(rplot,DSr,'C3--',label='$\log M_{200}=$'+mass_red+', $c_{200} = $'+c200_red)
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_ylabel(r'$\Delta\Sigma$')
+    ax.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax.set_ylim(2,200)
+    ax.set_xlim(0.1,10)
+    ax.xaxis.set_ticks([0.1,1,5,7])
+    ax.set_xticklabels([0.1,1,5,7])
+    ax.yaxis.set_ticks([5,10,100])
+    ax.set_yticklabels([5,10,100])
+    ax.axvline(RIN/1000.,color='C7')
+    ax.axvline(ROUT/1000.,color='C7')
+    ax.legend(loc=3,frameon=False)
+    
+    # ax1.plot(RMt[0]*0.7,RMt[1]/0.7,'k',label='redMaPPer')
+    # ax1.errorbar(RMt[0]*0.7,RMt[1]/0.7,yerr=RMt[2]/0.7,fmt = 'none',ecolor='0.5')
+    
+    ax1.plot(p.Rp,GT,'C4')
+    ax1.plot(p.Rp,GTr,'C0--')
+    ax1.plot(rplot,gt,'C3',label = '$q_{fit} = $'+qfit+', $q = $'+str(q))
+    ax1.plot(rplot,gtr,'C3--',label = '$q_{fit} = $'+qfit_red+', $q = $'+str(qr))
+    ax1.legend(loc=3,frameon=False)
+
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
+    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
+    ax1.set_xscale('log')
+    ax1.set_yscale('log')
+    ax1.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax1.set_ylabel(r'$\Gamma_T$')
+    ax1.set_ylim(1,100)
+    ax1.set_xlim(0.1,10)
+    ax1.xaxis.set_ticks([0.1,1,5,7])
+    ax1.set_xticklabels([0.1,1,5,7])
+    ax1.yaxis.set_ticks([0.3,10,100])
+    ax1.set_yticklabels([0.3,10,100])
+    ax1.axvline(RIN/1000.,color='C7')
+    ax1.axvline(ROUT/1000.,color='C7')
+    
+    # ax2.plot(RMt[0]*0.7,RMt[3]/0.7,'k',label='redMaPPer')
+    # ax2.errorbar(RMt[0]*0.7,RMt[3]/0.7,yerr=RMt[4]/0.7,fmt = 'none',ecolor='0.5')
+    
+    ax2.plot([0,10],[0,0],'C7')
+    ax2.plot(p.Rp,GX,'C2')
+    ax2.plot(p.Rp,GXr,'C5--')
+    ax2.plot(rplot,gx,'C3')
+    ax2.plot(rplot,gxr,'C3--')
+    ax2.axvline(RIN/1000.,color='C7')
+    ax2.axvline(ROUT/1000.,color='C7')
+
+    
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
+    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
+    ax2.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax2.set_ylabel(r'$\Gamma_\times$')
+    ax2.set_xscale('log')
+    ax2.set_xlim(0.1,10)
+    ax2.set_ylim(-20,22)
+    ax2.xaxis.set_ticks([0.1,1,5,7])
+    ax2.set_xticklabels([0.1,1,5,7])
+    
+    
+    ax3.plot([0,10],[0,0],'C7')
+    ax3.plot(p.Rp,GTc,'k', label = 'GT control')
+    ax3.plot(p.Rp,GXc,'C8--', label = 'GX control')
+    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.2)
+    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.2)
+    ax3.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax3.set_xscale('log')
+    ax3.set_xlim(0.1,10)
+    ax3.set_ylim(-20,22)
+    ax3.xaxis.set_ticks([0.1,1,5,7])
+    ax3.set_xticklabels([0.1,1,5,7])
+    ax3.legend(frameon=False)
+    
+    if substract == True:
+        f.savefig(folder+'plots/profile_'+samp+'_2h_'+component+'_substracted.png',bbox_inches='tight')
+    else:
+        f.savefig(folder+'plots/profile_'+samp+'_2h_'+component+'.png',bbox_inches='tight')
+
     
 def plt_map_fitted(samp,RIN,ROUT,fittype=''):
     

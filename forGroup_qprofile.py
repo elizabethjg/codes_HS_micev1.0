@@ -51,6 +51,8 @@ parser.add_argument('-ncores', action='store', dest='ncores', default=10)
 parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
 parser.add_argument('-ides_list', action='store', dest='idlist', default=None)
 parser.add_argument('-resNFW_max', action='store', dest='resNFW_max', default=100.)
+parser.add_argument('-R5s_max', action='store', dest='R5s_max', default=100.)
+parser.add_argument('-R5s_min', action='store', dest='R5s_min', default=100.)
 args = parser.parse_args()
 
 sample     = args.sample
@@ -71,6 +73,9 @@ ndots      = int(args.nbins)
 ncores     = int(args.ncores)
 hcosmo     = float(args.h_cosmo)
 resNFW_max = float(args.resNFW_max)
+R5s_max = float(args.R5s_max)
+R5s_min = float(args.R5s_min)
+
 if args.relax == 'True':
     relax = True
 elif args.relax == 'False':
@@ -102,7 +107,10 @@ rmin = 0.
 rmax = 1000.
 idlist = None
 relax = False
-domap = True
+domap = False
+R5s_min = 0
+R5s_max = 100.
+resNFW_max = 100.
 '''
 
 
@@ -357,6 +365,7 @@ def main(lcat, sample='pru',
          q_min = 0., q_max = 1.0,
          rs_min = 0., rs_max = 1.0,
          resNFW_max = 100., relax=False,
+         R5s_max = 100., R5s_min = 0.,
          domap = False, RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
          idlist= None, hcosmo=1.0, vmice = '2'):
@@ -374,6 +383,8 @@ def main(lcat, sample='pru',
         q_max          (float) higher limit for q - <
         rs_min         (float) lower limit r_scale = r_c/r_max
         rs_max         (float) higher limit r_scale = r_c/r_max
+        R5s_min         (float) lower limit R5 scaled
+        R5s_max         (float) higher limit R5 scaled
         resNFW_max     (float) higher limit for resNFW_S
         relax          (bool)  Select only relaxed halos
         domap          (bool) Instead of computing a profile it 
@@ -400,6 +411,7 @@ def main(lcat, sample='pru',
                 print(z_min,' <= z < ',z_max)
                 print(q_min,' <= q < ',q_max)
                 print(rs_min,' <= rs < ',rs_max)
+                print(R5s_min,' <= R5s < ',R5s_max)
                 print('resNFW_S < ',resNFW_max)
                 print('h ',hcosmo)
                         
@@ -433,7 +445,8 @@ def main(lcat, sample='pru',
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mres    = L.resNFW_S < resNFW_max
-                mlenses = mmass*mz*mq*mrs*mres
+                mr5s    = (L.R5scale < R5s_max)*(L.R5scale <= R5s_min)
+                mlenses = mmass*mz*mq*mrs*mres*mr5s
                 
         if relax:
             print('Only relaxed halos are considered')
@@ -783,4 +796,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)

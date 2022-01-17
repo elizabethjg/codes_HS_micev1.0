@@ -28,12 +28,13 @@ cmodel = 'diemer19'
 '''
 folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
 cont = False
-file_name = 'profile_LM_Lz_relaxed.fits'
-angle = 'standard'
-ncores = 32
+file_name = 'profile_HM_Lz_relaxed.fits'
+angle = 'reduced'
+ncores = 2
 nit = 10
 RIN = 250.
-ROUT =2500.
+ROUT =5000.
+components = 'all'
 # '''
 
 parser = argparse.ArgumentParser()
@@ -50,9 +51,10 @@ parser.add_argument('-components', action='store', dest='comp', default='all')
 args = parser.parse_args()
 
 
-folder    = args.folder
-file_name = args.file_name
-angle     = args.angle
+folder     = args.folder
+file_name  = args.file_name
+angle      = args.angle
+components = args.comp
 
 if 'True' in args.cont:
 	cont      = True
@@ -65,15 +67,16 @@ ncores    = args.ncores
 ncores    = int(ncores)
 RIN       = float(args.RIN)
 ROUT      = float(args.ROUT)
+
 if angle == 'standard':
     ang = ''
 elif angle == 'reduced':
     ang = '_reduced'
 
-if args.comp == 'all':
+if components == 'all':
     outfile     = 'fitresults_2h_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
-    outfile     = 'fitresults_2h_'+args.comp+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 
 
@@ -88,7 +91,7 @@ print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
 print('outfile',outfile)
-print('fitting components ',args.comp)
+print('fitting components ',components)
 
 # extracting data from profile
 profile = fits.open(folder+file_name)
@@ -107,20 +110,7 @@ CovGX  = cov['COV_GX'+ang].reshape(len(p.Rp),len(p.Rp))[mr]
 
 p  = p[maskr]
 
-
-DSt = p.DSigma_T
-GT  = p['GAMMA_Tcos'+ang]
-GX  = p['GAMMA_Xsin'+ang]
-
-
-CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
-CovGT  = CovGT.reshape(maskr.sum(),maskr.sum())
-CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
-
-profiles = [GT,GX]
-iCov     = [np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
-iCds     =  np.linalg.inv(CovDS)
-  
+'''
 # First running for DS
 
 def log_likelihood_DS(data_model, R, ds, iCds):
@@ -145,6 +135,11 @@ def log_probability_DS(data_model, R, profiles, iCOV):
 
 # initializing
 
+DSt = p.DSigma_T
+CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
+iCds     =  np.linalg.inv(CovDS)
+
+
 pos = np.array([np.random.uniform(12.5,15.5,15),
                 np.random.uniform(1,5,15)]).T
 
@@ -167,6 +162,10 @@ print((t2-t1)/60.)
 mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
 c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
+'''
+f = fits.open(folder+outfile)[1].data
+lM = np.percentile(f.lM200[1500:], [16, 50, 84])
+c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 
 # NOW FIT q with Gamma components
 # initializing
@@ -184,11 +183,11 @@ def log_likelihood(data_model, R, profiles, iCOV):
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
     
-    if args.comp == 'all':
+    if components == 'all':
         L = L_GT + L_GX
-    elif args.comp == 'tangential':
+    elif components == 'tangential':
         L = L_GT
-    elif args.comp == 'cross':
+    elif components == 'cross':
         L = L_GX
     
     return L
@@ -202,6 +201,15 @@ def log_probability(data_model, R, profiles, iCOV):
         return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
+
+
+GT  = p['GAMMA_Tcos'+ang]
+GX  = p['GAMMA_Xsin'+ang]
+CovGT  = CovGT.reshape(maskr.sum(),maskr.sum())
+CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
+
+profiles = [GT,GX]
+iCov     = [np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
 
 pos = np.array([np.random.uniform(0.2,0.9,15)]).T
 

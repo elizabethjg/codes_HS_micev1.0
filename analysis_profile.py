@@ -297,6 +297,7 @@ def plt_profile_wofit(samp):
     gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     
     mass = str(np.round(np.log10(nfw.M200),2))
+    cfit = str(np.round((nfw.c200),2))
     massS = str(np.round(np.log10(nfwS.M200),2))
     
     f, ax = plt.subplots()
@@ -315,7 +316,7 @@ def plt_profile_wofit(samp):
     ax2.legend()
 
     ax0.plot(p.Rp,p.Sigma,'C1')
-    ax0.plot(nfwS.xplot,nfwS.yplot,'C3',label='fited nfw')
+    ax0.plot(nfwS.xplot,nfwS.yplot,'C3')
     ax0.fill_between(p.Rp,p.Sigma+np.diag(CovS),p.DSigma_T-np.diag(CovS),color='C1',alpha=0.2)
     ax0.set_xscale('log')
     ax0.set_yscale('log')
@@ -330,11 +331,11 @@ def plt_profile_wofit(samp):
     ax0.legend()
         
     ax.plot(p.Rp,p.DSigma_T,'C1')
-    ax.plot(nfw.xplot,nfw.yplot,'C3',label='fited nfw')
+    ax.plot(nfw.xplot,nfw.yplot,'C3',label='fitted nfw $\log M_{200}=$'+mass+' $c_{200} = $'+cfit)
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_ylabel(r'$\Delta\Sigma$')
+    ax.set_ylabel(r'$\Delta\Sigma [M_{\odot}pc^{-2} h ]$')
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
     ax.set_ylim(2,200)
     ax.set_xlim(0.1,10)
@@ -647,9 +648,11 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
         
     # MCMC results
 
+    fitpar = fits.open(folder+'fitresults_2h_250_2000_'+p_name)[0].header
+    fitpar_red = fits.open(folder+'fitresults_2h_250_5000_'+p_name)[0].header
+    
     # fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    fitpar = fits.open(folder+'fitresults_onlyq'+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    fitpar_red = fits.open(folder+'fitresults_onlyq'+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
+    # fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
   
     efit = (1. - fitpar['q']) / (1. + fitpar['q'])
     efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])

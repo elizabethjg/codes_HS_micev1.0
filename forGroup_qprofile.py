@@ -52,7 +52,7 @@ parser.add_argument('-h_cosmo', action='store', dest='h_cosmo', default=1.)
 parser.add_argument('-ides_list', action='store', dest='idlist', default=None)
 parser.add_argument('-resNFW_max', action='store', dest='resNFW_max', default=100.)
 parser.add_argument('-R5s_max', action='store', dest='R5s_max', default=100.)
-parser.add_argument('-R5s_min', action='store', dest='R5s_min', default=100.)
+parser.add_argument('-R5s_min', action='store', dest='R5s_min', default=0.)
 args = parser.parse_args()
 
 sample     = args.sample
@@ -365,7 +365,7 @@ def main(lcat, sample='pru',
          q_min = 0., q_max = 1.0,
          rs_min = 0., rs_max = 1.0,
          resNFW_max = 100., relax=False,
-         R5s_max = 100., R5s_min = 0.,
+         R5s_min = 0., R5s_max = 100.,
          domap = False, RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
          idlist= None, hcosmo=1.0, vmice = '2'):
@@ -445,7 +445,7 @@ def main(lcat, sample='pru',
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mres    = L.resNFW_S < resNFW_max
-                mr5s    = (L.R5scale < R5s_max)*(L.R5scale <= R5s_min)
+                mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
                 mlenses = mmass*mz*mq*mrs*mres*mr5s
                 
         if relax:

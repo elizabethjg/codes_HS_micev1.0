@@ -58,22 +58,23 @@ if 'True' in args.cont:
 	cont      = True
 elif 'False' in args.cont:
 	cont      = False
-
+components = args.comp
 	
 nit       = int(args.nit)
 ncores    = args.ncores
 ncores    = int(ncores)
 RIN       = float(args.RIN)
 ROUT      = float(args.ROUT)
+
 if angle == 'standard':
     ang = ''
 elif angle == 'reduced':
     ang = '_reduced'
 
-if args.comp == 'all':
+if components == 'all':
     outfile     = 'fitresults_onlyq_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
-    outfile     = 'fitresults_onlyq_'+args.comp+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_onlyq_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 
 
@@ -88,7 +89,7 @@ print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
 print('outfile',outfile)
-print('fitting components ',args.comp)
+print('fitting components ',components)
 
 
 profile = fits.open(folder+file_name)
@@ -121,11 +122,11 @@ def log_likelihood(data_model, R, profiles, iCOV):
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
     
-    if args.comp == 'all':
+    if components == 'all':
         L = L_GT + L_GX
-    elif args.comp == 'tangential':
+    elif components == 'tangential':
         L = L_GT
-    elif args.comp == 'cross':
+    elif components == 'cross':
         L = L_GX
     
     return L

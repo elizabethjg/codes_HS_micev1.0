@@ -749,12 +749,15 @@ def main(lcat, sample='pru',
             e_c200_NFW = nfw.error_c200
             e_M200_NFW = nfw.error_M200
             le_M200    = (np.log(10.)/M200_NFW)*e_M200_NFW
-        
-            h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
-            h.append(('elM200_NFW',np.round(le_M200,4)))
-            h.append(('c200_NFW',np.round(c200_NFW,4)))
-            h.append(('ec200_NFW',np.round(e_c200_NFW,4)))
-            h.append(('CHI2_NFW',np.round(nfw.chi2,4)))
+            
+            try:
+                h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
+                h.append(('elM200_NFW',np.round(le_M200,4)))
+                h.append(('c200_NFW',np.round(c200_NFW,4)))
+                h.append(('ec200_NFW',np.round(e_c200_NFW,4)))
+                h.append(('CHI2_NFW',np.round(nfw.chi2,4)))
+            except:
+                print('fit not well performed')
 
             # WRITING OUTPUT FITS FILE
             

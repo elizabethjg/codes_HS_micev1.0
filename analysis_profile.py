@@ -51,37 +51,44 @@ def plt_profile_compare(samp1,samp2):
     
     
     GT  = p.GAMMA_Tcos
-    GTr = p.GAMMA_Tcos_reduced
+    GT = p.GAMMA_Tcos_reduced
     GTc = p.GAMMA_Tcos_control
     
     GX  = p.GAMMA_Xsin
-    GXr = p.GAMMA_Xsin_reduced
+    GX = p.GAMMA_Xsin_reduced
     GXc = p.GAMMA_Xsin_control
     
     # '''
     CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
     
     CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
-    CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
+    CovGT = cov.COV_GT_reduced.reshape(len(GT),len(GT))
     CovGTc = cov.COV_GT_control.reshape(len(GT),len(GT))
     
     CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
-    CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
+    CovGX = cov.COV_GX_reduced.reshape(len(GT),len(GT))
     CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
 
     # FIT MONOPOLE
-    rplot = np.arange(0.1,5,0.05)
+    rplot = np.arange(0.1,10,0.05)
     
     nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-    gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+    gt,gx = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     
     mass = str(np.round(np.log10(nfw.M200),1))
     
+    f, ax_all = plt.subplots(2,2, figsize=(12,8),sharex = True)
+    f.subplots_adjust(hspace=0)
+    ax,ax1,ax2,ax3 = ax_all[0,0],ax_all[0,1],ax_all[1,0],ax_all[1,1]
+
+    '''
     f, ax = plt.subplots()
+    f0, ax0 = plt.subplots()
     f1, ax1 = plt.subplots()
     f2, ax2 = plt.subplots()
     f3, ax3 = plt.subplots()
+    '''
     
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
@@ -89,22 +96,22 @@ def plt_profile_compare(samp1,samp2):
     ax3.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
 
     
-    ax1.legend()
-    ax2.legend()
+    ax.legend()
+    
         
     ax.plot(nfw.xplot,nfw.yplot,'C0',label=samp1)
-    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C0',alpha=0.2)
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C0',alpha=0.4)
     
     ax1.plot(rplot,gt,'C0')
-    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C0',alpha=0.2)
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C0',alpha=0.4)
     
     ax2.plot(rplot,gx,'C0')    
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C0',alpha=0.2)        
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C0',alpha=0.4)        
 
     ax3.plot(p.Rp,GTc,'C0', label = 'GT control')
     ax3.plot(p.Rp,GXc,'C0--', label = 'GX control')
-    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C0',alpha=0.2)
-    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C0',alpha=0.2)
+    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C0',alpha=0.4)
+    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C0',alpha=0.4)
     
     ##### SECOND PROFILE
     
@@ -142,22 +149,22 @@ def plt_profile_compare(samp1,samp2):
     
     
     GT  = p.GAMMA_Tcos
-    GTr = p.GAMMA_Tcos_reduced
+    GT = p.GAMMA_Tcos_reduced
     GTc = p.GAMMA_Tcos_control
     
     GX  = p.GAMMA_Xsin
-    GXr = p.GAMMA_Xsin_reduced
+    GX = p.GAMMA_Xsin_reduced
     GXc = p.GAMMA_Xsin_control
     
     # '''
     CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
     
     CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
-    CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
+    CovGT = cov.COV_GT_reduced.reshape(len(GT),len(GT))
     CovGTc = cov.COV_GT_control.reshape(len(GT),len(GT))
     
     CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
-    CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
+    CovGX = cov.COV_GX_reduced.reshape(len(GT),len(GT))
     CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
 
     # FIT MONOPOLE
@@ -165,7 +172,7 @@ def plt_profile_compare(samp1,samp2):
     
     nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-    gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+    gt,gx = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
     
     mass = str(np.round(np.log10(nfw.M200),1))
         
@@ -174,17 +181,14 @@ def plt_profile_compare(samp1,samp2):
     ax2.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
     ax3.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
 
-    
-    ax1.legend()
-    ax2.legend()
-        
+            
     ax.plot(nfw.xplot,nfw.yplot,'C1',label=samp2)
-    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.4)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma$')
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax.set_ylim(2,200)
+    ax.set_ylim(1,200)
     ax.set_xlim(0.1,10)
     ax.xaxis.set_ticks([0.1,1,5,7])
     ax.set_xticklabels([0.1,1,5,7])
@@ -193,7 +197,7 @@ def plt_profile_compare(samp1,samp2):
     ax.legend()
         
     ax1.plot(rplot,gt,'C1')
-    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C1',alpha=0.2)
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C1',alpha=0.4)
 
     ax1.set_xscale('log')
     ax1.set_yscale('log')
@@ -208,7 +212,7 @@ def plt_profile_compare(samp1,samp2):
         
     ax2.plot([0,10],[0,0],'C7')
     ax2.plot(rplot,gx,'C1')
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C1',alpha=0.2)
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C1',alpha=0.4)
     
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
     ax2.set_ylabel(r'$\Gamma_\times$')
@@ -222,15 +226,15 @@ def plt_profile_compare(samp1,samp2):
     ax3.plot([0,10],[0,0],'C7')
     ax3.plot(p.Rp,GTc,'C1', label = 'GT control')
     ax3.plot(p.Rp,GXc,'C1--', label = 'GX control')
-    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C1',alpha=0.2)
-    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C1',alpha=0.2)
+    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C1',alpha=0.4)
+    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C1',alpha=0.4)
     ax3.set_xlabel('r [$h^{-1}$ Mpc]')
     ax3.set_xscale('log')
     ax3.set_xlim(0.1,10)
     ax3.set_ylim(-10,7)
     ax3.xaxis.set_ticks([0.1,1,5,7])
     ax3.set_xticklabels([0.1,1,5,7])
-    ax3.legend()
+    
 
 def plt_profile_wofit(samp):
     
@@ -300,12 +304,17 @@ def plt_profile_wofit(samp):
     cfit = str(np.round((nfw.c200),2))
     massS = str(np.round(np.log10(nfwS.M200),2))
     
+    f, ax_all = plt.subplots(2,2, figsize=(12,8),sharex = True)
+    f.subplots_adjust(hspace=0)
+    ax,ax1,ax2,ax3 = ax_all[0,0],ax_all[0,1],ax_all[1,0],ax_all[1,1]
+
+    '''
     f, ax = plt.subplots()
     f0, ax0 = plt.subplots()
     f1, ax1 = plt.subplots()
     f2, ax2 = plt.subplots()
     f3, ax3 = plt.subplots()
-    
+    '''
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax0.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+massS)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
@@ -317,7 +326,7 @@ def plt_profile_wofit(samp):
 
     ax0.plot(p.Rp,p.Sigma,'C1')
     ax0.plot(nfwS.xplot,nfwS.yplot,'C3')
-    ax0.fill_between(p.Rp,p.Sigma+np.diag(CovS),p.DSigma_T-np.diag(CovS),color='C1',alpha=0.2)
+    ax0.fill_between(p.Rp,p.Sigma+np.diag(CovS),p.DSigma_T-np.diag(CovS),color='C1',alpha=0.4)
     ax0.set_xscale('log')
     ax0.set_yscale('log')
     ax0.set_ylabel(r'$\Sigma$')
@@ -332,7 +341,7 @@ def plt_profile_wofit(samp):
         
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(nfw.xplot,nfw.yplot,'C3',label='fitted nfw $\log M_{200}=$'+mass+' $c_{200} = $'+cfit)
-    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.4)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma [M_{\odot}pc^{-2} h ]$')
@@ -353,8 +362,8 @@ def plt_profile_wofit(samp):
     ax1.plot(rplot,gt,'C3')
     ax1.plot(rplot,gtr,'C3--')
 
-    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
-    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.4)
+    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.4)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -375,8 +384,8 @@ def plt_profile_wofit(samp):
     ax2.plot(rplot,gx,'C3')
     ax2.plot(rplot,gxr,'C3--')
     
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
-    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.4)
+    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.4)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
     ax2.set_ylabel(r'$\Gamma_\times$')
     ax2.set_xscale('log')
@@ -389,8 +398,8 @@ def plt_profile_wofit(samp):
     ax3.plot([0,10],[0,0],'C7')
     ax3.plot(p.Rp,GTc,'k', label = 'GT control')
     ax3.plot(p.Rp,GXc,'C8--', label = 'GX control')
-    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.2)
-    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.2)
+    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.4)
+    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.4)
     ax3.set_xlabel('r [$h^{-1}$ Mpc]')
     ax3.set_xscale('log')
     ax3.set_xlim(0.1,10)
@@ -505,7 +514,7 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(rplot,DS,'C3',label='$\log M_{200}=$'+mass+', $c_{200} = $'+c200)
     ax.plot(rplot,DSr,'C3--',label='$\log M_{200}=$'+mass_red+', $c_{200} = $'+c200_red)
-    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.4)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma$')
@@ -529,8 +538,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     ax1.plot(rplot,gtr,'C3--',label = '$q_{fit} = $'+qfit_red+', $q = $'+str(qr))
     ax1.legend(loc=3,frameon=False)
 
-    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
-    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.4)
+    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.4)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -556,8 +565,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     ax2.axvline(ROUT/1000.,color='C7')
 
     
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
-    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.4)
+    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.4)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
     ax2.set_ylabel(r'$\Gamma_\times$')
     ax2.set_xscale('log')
@@ -570,8 +579,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     ax3.plot([0,10],[0,0],'C7')
     ax3.plot(p.Rp,GTc,'k', label = 'GT control')
     ax3.plot(p.Rp,GXc,'C8--', label = 'GX control')
-    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.2)
-    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.2)
+    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.4)
+    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.4)
     ax3.set_xlabel('r [$h^{-1}$ Mpc]')
     ax3.set_xscale('log')
     ax3.set_xlim(0.1,10)
@@ -649,7 +658,7 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
     # MCMC results
 
     fitpar = fits.open(folder+'fitresults_2h_250_2000_'+p_name)[0].header
-    fitpar_red = fits.open(folder+'fitresults_2h_250_5000_'+p_name)[0].header
+    fitpar_red = fits.open(folder+'fitresults_2h_250_5000_reduced_'+p_name)[0].header
     
     # fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
     # fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
@@ -692,7 +701,7 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(rplot,DS,'C3',label='$\log M_{200}=$'+mass+', $c_{200} = $'+c200)
     ax.plot(rplot,DSr,'C3--',label='$\log M_{200}=$'+mass_red+', $c_{200} = $'+c200_red)
-    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.2)
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.4)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma$')
@@ -716,8 +725,8 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
     ax1.plot(rplot,gtr,'C3--',label = '$q_{fit} = $'+qfit_red+', $q = $'+str(qr))
     ax1.legend(loc=3,frameon=False)
 
-    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.2)
-    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.2)
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.4)
+    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.4)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -743,8 +752,8 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
     ax2.axvline(ROUT/1000.,color='C7')
 
     
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.2)
-    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.2)
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.4)
+    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.4)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
     ax2.set_ylabel(r'$\Gamma_\times$')
     ax2.set_xscale('log')
@@ -757,8 +766,8 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
     ax3.plot([0,10],[0,0],'C7')
     ax3.plot(p.Rp,GTc,'k', label = 'GT control')
     ax3.plot(p.Rp,GXc,'C8--', label = 'GX control')
-    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.2)
-    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.2)
+    ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C8',alpha=0.4)
+    ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C7',alpha=0.4)
     ax3.set_xlabel('r [$h^{-1}$ Mpc]')
     ax3.set_xscale('log')
     ax3.set_xlim(0.1,10)

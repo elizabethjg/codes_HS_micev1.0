@@ -110,7 +110,7 @@ CovGX  = cov['COV_GX'+ang].reshape(len(p.Rp),len(p.Rp))[mr]
 
 p  = p[maskr]
 
-'''
+# '''
 # First running for DS
 
 def log_likelihood_DS(data_model, R, ds, iCds):
@@ -162,11 +162,12 @@ print((t2-t1)/60.)
 mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
 c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
+
 '''
 f = fits.open(folder+outfile)[1].data
 lM = np.percentile(f.lM200[1500:], [16, 50, 84])
 c200 = np.percentile(f.c200[1500:], [16, 50, 84])
-
+'''
 # NOW FIT q with Gamma components
 # initializing
 def log_likelihood(data_model, R, profiles, iCOV):

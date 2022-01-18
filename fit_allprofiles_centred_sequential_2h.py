@@ -26,12 +26,13 @@ cmodel = 'diemer19'
 
 
 '''
-folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
+# folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
+folder = '/home/elizabeth/MICE/HS-lensing/profiles/'
 cont = False
 file_name = 'profile_HM_Lz_relaxed.fits'
 angle = 'reduced'
-ncores = 2
-nit = 10
+ncores = 15
+nit = 200
 RIN = 250.
 ROUT =5000.
 components = 'all'

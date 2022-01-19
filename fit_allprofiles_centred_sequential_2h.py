@@ -111,6 +111,7 @@ CovGX  = cov['COV_GX'+ang].reshape(len(p.Rp),len(p.Rp))[mr]
 
 p  = p[maskr]
 
+t1 = time.time()
 # '''
 # First running for DS
 
@@ -146,7 +147,7 @@ pos = np.array([np.random.uniform(12.5,15.5,15),
 
 nwalkers, ndim = pos.shape
 
-t1 = time.time()
+
 
 pool = Pool(processes=(ncores))    
 sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS, 
@@ -155,16 +156,18 @@ sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS,
 sampler_DS.run_mcmc(pos, nit, progress=True)
 pool.terminate()
 
+
+mcmc_out_DS = sampler_DS.get_chain(flat=True).T
+lM     = np.percentile(mcmc_out_DS[0][1000:], [16, 50, 84])
+c200   = np.percentile(mcmc_out_DS[1][1000:], [16, 50, 84])
+
+'''
 t2 = time.time()
 
 print('TIME DS')    
 print((t2-t1)/60.)
 
-mcmc_out_DS = sampler_DS.get_chain(flat=True).T
-lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
-c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
 
-'''
 f = fits.open(folder+outfile)[1].data
 lM = np.percentile(f.lM200[1500:], [16, 50, 84])
 c200 = np.percentile(f.c200[1500:], [16, 50, 84])
@@ -230,7 +233,7 @@ print('TIME G components')
 print((t3-t2)/60.)
 
 mcmc_out_GC = sampler_GC.get_chain(flat=True).T
-q      = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
+q      = np.percentile(mcmc_out_GC[0][1000:], [16, 50, 84])
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
@@ -262,6 +265,6 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+outfile,overwrite=True)
+hdul.writeto(folder+'pru2_'+outfile,overwrite=True)
 
-print('SAVED FILE')
+print('SAVED FILE '+outfile)

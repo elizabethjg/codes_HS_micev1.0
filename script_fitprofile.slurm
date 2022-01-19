@@ -18,7 +18,9 @@ source $HOME/.bashrc
 
 conda activate py3env
 
-srun ./run_fit.sh $SLURM_JOB_NAME
+
+python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 100 
+##srun ./run_fit.sh $SLURM_JOB_NAME
 
 
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Lz.fits -RIN 250 -ROUT 2000 -ncores 56

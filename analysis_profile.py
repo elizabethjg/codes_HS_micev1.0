@@ -108,8 +108,8 @@ def plt_profile_compare(samp1,samp2):
     ax2.plot(rplot,gx,'C0')    
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C0',alpha=0.4)        
 
-    ax3.plot(p.Rp,GTc,'C0', label = 'GT control')
-    ax3.plot(p.Rp,GXc,'C0--', label = 'GX control')
+    # ax3.plot(p.Rp,GTc,'C0', label = 'GT control')
+    # ax3.plot(p.Rp,GXc,'C0--', label = 'GX control')
     ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C0',alpha=0.4)
     ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C0',alpha=0.4)
     
@@ -224,8 +224,8 @@ def plt_profile_compare(samp1,samp2):
     
     
     ax3.plot([0,10],[0,0],'C7')
-    ax3.plot(p.Rp,GTc,'C1', label = 'GT control')
-    ax3.plot(p.Rp,GXc,'C1--', label = 'GX control')
+    # ax3.plot(p.Rp,GTc,'C1', label = 'GT control')
+    # ax3.plot(p.Rp,GXc,'C1--', label = 'GX control')
     ax3.fill_between(p.Rp,GXc+np.diag(CovGXc),GXc-np.diag(CovGXc),color='C1',alpha=0.4)
     ax3.fill_between(p.Rp,GTc+np.diag(CovGTc),GTc-np.diag(CovGTc),color='C1',alpha=0.4)
     ax3.set_xlabel('r [$h^{-1}$ Mpc]')

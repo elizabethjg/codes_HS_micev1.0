@@ -26,11 +26,11 @@ cmodel = 'diemer19'
 
 
 '''
-folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
-# folder = '/home/elizabeth/MICE/HS-lensing/profiles/'
+# folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
+folder = '/home/elizabeth/MICE/HS-lensing/profiles/'
 cont = False
-file_name = 'profile_LM_Lz_relaxed.fits'
-angle = 'standard'
+file_name = 'profile_HM_Lz_relaxed.fits'
+angle = 'reduced'
 ncores = 15
 nit = 200
 RIN = 250.
@@ -158,8 +158,8 @@ pool.terminate()
 
 
 mcmc_out_DS = sampler_DS.get_chain(flat=True).T
-lM     = np.percentile(mcmc_out_DS[0][1000:], [16, 50, 84])
-c200   = np.percentile(mcmc_out_DS[1][1000:], [16, 50, 84])
+lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
+c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
 
 
 t2 = time.time()
@@ -233,7 +233,7 @@ print('TIME G components')
 print((t3-t2)/60.)
 
 mcmc_out_GC = sampler_GC.get_chain(flat=True).T
-q      = np.percentile(mcmc_out_GC[0][1000:], [16, 50, 84])
+q      = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
@@ -265,6 +265,6 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'pru2_'+outfile,overwrite=True)
+hdul.writeto(folder+outfile,overwrite=True)
 
 print('SAVED FILE '+outfile)

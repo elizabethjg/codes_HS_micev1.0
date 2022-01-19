@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=tryfit
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=15
+#SBATCH --cpus-per-task=56
 #SBATCH --time=2-00:00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
@@ -16,11 +16,11 @@ source $HOME/.bashrc
 
 ##cd /home/elizabeth/MICE/HS-lensing/codes_HS_micev1.0/
 
-conda activate py3env
+conda activate myenv
 
 
-python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 100 
-##srun ./run_fit.sh $SLURM_JOB_NAME
+##python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 100 
+srun ./run_fit.sh $SLURM_JOB_NAME
 
 
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Lz.fits -RIN 250 -ROUT 2000 -ncores 56

@@ -17,7 +17,7 @@ source $HOME/.bashrc
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-conda activate py3env
+conda activate myenv
 
 srun python -u forGroup_qprofile.py -sample 'LM_Lz_isolated' -lM_min 13.5 -lM_max 14 -z_min 0.1 -z_max 0.2 -ncores 56 -R5s_min 1.16
 srun python -u forGroup_qprofile.py -sample 'LM_Lz_denser' -lM_min 13.5 -lM_max 14 -z_min 0.1 -z_max 0.2 -ncores 56 -R5s_max 0.82

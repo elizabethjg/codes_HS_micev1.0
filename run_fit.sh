@@ -2,7 +2,7 @@
 . /etc/profile
 source /home/elizabeth/.bashrc
 
-conda activate py3env
+conda activate myenv
 
 python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 200 &
 python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 200 &

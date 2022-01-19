@@ -26,11 +26,11 @@ cmodel = 'diemer19'
 
 
 '''
-# folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
-folder = '/home/elizabeth/MICE/HS-lensing/profiles/'
+folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
+# folder = '/home/elizabeth/MICE/HS-lensing/profiles/'
 cont = False
-file_name = 'profile_HM_Lz_relaxed.fits'
-angle = 'reduced'
+file_name = 'profile_LM_Lz_relaxed.fits'
+angle = 'standard'
 ncores = 15
 nit = 200
 RIN = 250.
@@ -161,13 +161,13 @@ mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 lM     = np.percentile(mcmc_out_DS[0][1000:], [16, 50, 84])
 c200   = np.percentile(mcmc_out_DS[1][1000:], [16, 50, 84])
 
-'''
+
 t2 = time.time()
 
 print('TIME DS')    
 print((t2-t1)/60.)
 
-
+'''
 f = fits.open(folder+outfile)[1].data
 lM = np.percentile(f.lM200[1500:], [16, 50, 84])
 c200 = np.percentile(f.c200[1500:], [16, 50, 84])

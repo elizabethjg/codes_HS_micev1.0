@@ -466,25 +466,20 @@ def main(lcat, sample='pru',
         #Computing SMA axis
         theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2Dy/L.a2Dx),np.arctan(L.a2Dry/L.a2Drx)]).T                
         
-        # Define K masks        
-        ramin  = np.min(ra)
-        decmin = np.min(dec)
-        dra  = ((np.max(ra)+1)  - ramin)/10.
-        ddec = ((np.max(dec)+1) - decmin)/10.
-        
+        # Define K masks                
         kmask = np.zeros((101,len(ra)))
-        kmask[0] = np.ones(len(ra)).astype(bool)
-        c    = 1
+        kmask[0] = np.ones(len(ra))
         
-        for a in range(10): 
-                for d in range(10): 
-                        mra  = (ra  >= ramin + a*dra)*(ra < ramin + (a+1)*dra) 
-                        mdec = (dec >= decmin + d*ddec)*(dec < decmin + (d+1)*ddec) 
-        
-                        kmask[c] = ~(mra*mdec)
-                        c += 1
+        ind_rand = np.arange(len(ra))
+        np.random.shuffle(ind_rand)
+        lbins = int(round(len(ra)/100, 0))
+        slices = ((np.arange(100)+1)*lbins).astype(int)
+        ind_rand = np.split(ind_rand,slices[:-1])
 
-        
+        for j in range(len(ind_rand)):
+            m = ~np.in1d(np.arange(len(ra)),ind_rand[j])
+            kmask[j+1][m] = 1
+                    
         # SPLIT LENSING CAT
         
         lbins = int(round(Nlenses/float(ncores), 0))

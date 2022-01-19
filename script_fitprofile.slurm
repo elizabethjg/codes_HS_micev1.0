@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fit2h
+#SBATCH --job-name=onlyt
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=2-00:00:00
@@ -19,7 +19,7 @@ source $HOME/.bashrc
 conda activate py3env
 
 
-python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 100 
+python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 100 -components tangential
 ##srun ./run_fit.sh $SLURM_JOB_NAME
 
 

@@ -147,8 +147,10 @@ def log_probability(data_model, R, profiles, iCOV):
         
     return -np.inf
 
+DSt = p.DSigma_T
 GT  = p['GAMMA_Tcos'+ang]
 GX  = p['GAMMA_Xsin'+ang]
+
 CovGT  = CovGT.reshape(maskr.sum(),maskr.sum())
 CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
 CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())

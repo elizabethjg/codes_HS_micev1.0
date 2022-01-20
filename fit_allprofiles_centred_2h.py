@@ -122,7 +122,7 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
     DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params)
 
-    GT,GX   = GAMMA_components_2h(R,zmean,ellip=e,M200 = 10**lM[1],c200=c200[1],cosmo_params=params)
+    GT,GX   = GAMMA_components_2h(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo_params=params)
     
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0

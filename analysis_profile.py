@@ -657,11 +657,11 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
         
     # MCMC results
 
-    fitpar = fits.open(folder+'fitresults_2h_250_2000_'+p_name)[0].header
-    fitpar_red = fits.open(folder+'fitresults_2h_250_5000_reduced_'+p_name)[0].header
+    # fitpar = fits.open(folder+'fitresults_2h_250_2000_'+p_name)[0].header
+    # fitpar_red = fits.open(folder+'fitresults_2h_250_5000_reduced_'+p_name)[0].header
     
-    # fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    # fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
+    fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
   
     efit = (1. - fitpar['q']) / (1. + fitpar['q'])
     efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])

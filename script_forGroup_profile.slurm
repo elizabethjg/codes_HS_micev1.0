@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=relax
+#SBATCH --job-name=profile
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
-#SBATCH --time=2-00:00:00
+#SBATCH --time=3-00:00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
 #SBATCH --mail-type=FAIL,END
@@ -19,8 +19,15 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate myenv
 
-srun python -u forGroup_qprofile.py -sample 'LM_Lz_isolated' -lM_min 13.5 -lM_max 14 -z_min 0.1 -z_max 0.2 -ncores 56 -R5s_min 1.16
-srun python -u forGroup_qprofile.py -sample 'LM_Lz_denser' -lM_min 13.5 -lM_max 14 -z_min 0.1 -z_max 0.2 -ncores 56 -R5s_max 0.82
+srun python -u forGroup_qprofile.py -sample 'LM_Lz' -lM_min 13.5 -lM_max 14.0 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True'
+srun python -u forGroup_qprofile.py -sample 'HM_Lz' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True'
+srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True'
+srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True'
+srun python -u forGroup_qprofile.py -sample 'LM_Lz' -lM_min 13.5 -lM_max 14.0 -z_min 0.1 -z_max 0.2 -ncores 56 
+srun python -u forGroup_qprofile.py -sample 'HM_Lz' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2 -ncores 56 
+srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.35 -ncores 56
+srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56
+
 
 ##srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 -domap 'True' -nbins 10000 -ROUT 5000
 ##srun python -u forGroup_qprofile.py -sample 'HM_Lz' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2  -ncores 56 -domap 'True' -nbins 10000 -ROUT 5000

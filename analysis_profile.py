@@ -13,7 +13,7 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 
-folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/'
+folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
 
 def plt_profile_compare(samp1,samp2):
     
@@ -777,9 +777,9 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_2h',substract = False,componen
     ax3.legend(frameon=False)
     
     if substract == True:
-        f.savefig(folder+'plots/profile_'+samp+'_2h_'+component+'_substracted.png',bbox_inches='tight')
+        f.savefig(folder+'plots/profile_'+samp+fittype+component+'_substracted.png',bbox_inches='tight')
     else:
-        f.savefig(folder+'plots/profile_'+samp+'_2h_'+component+'.png',bbox_inches='tight')
+        f.savefig(folder+'plots/profile_'+samp+fittype+component+'.png',bbox_inches='tight')
 
     
 def plt_map_fitted(samp,RIN,ROUT,fittype=''):
@@ -1097,6 +1097,97 @@ def plt_map_fitted(samp,RIN,ROUT,fittype=''):
     f.colorbar(im0, ax=ax, orientation='vertical', fraction=.05)
     f.savefig(folder+'../maps/plots/map_GX_res_'+samp+fittype+'.png',bbox_inches='tight')    
 
+def plt_fitted_dist(samp,fittype):
+    
+    halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data
+    
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    # '''
+    h   = profile[0].header
+    p   = profile[1].data
+    
+    f     = fits.open(folder+'fitresults_'+fittype+'_'+p_name)[1].data
+    f_red = fits.open(folder+'fitresults_'+fittype+'_reduced_'+p_name)[1].data
+
+    hf     = fits.open(folder+'fitresults_'+fittype+'_'+p_name)[0].header
+    hf_red = fits.open(folder+'fitresults_'+fittype+'_reduced_'+p_name)[0].header
+
+    try:
+        lM200 = np.percentile(f.lM200[1500:], [16, 50, 84])
+        c200 = np.percentile(f.c200[1500:], [16, 50, 84])
+    except:
+        lM200 = np.array([hf['lM200'],hf['lM200'],hf['lM200']])
+        c200 = np.array([hf['c200'],hf['c200'],hf['c200']])
+        
+    q = np.percentile(f.q[1500:], [16, 50, 84])
+    qr = np.percentile(f_red.q[1500:], [16, 50, 84])
+    
+    Eratio = (2.*halos.K/abs(halos.U))
+    mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+    mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])*mrelax
+    
+    halos = halos[mhalos]
+
+    qh = halos.b2D/halos.a2D
+    qhr = halos.b2Dr/halos.a2Dr
+
+    
+    f, ax = plt.subplots(2,3, figsize=(10,6), sharey=True)
+    
+    ax[0,0].hist(halos.lgMNFW_rho,np.linspace(13.0,14.5,50),histtype='step')
+    ax[0,0].hist(halos.lgMEin_rho,np.linspace(13.0,14.5,50),histtype='step')
+    ax[0,0].axvline(lM200[0],ls='--')
+    ax[0,0].axvline(lM200[1],ls='-')
+    ax[0,0].axvline(lM200[2],ls='--')
+
+    ax[1,0].hist(halos.lgMNFW_S,np.linspace(13.0,14.5,50),histtype='step')
+    ax[1,0].hist(halos.lgMEin_S,np.linspace(13.0,14.5,50),histtype='step')
+    ax[1,0].axvline(lM200[0],ls='--')
+    ax[1,0].axvline(lM200[1],ls='-')
+    ax[1,0].axvline(lM200[2],ls='--')
+    
+    ax[0,1].hist(halos.cNFW_rho,np.linspace(1,10,50),histtype='step')
+    ax[0,1].hist(halos.cEin_rho,np.linspace(1,10,50),histtype='step')
+    ax[0,1].axvline(c200[0],ls='--')
+    ax[0,1].axvline(c200[1],ls='-')
+    ax[0,1].axvline(c200[2],ls='--')
+         
+    ax[1,1].hist(halos.cNFW_S,np.linspace(1,10,50),histtype='step')
+    ax[1,1].hist(halos.cEin_S,np.linspace(1,10,50),histtype='step')
+    ax[1,1].axvline(c200[0],ls='--')
+    ax[1,1].axvline(c200[1],ls='-')
+    ax[1,1].axvline(c200[2],ls='--')
+    
+    ax[0,2].hist(qh,np.linspace(0,1,50),histtype='step')
+    ax[0,2].hist(qh,np.linspace(0,1,50),histtype='step')
+    ax[0,2].axvline(q[0],ls='--')
+    ax[0,2].axvline(q[1],ls='-')
+    ax[0,2].axvline(q[2],ls='--')
+         
+    ax[1,2].hist(qhr,np.linspace(0,1,50),histtype='step')
+    ax[1,2].hist(qhr,np.linspace(0,1,50),histtype='step')
+    ax[1,2].axvline(qr[0],ls='--')
+    ax[1,2].axvline(qr[1],ls='-')
+    ax[1,2].axvline(qr[2],ls='--')
+    
+    ax[1,0].set_xlabel('$\log M_{200}$')
+    ax[1,1].set_xlabel('$c_{200}$')
+    ax[1,2].set_xlabel('$q$')
+    
+    f.savefig(folder+'/../hist_'+samp+'_'+fittype+'.png',bbox_inches='tight')    
+    
+    
+plt_fitted_dist('HM_Lz_relaxed','2h_250_5000')
+plt_fitted_dist('LM_Lz_relaxed','2h_250_5000')
+plt_fitted_dist('HM_Lz_relaxed','onlyq_250_2000')
+plt_fitted_dist('LM_Lz_relaxed','onlyq_250_2000')
+plt_fitted_dist('HM_Hz_relaxed','onlyq_250_2000')
+plt_fitted_dist('LM_Hz_relaxed','onlyq_250_2000')
+    
     
 '''
 folder = '../../MICEv2.0/profiles/'

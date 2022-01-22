@@ -629,8 +629,8 @@ def main(lcat, sample='pru',
         
         zmean        = np.average(L.z,weights=Ntot)
         lM_mean      = np.log10(np.average(10**L.lgM,weights=Ntot))
-        c200_mean    = np.average(L.cNFW_S,weights=Ntot)
-        lM200_mean   = np.log10(np.average(10**L.lgMNFW_S,weights=Ntot))
+        # c200_mean    = np.average(L.cNFW_S,weights=Ntot)
+        # lM200_mean   = np.log10(np.average(10**L.lgMNFW_S,weights=Ntot))
         
         q2d_mean     = np.average(L.q2d,weights=Ntot)
         q2dr_mean    = np.average(L.q2dr,weights=Ntot)

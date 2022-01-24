@@ -249,7 +249,7 @@ def plt_profile_wofit(samp):
     p   = profile[1].data
     cov = profile[2].data
     
-    cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
+    cosmo_as = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
     '''
     
     h = profile[1].header
@@ -295,26 +295,21 @@ def plt_profile_wofit(samp):
     # FIT MONOPOLE
     rplot = np.arange(0.1,5,0.05)
     
-    nfwS    = Sigma_fit(p.Rp,p.Sigma*(1.e6**2),np.diag(CovS)*(1.e6**2),zmean,cosmo,True)
+    nfwS    = Sigma_fit(p.Rp,p.Sigma*(1.e6**2),np.diag(CovS)*(1.e6**2),zmean,cosmo_as,True)
     nfw     = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
-    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-    gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo_as)
+    gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo_as)
     
     mass = str(np.round(np.log10(nfw.M200),2))
     cfit = str(np.round((nfw.c200),2))
     massS = str(np.round(np.log10(nfwS.M200),2))
-    
-    f, ax_all = plt.subplots(2,2, figsize=(12,8),sharex = True)
-    f.subplots_adjust(hspace=0)
-    ax,ax1,ax2,ax3 = ax_all[0,0],ax_all[0,1],ax_all[1,0],ax_all[1,1]
-
-    '''
+        
     f, ax = plt.subplots()
     f0, ax0 = plt.subplots()
     f1, ax1 = plt.subplots()
     f2, ax2 = plt.subplots()
     f3, ax3 = plt.subplots()
-    '''
+    
     ax.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+mass)
     ax0.plot(1000,1000,'w.' ,label='$\log M_{200}=$'+massS)
     ax1.plot(1000,1000,'w.',label='$\log M_{200}=$'+mass)
@@ -326,7 +321,7 @@ def plt_profile_wofit(samp):
 
     ax0.plot(p.Rp,p.Sigma,'C1')
     ax0.plot(nfwS.xplot,nfwS.yplot,'C3')
-    ax0.fill_between(p.Rp,p.Sigma+np.diag(CovS),p.DSigma_T-np.diag(CovS),color='C1',alpha=0.4)
+    ax0.fill_between(p.Rp,p.Sigma+np.diag(CovS),p.Sigma-np.diag(CovS),color='C1',alpha=0.4)
     ax0.set_xscale('log')
     ax0.set_yscale('log')
     ax0.set_ylabel(r'$\Sigma$')
@@ -1181,12 +1176,12 @@ def plt_fitted_dist(samp,fittype):
     f.savefig(folder+'/../hist_'+samp+'_'+fittype+'.png',bbox_inches='tight')    
     
     
-plt_fitted_dist('HM_Lz_relaxed','2h_250_5000')
-plt_fitted_dist('LM_Lz_relaxed','2h_250_5000')
-plt_fitted_dist('HM_Lz_relaxed','onlyq_250_2000')
-plt_fitted_dist('LM_Lz_relaxed','onlyq_250_2000')
-plt_fitted_dist('HM_Hz_relaxed','onlyq_250_2000')
-plt_fitted_dist('LM_Hz_relaxed','onlyq_250_2000')
+# plt_fitted_dist('HM_Lz_relaxed','2h_250_5000')
+# plt_fitted_dist('LM_Lz_relaxed','2h_250_5000')
+# plt_fitted_dist('HM_Lz_relaxed','onlyq_250_2000')
+# plt_fitted_dist('LM_Lz_relaxed','onlyq_250_2000')
+# plt_fitted_dist('HM_Hz_relaxed','onlyq_250_2000')
+# plt_fitted_dist('LM_Hz_relaxed','onlyq_250_2000')
     
     
 '''

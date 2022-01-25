@@ -293,12 +293,13 @@ def plt_profile_wofit(samp):
     CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
 
     # FIT MONOPOLE
-    rplot = np.arange(0.1,5,0.05)
+    rplot = p.Rp
     
     nfwS    = Sigma_fit(p.Rp,p.Sigma*(1.e6**2),np.diag(CovS)*(1.e6**2),zmean,cosmo_as,True)
     nfw     = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo_as)
     gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo_as)
+    
     
     mass = str(np.round(np.log10(nfw.M200),2))
     cfit = str(np.round((nfw.c200),2))
@@ -354,8 +355,10 @@ def plt_profile_wofit(samp):
     
     ax1.plot(p.Rp,GT,'C4',label = 'standard')
     ax1.plot(p.Rp,GTr,'C0--',label = 'reduced')
-    ax1.plot(rplot,gt,'C3')
-    ax1.plot(rplot,gtr,'C3--')
+    ax1.plot(rplot,gt,'C3',label = '$q_{fit} = $'+qfit+', $q = $'+str(q))
+    ax1.plot(rplot,gtr,'C3--',label = '$q_{fit} = $'+qfit_red+', $q = $'+str(qr))
+    ax1.legend(loc=3,frameon=False)
+
 
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.4)
     ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.4)
@@ -378,7 +381,7 @@ def plt_profile_wofit(samp):
     ax2.plot(p.Rp,GXr,'C5--')
     ax2.plot(rplot,gx,'C3')
     ax2.plot(rplot,gxr,'C3--')
-    
+
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C2',alpha=0.4)
     ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C5',alpha=0.4)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
@@ -464,7 +467,7 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
     CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
 
-    rplot = np.arange(0.1,10,0.05)
+    rplot = p.Rp
         
     # MCMC results
 
@@ -476,9 +479,9 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
   
     DS = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
     DSr = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
-    gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
-    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
-    
+    gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=3.2,cosmo=cosmo)
+    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=3.2,cosmo=cosmo)
+    gt2h,gx2h   = GAMMA_components_only2h(rplot,zmean,ellip=e2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params)
     print('Results standard fit')
     print('log(M200) = ',fitpar['lM200'],' c200 = ',fitpar['c200'],' q ',fitpar['q'])
     print('Results reduced fit')
@@ -529,9 +532,11 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     
     ax1.plot(p.Rp,GT,'C4')
     ax1.plot(p.Rp,GTr,'C0--')
-    ax1.plot(rplot,gt,'C3',label = '$q_{fit} = $'+qfit+', $q = $'+str(q))
-    ax1.plot(rplot,gtr,'C3--',label = '$q_{fit} = $'+qfit_red+', $q = $'+str(qr))
-    ax1.legend(loc=3,frameon=False)
+    ax1.plot(rplot,gtr,'C2--',lw=2)
+    ax1.plot(rplot,gt,'C2-',lw=2)
+    ax1.plot(rplot,gt2h,'C2:',lw=2)
+    ax1.plot(rplot,gtr+gt2h,'C3--')
+    ax1.plot(rplot,gt+gt2h,'C3')
 
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.4)
     ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.4)
@@ -554,8 +559,13 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     ax2.plot([0,10],[0,0],'C7')
     ax2.plot(p.Rp,GX,'C2')
     ax2.plot(p.Rp,GXr,'C5--')
-    ax2.plot(rplot,gx,'C3')
-    ax2.plot(rplot,gxr,'C3--')
+    ax2.plot(rplot,gx+gx2h,'C3')
+    ax2.plot(rplot,gxr,'C2--',lw=2)
+    ax2.plot(rplot,gx,'C2-',lw=2)
+    ax2.plot(rplot,gx2h,'C2:',lw=2)
+    ax2.plot(rplot,gxr+gx2h,'C3--')
+
+    
     ax2.axvline(RIN/1000.,color='C7')
     ax2.axvline(ROUT/1000.,color='C7')
 
@@ -1133,36 +1143,43 @@ def plt_fitted_dist(samp,fittype):
     
     f, ax = plt.subplots(2,3, figsize=(10,6), sharey=True)
     
-    ax[0,0].hist(halos.lgMNFW_rho,np.linspace(13.0,14.5,50),histtype='step')
-    ax[0,0].hist(halos.lgMEin_rho,np.linspace(13.0,14.5,50),histtype='step')
+    ax[0,0].set_title('3D')
+    ax[0,0].hist(halos.lgMNFW_rho,np.linspace(13.5,14.5,50),histtype='step',label='NFW')
+    ax[0,0].hist(halos.lgMEin_rho,np.linspace(13.5,14.5,50),histtype='step',label='Einasto')
     ax[0,0].axvline(lM200[0],ls='--')
     ax[0,0].axvline(lM200[1],ls='-')
     ax[0,0].axvline(lM200[2],ls='--')
+    ax[0,0].legend(frameon=False)
 
-    ax[1,0].hist(halos.lgMNFW_S,np.linspace(13.0,14.5,50),histtype='step')
-    ax[1,0].hist(halos.lgMEin_S,np.linspace(13.0,14.5,50),histtype='step')
+    ax[1,0].set_title('2D')
+    ax[1,0].hist(halos.lgMNFW_S,np.linspace(13.5,14.5,50),histtype='step')
+    ax[1,0].hist(halos.lgMEin_S,np.linspace(13.5,14.5,50),histtype='step')
     ax[1,0].axvline(lM200[0],ls='--')
     ax[1,0].axvline(lM200[1],ls='-')
     ax[1,0].axvline(lM200[2],ls='--')
     
+    ax[0,1].set_title('3D')
     ax[0,1].hist(halos.cNFW_rho,np.linspace(1,10,50),histtype='step')
     ax[0,1].hist(halos.cEin_rho,np.linspace(1,10,50),histtype='step')
     ax[0,1].axvline(c200[0],ls='--')
     ax[0,1].axvline(c200[1],ls='-')
     ax[0,1].axvline(c200[2],ls='--')
-         
+    
+    ax[1,1].set_title('2D')     
     ax[1,1].hist(halos.cNFW_S,np.linspace(1,10,50),histtype='step')
     ax[1,1].hist(halos.cEin_S,np.linspace(1,10,50),histtype='step')
     ax[1,1].axvline(c200[0],ls='--')
     ax[1,1].axvline(c200[1],ls='-')
     ax[1,1].axvline(c200[2],ls='--')
     
+    ax[0,2].set_title('standard')
     ax[0,2].hist(qh,np.linspace(0,1,50),histtype='step')
     ax[0,2].hist(qh,np.linspace(0,1,50),histtype='step')
     ax[0,2].axvline(q[0],ls='--')
     ax[0,2].axvline(q[1],ls='-')
     ax[0,2].axvline(q[2],ls='--')
-         
+    
+    ax[1,2].set_title('reduced')     
     ax[1,2].hist(qhr,np.linspace(0,1,50),histtype='step')
     ax[1,2].hist(qhr,np.linspace(0,1,50),histtype='step')
     ax[1,2].axvline(qr[0],ls='--')

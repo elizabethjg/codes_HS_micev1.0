@@ -108,10 +108,12 @@ CovDS  = cov['COV_ST'].reshape(len(p.Rp),len(p.Rp))[mr]
 CovGT  = cov['COV_GT'+ang].reshape(len(p.Rp),len(p.Rp))[mr]
 CovGX  = cov['COV_GX'+ang].reshape(len(p.Rp),len(p.Rp))[mr]
 
+cosmo_as = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
+
 p  = p[maskr]
 
 t1 = time.time()
-# '''
+'''
 # First running for DS
 
 def log_likelihood_DS(data_model, R, ds, iCds):
@@ -160,29 +162,35 @@ mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
 c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
 
-
+'''
 t2 = time.time()
 
 print('TIME DS')    
 print((t2-t1)/60.)
 
-'''
+
 f = fits.open(folder+outfile)[1].data
+mcmc_out_DS = [f.lM200,f.c200]
 lM = np.percentile(f.lM200[1500:], [16, 50, 84])
 c200 = np.percentile(f.c200[1500:], [16, 50, 84])
-'''
+# '''
 # NOW FIT q with Gamma components
 # initializing
 def log_likelihood(data_model, R, profiles, iCOV):
     
-    q = data_model
+    q,q2h = data_model
     
-    e = (1.-q)/(1.+q)
+    e   = (1.-q)/(1.+q)
+    e2h = (1.-q2h)/(1.+q2h)
 
     gt, gx = profiles
     iCgt, iCgx = iCOV 
 
-    GT,GX   = GAMMA_components_2h(R,zmean,ellip=e,M200 = 10**lM[1],c200=c200[1],cosmo_params=params)
+    GT0,GX0   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM[1],c200=c200[1],cosmo=cosmo_as)
+    GT2h,GX2h = GAMMA_components_only2h(R,zmean,ellip=e2h,M200 = 10**lM[1],c200=c200[1],cosmo_params=params)
+
+    GT = GT0 + GT2h
+    GX = GX0 + GX2h
 
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
@@ -199,9 +207,9 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
 def log_probability(data_model, R, profiles, iCOV):
     
-    q = data_model
+    q,q2h = data_model
     
-    if 0.2 < q < 1.0:
+    if 0.2 < q < 1.0 and 0.2 < q2h < 1.0:
         return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
@@ -215,7 +223,8 @@ CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
 profiles = [GT,GX]
 iCov     = [np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
 
-pos = np.array([np.random.uniform(0.2,0.9,15)]).T
+pos = np.array([np.random.uniform(0.2,0.9,15),
+                np.random.uniform(0.2,0.9,15)]).T
 
 nwalkers, ndim = pos.shape
 
@@ -232,7 +241,8 @@ print('TIME G components')
 print((t3-t2)/60.)
 
 mcmc_out_GC = sampler_GC.get_chain(flat=True).T
-q      = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
+q        = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
+q2h      = np.percentile(mcmc_out_GC[1][1500:], [16, 50, 84])
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
@@ -241,8 +251,9 @@ print((time.time()-t1)/60.)
 # saving mcmc out
 
 table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
+            fits.Column(name='c200', format='E', array=mcmc_out_DS[1]),
             fits.Column(name='q', format='E', array=mcmc_out_GC[0]),
-            fits.Column(name='c200', format='E', array=mcmc_out_DS[1])]
+            fits.Column(name='q2h', format='E', array=mcmc_out_GC[1])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
@@ -259,11 +270,15 @@ h.append(('q',np.round(q[1],4)))
 h.append(('eqM',np.round(np.diff(q)[0],4)))
 h.append(('eqm',np.round(np.diff(q)[1],4)))
 
+h.append(('q2h',np.round(q2h[1],4)))
+h.append(('eqM',np.round(np.diff(q2h)[0],4)))
+h.append(('eqm',np.round(np.diff(q2h)[1],4)))
+
 
 primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+outfile,overwrite=True)
+hdul.writeto(folder+'2q_'+outfile,overwrite=True)
 
 print('SAVED FILE '+outfile)

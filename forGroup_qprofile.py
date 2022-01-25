@@ -282,7 +282,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         Ntot = len(catdata)
         del(catdata)    
         
-        bines = np.round(np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1),1)
+        bines = np.round(np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1),0)
         dig = np.digitize(r,bines)
         
         t = np.tile(theta_ra,(3,1)).T
@@ -530,7 +530,7 @@ def main(lcat, sample='pru',
             output_file = 'profiles/profile_'+sample+'.fits'
 
             # Defining radial bins
-            bines = np.round(np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1),1)
+            bines = np.round(np.logspace(np.log10(RIN),np.log10(ROUT),num=ndots+1),0)
             R = (bines[:-1] + np.diff(bines)*0.5)*1.e-3
 
             # WHERE THE SUMS ARE GOING TO BE SAVED

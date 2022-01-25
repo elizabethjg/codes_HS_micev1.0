@@ -466,8 +466,10 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
     CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
     CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
-
-    rplot = p.Rp
+    
+    # bines = np.round(np.logspace(np.log10(100),np.log10(10000),num=ndots+1),1)
+    # rplot = (bines[:-1] + np.diff(bines)*0.5)*1.e-3
+    rplot = np.round(p.Rp,4)
         
     # MCMC results
 
@@ -532,8 +534,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     
     ax1.plot(p.Rp,GT,'C4')
     ax1.plot(p.Rp,GTr,'C0--')
-    ax1.plot(rplot,gtr,'C3--',lw=1)
-    ax1.plot(rplot,gt,'C3-',lw=1)
+    ax1.plot(rplot,gt,'C3',label = '$q_{fit} = $'+qfit+', $q = $'+str(q))
+    ax1.plot(rplot,gtr,'C3--',label = '$q_{fit} = $'+qfit_red+', $q = $'+str(qr))
 
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.4)
     ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.4)
@@ -556,8 +558,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     ax2.plot([0,10],[0,0],'C7')
     ax2.plot(p.Rp,GX,'C2')
     ax2.plot(p.Rp,GXr,'C5--')
-    ax2.plot(rplot,gxr,'C3--',lw=1)
-    ax2.plot(rplot,gx,'C3-',lw=1)
+    ax2.plot(rplot,gxr,'C3--')
+    ax2.plot(rplot,gx,'C3-')
 
     
     ax2.axvline(RIN/1000.,color='C7')

@@ -479,9 +479,9 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
   
     DS = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
     DSr = Delta_Sigma_NFW(rplot,zmean,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo=cosmo)
-    gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=3.2,cosmo=cosmo)
-    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=3.2,cosmo=cosmo)
-    gt2h,gx2h   = GAMMA_components_only2h(rplot,zmean,ellip=e2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params)
+    gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo=cosmo)
+    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar['c200'],cosmo=cosmo)
+    
     print('Results standard fit')
     print('log(M200) = ',fitpar['lM200'],' c200 = ',fitpar['c200'],' q ',fitpar['q'])
     print('Results reduced fit')
@@ -532,11 +532,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     
     ax1.plot(p.Rp,GT,'C4')
     ax1.plot(p.Rp,GTr,'C0--')
-    ax1.plot(rplot,gtr,'C2--',lw=2)
-    ax1.plot(rplot,gt,'C2-',lw=2)
-    ax1.plot(rplot,gt2h,'C2:',lw=2)
-    ax1.plot(rplot,gtr+gt2h,'C3--')
-    ax1.plot(rplot,gt+gt2h,'C3')
+    ax1.plot(rplot,gtr,'C3--',lw=1)
+    ax1.plot(rplot,gt,'C3-',lw=1)
 
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C4',alpha=0.4)
     ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C0',alpha=0.4)
@@ -559,11 +556,8 @@ def plt_profile_fitted(samp,RIN,ROUT,fittype='',substract = False,component=''):
     ax2.plot([0,10],[0,0],'C7')
     ax2.plot(p.Rp,GX,'C2')
     ax2.plot(p.Rp,GXr,'C5--')
-    ax2.plot(rplot,gx+gx2h,'C3')
-    ax2.plot(rplot,gxr,'C2--',lw=2)
-    ax2.plot(rplot,gx,'C2-',lw=2)
-    ax2.plot(rplot,gx2h,'C2:',lw=2)
-    ax2.plot(rplot,gxr+gx2h,'C3--')
+    ax2.plot(rplot,gxr,'C3--',lw=1)
+    ax2.plot(rplot,gx,'C3-',lw=1)
 
     
     ax2.axvline(RIN/1000.,color='C7')

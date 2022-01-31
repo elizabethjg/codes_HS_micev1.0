@@ -116,8 +116,8 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
     gt, gx = profiles
     iCgt, iCgx = iCOV 
-
-    GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo=cosmo_as)
+    
+    GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h',pname='NFW')
 
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0

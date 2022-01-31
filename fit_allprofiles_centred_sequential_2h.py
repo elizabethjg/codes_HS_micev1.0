@@ -5,12 +5,10 @@ sys.path.append('/home/elizabeth/lens_codes_v3.7')
 import time
 import numpy as np
 from astropy.io import fits
-from astropy.cosmology import LambdaCDM
 from models_profiles import *
 from multiprocessing import Pool
 from multiprocessing import Process
 import argparse
-from astropy.constants import G,c,M_sun,pc
 import emcee
 from models_profiles import *
 from fit_profiles_curvefit import *
@@ -20,8 +18,6 @@ from colossus.cosmology import cosmology
 params = {'flat': True, 'H0': 70.0, 'Om0': 0.25, 'Ob0': 0.044, 'sigma8': 0.8, 'ns': 0.95}
 cosmology.addCosmology('MICE', params)
 cosmo = cosmology.setCosmology('MICE')
-from colossus.halo import concentration
-cmodel = 'diemer19'
 
 
 '''
@@ -118,7 +114,7 @@ def log_likelihood_DS(data_model, R, ds, iCds):
     
     lM200, c200 = data_model
     
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params)
+    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
         
@@ -182,7 +178,7 @@ def log_likelihood(data_model, R, profiles, iCOV):
     gt, gx = profiles
     iCgt, iCgx = iCOV 
 
-    GT,GX   = GAMMA_components_2h(R,zmean,ellip=e,M200 = 10**lM[1],c200=c200[1],cosmo_params=params)
+    GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h+2h',pname='NFW')
 
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0

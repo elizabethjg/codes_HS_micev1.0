@@ -79,6 +79,12 @@ else:
     outfile     = 'fitresults_2h_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 
+if components == 'all':
+    outfile2     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+else:
+    outfile2     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+backup      = folder+'backup_'+outfile
+
 
 
 print('fitting profiles')
@@ -90,7 +96,7 @@ print('RIN ',RIN)
 print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
-print('outfile',outfile)
+print('outfile',outfile2)
 print('fitting components ',components)
 
 # extracting data from profile
@@ -279,6 +285,6 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+'2q_'+outfile,overwrite=True)
+hdul.writeto(folder+outfile2,overwrite=True)
 
-print('SAVED FILE '+outfile)
+print('SAVED FILE '+outfile2)

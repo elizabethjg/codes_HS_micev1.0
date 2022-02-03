@@ -597,7 +597,7 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_onlyq',
     else:
         f.savefig(folder+'plots/profile_'+samp+fittype+component+'.png',bbox_inches='tight')
 
-def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h',
+def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
                           substract = False,component='',
                           terms='1h+2h',pname='NFW'):
     
@@ -665,11 +665,11 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h',
     # fitpar = fits.open(folder+'fitresults_2h_250_2000_'+p_name)[0].header
     # fitpar_red = fits.open(folder+'fitresults_2h_250_5000_reduced_'+p_name)[0].header
     
-    fitpar = fits.open(folder+'2q_fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
-    fitpar_red = fits.open(folder+'2q_fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
+    fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
 
-    fitd = fits.open(folder+'2q_fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
-    fitd_red = fits.open(folder+'2q_fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
+    fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
+    fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
   
     efit     = (1. - fitpar['q']) / (1. + fitpar['q'])
     efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])

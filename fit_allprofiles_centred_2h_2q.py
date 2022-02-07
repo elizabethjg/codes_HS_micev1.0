@@ -120,8 +120,8 @@ def log_likelihood(data_model, R, profiles, iCOV):
     e   = (1.-q)/(1.+q)
     e2h = (1.-q2h)/(1.+q2h)
 
-    gt, gx = profiles
-    iCgt, iCgx = iCOV 
+    ds, gt, gx = profiles
+    iCds, iCgt, iCgx = iCOV 
 
     DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
 

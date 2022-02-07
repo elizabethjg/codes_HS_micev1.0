@@ -20,7 +20,7 @@ conda activate myenv
 
 
 ##python fit_allprofiles_centred_sequential_2h.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 15 -nit 100 
-srun ./run_fit_2h.sh $SLURM_JOB_NAME
+##srun ./run_fit_2h.sh $SLURM_JOB_NAME
 srun ./run_fit_2h_2q.sh $SLURM_JOB_NAME
 
 

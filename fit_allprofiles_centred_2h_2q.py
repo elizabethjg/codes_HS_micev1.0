@@ -109,11 +109,6 @@ p  = p[maskr]
 
 t1 = time.time()
 
-
-f = fits.open(folder+outfile)[1].data
-mcmc_out_DS = [f.lM200,f.c200]
-lM = np.percentile(f.lM200[1500:], [16, 50, 84])
-c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 # '''
 # NOW FIT q with Gamma components
 # initializing

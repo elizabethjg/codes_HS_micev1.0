@@ -181,10 +181,10 @@ pool.terminate()
 
 mcmc_out = sampler.get_chain(flat=True).T
 
-lM     = np.percentile(mcmc_out[0], [16, 50, 84])
-c200   = np.percentile(mcmc_out[1], [16, 50, 84])
-q      = np.percentile(mcmc_out[2], [16, 50, 84])
-q2h    = np.percentile(mcmc_out[3], [16, 50, 84])
+lM     = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
+c200   = np.percentile(mcmc_out[1][1500:], [16, 50, 84])
+q      = np.percentile(mcmc_out[2][1500:], [16, 50, 84])
+q2h    = np.percentile(mcmc_out[3][1500:], [16, 50, 84])
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)

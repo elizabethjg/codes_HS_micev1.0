@@ -1436,14 +1436,27 @@ def try_einasto(samp,RIN,ROUT,fittype='_onlyq',
     f.savefig(folder+'plots/profile_Ein_'+samp+fittype+component+'_'+terms+'.png',bbox_inches='tight')
 
 
-def corner_plot(samp,RIN,ROUT,fittype='_2h_2q',
-      substract = False,component='',
-      terms='1h+2h',pname='NFW'):
+def corner_plot(samp,RIN,ROUT,
+                fittype='_2h_2q',component=''):
 
     fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
     fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
 
-    mcmc = np.array([fitd.lM200[1500:],fitd.c200[1500:],fitd.q[1500:],fitd.q2h[1500:]]).T
-    mcmc_red = np.array([fitd_red.lM200[1500:],fitd_red.c200[1500:],fitd_red.q[1500:],fitd_red.q2h[1500:]]).T
+    if fittype == '_2h_2q':
+
+        mcmc = np.array([fitd.lM200,fitd.c200,fitd.q,fitd.q2h]).T
+        mcmc_red = np.array([fitd_red.lM200,fitd_red.c200,fitd_red.q,fitd_red.q2h]).T
     
+        labels = ['$\log M_{200}$','c_{200}','q_{1h}','q_{2h}']
+    
+    elif fittype == '_2h':
+
+        mcmc = np.array([fitd.lM200,fitd.c200,fitd.q]).T
+        mcmc_red = np.array([fitd_red.lM200,fitd_red.c200,fitd_red.q]).T
+    
+        labels = ['$\log M_{200}$','c_{200}','q_{1h}','q_{2h}']
+
+    
+    corner.corner(mcmc,labels=labels)
+    corner.corner(mcmc_red,labels=labels)
     

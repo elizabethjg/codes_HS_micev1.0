@@ -125,8 +125,8 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
     DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
 
-    GT0,GX0   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h',pname='NFW')
-    GT2h,GX2h = GAMMA_components(R,zmean,ellip=e2h,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='2h',pname='NFW')
+    GT0,GX0   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h',pname='NFW')
+    GT2h,GX2h = GAMMA_components(R,zmean,ellip=e2h,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='2h',pname='NFW')
 
     GT = GT0 + GT2h
     GX = GX0 + GX2h
@@ -181,10 +181,10 @@ pool.terminate()
 
 mcmc_out = sampler.get_chain(flat=True).T
 
-lM     = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
-c200   = np.percentile(mcmc_out[1][1500:], [16, 50, 84])
-q      = np.percentile(mcmc_out[2][1500:], [16, 50, 84])
-q2h    = np.percentile(mcmc_out[3][1500:], [16, 50, 84])
+lM     = np.percentile(mcmc_out[0], [16, 50, 84])
+c200   = np.percentile(mcmc_out[1], [16, 50, 84])
+q      = np.percentile(mcmc_out[2], [16, 50, 84])
+q2h    = np.percentile(mcmc_out[3], [16, 50, 84])
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)

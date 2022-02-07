@@ -87,7 +87,7 @@ print('RIN ',RIN)
 print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
-print('outfile',outfile2)
+print('outfile',outfile)
 print('fitting components ',components)
 
 # extracting data from profile
@@ -108,61 +108,6 @@ CovGX  = cov['COV_GX'+ang].reshape(len(p.Rp),len(p.Rp))[mr]
 p  = p[maskr]
 
 t1 = time.time()
-
-'''
-# First running for DS
-
-def log_likelihood_DS(data_model, R, ds, iCds):
-    
-    lM200, c200 = data_model
-    
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params)
-
-    L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
-        
-    return L_DS
-    
-
-def log_probability_DS(data_model, R, profiles, iCOV):
-    
-    lM200,c200 = data_model
-    
-    if 12.5 < lM200 < 16.0 and 1 < c200 < 7:
-        return log_likelihood_DS(data_model, R, profiles, iCOV)
-        
-    return -np.inf
-
-# initializing
-
-DSt = p.DSigma_T
-CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
-iCds     =  np.linalg.inv(CovDS)
-
-
-pos = np.array([np.random.uniform(12.5,15.5,15),
-                np.random.uniform(1,5,15)]).T
-
-nwalkers, ndim = pos.shape
-
-
-
-pool = Pool(processes=(ncores))    
-sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS, 
-                                args=(p.Rp,DSt,iCds),pool = pool)
-
-sampler_DS.run_mcmc(pos, nit, progress=True)
-pool.terminate()
-
-
-mcmc_out_DS = sampler_DS.get_chain(flat=True).T
-lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
-c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
-
-'''
-t2 = time.time()
-
-print('TIME DS')    
-print((t2-t1)/60.)
 
 
 f = fits.open(folder+outfile)[1].data
@@ -239,11 +184,6 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability,
 sampler.run_mcmc(pos, nit, progress=True)
 pool.terminate()
 
-t3 = time.time()
-
-print('TIME G components')    
-print((t3-t2)/60.)
-
 mcmc_out = sampler.get_chain(flat=True).T
 
 lM     = np.percentile(mcmc_out[0][1500:], [16, 50, 84])
@@ -257,10 +197,10 @@ print((time.time()-t1)/60.)
 #-------------------
 # saving mcmc out
 
-table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
-            fits.Column(name='c200', format='E', array=mcmc_out_DS[1]),
-            fits.Column(name='q', format='E', array=mcmc_out_GC[0]),
-            fits.Column(name='q2h', format='E', array=mcmc_out_GC[1])]
+table = [fits.Column(name='lM200', format='E', array=mcmc_out[0]),
+            fits.Column(name='c200', format='E', array=mcmc_out[1]),
+            fits.Column(name='q', format='E', array=mcmc_out[2]),
+            fits.Column(name='q2h', format='E', array=mcmc_out[3])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
@@ -286,6 +226,6 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+outfile2,overwrite=True)
+hdul.writeto(folder+outfile,overwrite=True)
 
-print('SAVED FILE '+outfile2)
+print('SAVED FILE '+outfile)

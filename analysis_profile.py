@@ -13,8 +13,9 @@ cvel = c.value;   # Speed of light (m.s-1)
 G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
-
+import corner
 folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
+
 
 def save_fitted(samp,RIN,ROUT):
 
@@ -23,8 +24,18 @@ def save_fitted(samp,RIN,ROUT):
     terms='1h+2h'
     pname='NFW'
     
-    p_name = 'profile_'+samp+'.fits'    
+    p_name = 'profile_'+samp+'.fits'  
+    profile = fits.open(folder+p_name)
+    
+    print(p_name)
+      
+    p   = profile[1].data
+    h   = profile[0].header
+    
+    zmean = h['z_mean']
+    
     rplot = p.Rp
+
         
     # MCMC results
 
@@ -49,7 +60,7 @@ def save_fitted(samp,RIN,ROUT):
     gt2h,gx2h   = GAMMA_components(rplot,zmean,ellip=efit2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h',pname=pname)
     gt2hr,gx2hr = GAMMA_components(rplot,zmean,ellip=efit_red2h,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params,terms='2h',pname=pname)
     
-    fitout = np.array([p.Rp,DS,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2h,gx2hr])
+    fitout = np.array([p.Rp,DS,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr])
 
     np.savetxt(folder+'fitprofile'+fittype+samp+'.cat',fitout,fmt='%10.2f')
 
@@ -708,22 +719,9 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
 
     fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
     fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
-  
-    efit     = (1. - fitpar['q']) / (1. + fitpar['q'])
-    efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
+      
+    p.Rp,DS,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'.cat')
 
-    efit2h     = (1. - fitpar['q2h']) / (1. + fitpar['q2h'])
-    efit_red2h = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
-    
-    DS  = Delta_Sigma_NFW_2h(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms=terms)
-    DSr = DS
-
-    gt1h,gx1h   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='1h',pname=pname)
-    gt1hr,gx1hr = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params,terms='1h',pname=pname)
-
-    gt2h,gx2h   = GAMMA_components(rplot,zmean,ellip=efit2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h',pname=pname)
-    gt2hr,gx2hr = GAMMA_components(rplot,zmean,ellip=efit_red2h,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params,terms='2h',pname=pname)
-    
     gt  = gt1h  + gt2h
     gtr = gt1hr + gt2hr
     gx  = gx1h  + gx2h
@@ -760,7 +758,6 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
 
     ax.plot(p.Rp,p.DSigma_T,'C1')
     ax.plot(rplot,DS,'C3',label='$\log M_{200}=$'+mass+', $c_{200} = $'+c200)
-    ax.plot(rplot,DSr,'C3--',label='$\log M_{200}=$'+mass_red+', $c_{200} = $'+c200_red)
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C1',alpha=0.4)
     ax.set_xscale('log')
     ax.set_yscale('log')
@@ -1437,3 +1434,16 @@ def try_einasto(samp,RIN,ROUT,fittype='_onlyq',
     ax3.legend(frameon=False)
     
     f.savefig(folder+'plots/profile_Ein_'+samp+fittype+component+'_'+terms+'.png',bbox_inches='tight')
+
+
+def corner_plot(samp,RIN,ROUT,fittype='_2h_2q',
+      substract = False,component='',
+      terms='1h+2h',pname='NFW'):
+
+    fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
+    fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
+
+    mcmc = np.array([fitd.lM200[1500:],fitd.c200[1500:],fitd.q[1500:],fitd.q2h[1500:]]).T
+    mcmc_red = np.array([fitd_red.lM200[1500:],fitd_red.c200[1500:],fitd_red.q[1500:],fitd_red.q2h[1500:]]).T
+    
+    

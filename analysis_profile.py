@@ -1626,7 +1626,3 @@ ax_all[0,1].legend(loc=3,frameon=False)
 f.savefig(folder+'../final_plots/profile_relaxed.pdf',bbox_inches='tight')
 '''
 
-save_fitted('LM_Lz_relaxed',250,5000,'_2h_2q_simul')
-save_fitted('HM_Lz_relaxed',250,5000,'_2h_2q_simul')
-save_fitted('LM_Hz_relaxed',250,5000,'_2h_2q_simul')
-save_fitted('HM_Hz_relaxed',250,5000,'_2h_2q_simul')

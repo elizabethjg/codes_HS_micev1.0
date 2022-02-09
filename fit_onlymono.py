@@ -37,13 +37,11 @@ parser = argparse.ArgumentParser()
 #parser.add_argument('-folder', action='store', dest='folder', default='/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/')
 parser.add_argument('-folder', action='store', dest='folder', default='/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/')
 parser.add_argument('-file', action='store', dest='file_name', default='profile.cat')
-parser.add_argument('-ang', action='store', dest='angle', default='standard')
 parser.add_argument('-ncores', action='store', dest='ncores', default=2)
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
 parser.add_argument('-nit', action='store', dest='nit', default=250)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
-parser.add_argument('-components', action='store', dest='comp', default='all')
 args = parser.parse_args()
 
 
@@ -64,23 +62,8 @@ ncores    = int(ncores)
 RIN       = float(args.RIN)
 ROUT      = float(args.ROUT)
 
-if angle == 'standard':
-    ang = ''
-elif angle == 'reduced':
-    ang = '_reduced'
 
-if components == 'all':
-    outfile     = 'fitresults_2h_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-else:
-    outfile     = 'fitresults_2h_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-backup      = folder+'backup_'+outfile
-
-if components == 'all':
-    outfile2     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-else:
-    outfile2     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-backup      = folder+'backup_'+outfile
-
+outfile     = 'fitresults_2h_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 
 
 print('fitting profiles')
@@ -92,7 +75,7 @@ print('RIN ',RIN)
 print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
-print('outfile',outfile2)
+print('outfile',outfile)
 print('fitting components ',components)
 
 # extracting data from profile
@@ -113,7 +96,6 @@ CovGX  = cov['COV_GX'+ang].reshape(len(p.Rp),len(p.Rp))[mr]
 p  = p[maskr]
 
 t1 = time.time()
-
 # '''
 # First running for DS
 
@@ -121,7 +103,7 @@ def log_likelihood_DS(data_model, R, ds, iCds):
     
     lM200, c200 = data_model
     
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params)
+    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
         
@@ -163,37 +145,29 @@ mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
 c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
 
-'''
+
 t2 = time.time()
 
 print('TIME DS')    
 print((t2-t1)/60.)
 
-
+'''
 f = fits.open(folder+outfile)[1].data
-mcmc_out_DS = [f.lM200,f.c200]
 lM = np.percentile(f.lM200[1500:], [16, 50, 84])
 c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 '''
-
-GT0,GX0   = GAMMA_components(R,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h',pname='NFW')
-GT2h,GX2h = GAMMA_components(R,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='2h',pname='NFW')
-
-
 # NOW FIT q with Gamma components
 # initializing
 def log_likelihood(data_model, R, profiles, iCOV):
     
-    q,q2h = data_model
+    q = data_model
     
-    e   = (1.-q)/(1.+q)
-    e2h = (1.-q2h)/(1.+q2h)
+    e = (1.-q)/(1.+q)
 
     gt, gx = profiles
     iCgt, iCgx = iCOV 
 
-    GT = e*GT0 + e2h*GT2h
-    GX = e*GX0 + e2h*GX2h
+    GT,GX   = GAMMA_components(R,zmean,ellip=e,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h+2h',pname='NFW')
 
     L_GT = -np.dot((gt-GT),np.dot(iCgt,(gt-GT)))/2.0
     L_GX = -np.dot((gx-GX),np.dot(iCgx,(gx-GX)))/2.0
@@ -210,9 +184,9 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
 def log_probability(data_model, R, profiles, iCOV):
     
-    q,q2h = data_model
+    q = data_model
     
-    if 0.2 < q < 1.0 and 0.2 < q2h < 1.0:
+    if 0.2 < q < 1.0:
         return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
@@ -226,8 +200,7 @@ CovGX  = CovGX.reshape(maskr.sum(),maskr.sum())
 profiles = [GT,GX]
 iCov     = [np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
 
-pos = np.array([np.random.uniform(0.2,0.9,15),
-                np.random.uniform(0.2,0.9,15)]).T
+pos = np.array([np.random.uniform(0.2,0.9,15)]).T
 
 nwalkers, ndim = pos.shape
 
@@ -244,8 +217,7 @@ print('TIME G components')
 print((t3-t2)/60.)
 
 mcmc_out_GC = sampler_GC.get_chain(flat=True).T
-q        = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
-q2h      = np.percentile(mcmc_out_GC[1][1500:], [16, 50, 84])
+q      = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
@@ -254,9 +226,8 @@ print((time.time()-t1)/60.)
 # saving mcmc out
 
 table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
-            fits.Column(name='c200', format='E', array=mcmc_out_DS[1]),
             fits.Column(name='q', format='E', array=mcmc_out_GC[0]),
-            fits.Column(name='q2h', format='E', array=mcmc_out_GC[1])]
+            fits.Column(name='c200', format='E', array=mcmc_out_DS[1])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
@@ -273,15 +244,11 @@ h.append(('q',np.round(q[1],4)))
 h.append(('eqM',np.round(np.diff(q)[0],4)))
 h.append(('eqm',np.round(np.diff(q)[1],4)))
 
-h.append(('q2h',np.round(q2h[1],4)))
-h.append(('eqM',np.round(np.diff(q2h)[0],4)))
-h.append(('eqm',np.round(np.diff(q2h)[1],4)))
-
 
 primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+outfile2,overwrite=True)
+hdul.writeto(folder+outfile,overwrite=True)
 
-print('SAVED FILE '+outfile2)
+print('SAVED FILE '+outfile)

@@ -17,9 +17,9 @@ import corner
 folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
 
 
-def save_fitted(samp,RIN,ROUT):
+def save_fitted(samp,RIN,ROUT,fittype='_2h_2q'):
 
-    fittype='_2h_2q'
+    
     component=''
     terms='1h+2h'
     pname='NFW'
@@ -52,7 +52,8 @@ def save_fitted(samp,RIN,ROUT):
     efit2h     = (1. - fitpar['q2h']) / (1. + fitpar['q2h'])
     efit_red2h = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
     
-    DS  = Delta_Sigma_NFW_2h(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms=terms)
+    DS1h  = Delta_Sigma_NFW_2h(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='1h')
+    DS2h  = Delta_Sigma_NFW_2h(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h')
 
     gt1h,gx1h   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='1h',pname=pname)
     gt1hr,gx1hr = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params,terms='1h',pname=pname)
@@ -60,7 +61,7 @@ def save_fitted(samp,RIN,ROUT):
     gt2h,gx2h   = GAMMA_components(rplot,zmean,ellip=efit2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h',pname=pname)
     gt2hr,gx2hr = GAMMA_components(rplot,zmean,ellip=efit_red2h,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params,terms='2h',pname=pname)
     
-    fitout = np.array([p.Rp,DS,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr])
+    fitout = np.array([p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr])
 
     np.savetxt(folder+'fitprofile'+fittype+samp+'.cat',fitout,fmt='%10.2f')
 
@@ -655,19 +656,11 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
 
     print(p_name)
     
-    # '''
     h   = profile[0].header
     p   = profile[1].data
     cov = profile[2].data
     
-    cosmo = LambdaCDM(H0=100*h['hcosmo'], Om0=0.25, Ode0=0.75)
     params = {'flat': True, 'H0': 70.0, 'Om0': 0.25, 'Ob0': 0.044, 'sigma8': 0.8, 'ns': 0.95}
-    '''
-    
-    h = profile[1].header
-    p = profile[1].data
-    '''
-
     
     zmean = h['z_mean']
     q  = np.round(h['q2d_mean'],2)
@@ -695,7 +688,6 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
     GXr = p.GAMMA_Xsin_reduced
     GXc = p.GAMMA_Xsin_control
     
-    # '''
     CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
     CovS   = cov.COV_S.reshape(len(GT),len(GT))
     
@@ -710,22 +702,22 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
     rplot = np.round(p.Rp,2)
         
     # MCMC results
-
-    # fitpar = fits.open(folder+'fitresults_2h_250_2000_'+p_name)[0].header
-    # fitpar_red = fits.open(folder+'fitresults_2h_250_5000_reduced_'+p_name)[0].header
     
     fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
     fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
 
     fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
     fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
-      
-    p.Rp,DS,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'.cat')
+                
+    p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'.cat')
 
+    DS  = DS1h  + DS2h
     gt  = gt1h  + gt2h
     gtr = gt1hr + gt2hr
     gx  = gx1h  + gx2h
     gxr = gx1hr + gx2hr
+        
+    ##############    
     
     print('Results standard fit')
     print('log(M200) = ',fitpar['lM200'],' c200 = ',fitpar['c200'],' q ',fitpar['q'])
@@ -1436,27 +1428,205 @@ def try_einasto(samp,RIN,ROUT,fittype='_onlyq',
     f.savefig(folder+'plots/profile_Ein_'+samp+fittype+component+'_'+terms+'.png',bbox_inches='tight')
 
 
-def corner_plot(samp,RIN,ROUT,
+def corner_plot(samp,RIN,ROUT,relax=True,
                 fittype='_2h_2q',component=''):
+
+    matplotlib.rcParams.update({'font.size': 14})
+
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    # '''
+    h   = profile[0].header
+    p   = profile[1].data
+
 
     fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
     fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
 
-    if fittype == '_2h_2q':
+    halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data
+        
+    Eratio = (2.*halos.K/abs(halos.U))
+    
+    mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+    mhalos = mhalos*(np.isfinite(halos.lgMNFW_rho))*(np.isfinite(halos.lgMEin_rho))
+    
+    if relax:
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+        mhalos = mhalos*mrelax
+    
+    halos = halos[mhalos]
 
-        mcmc = np.array([fitd.lM200,fitd.c200,fitd.q,fitd.q2h]).T
-        mcmc_red = np.array([fitd_red.lM200,fitd_red.c200,fitd_red.q,fitd_red.q2h]).T
-    
-        labels = ['$\log M_{200}$','c_{200}','q_{1h}','q_{2h}']
-    
-    elif fittype == '_2h':
+    qh  = np.median(halos.b2D/halos.a2D)
+    qhr = np.median(halos.b2Dr/halos.a2Dr)
 
-        mcmc = np.array([fitd.lM200,fitd.c200,fitd.q]).T
-        mcmc_red = np.array([fitd_red.lM200,fitd_red.c200,fitd_red.q]).T
+    # lMh = np.median(halos.lgMNFW_rho)
+    # ch  = np.median(halos.cNFW_rho)
+    lMh = np.median(halos.lgMEin_rho)
+    ch  = np.median(halos.cEin_rho)
+
+
+    mcmc_DS  = np.array([fitd.lM200[1500:],fitd.c200[1500:]]).T
+    mcmc     = np.array([fitd.q[1500:],fitd.q2h[1500:]]).T
+    mcmc_red = np.array([fitd_red.q[1500:],fitd_red.q2h[1500:]]).T
     
-        labels = ['$\log M_{200}$','c_{200}','q_{1h}','q_{2h}']
+    lM200 = np.median(fitd.lM200[1500:])
+
+    labels_DS   = ['$\log M_{200}$','$c_{200}$']
+    labels      = ['$q_{1h}$','$q_{2h}$']
+    
+    fds = corner.corner(mcmc_DS,labels=labels_DS,smooth=1.,range=[(lM200-0.07,lM200+0.07),(2.5,4)],truths=[lMh,ch],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+    fs  = corner.corner(mcmc,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qh,qh],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+    fr  = corner.corner(mcmc_red,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qhr,qhr],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+    
+    fds.savefig(folder+'../final_plots/mcmc_'+samp+'_fds.png',bbox_inches='tight')
+    fs.savefig(folder+'../final_plots/mcmc_'+samp+'_fs.png',bbox_inches='tight')
+    fr.savefig(folder+'../final_plots/mcmc_'+samp+'_fr.png',bbox_inches='tight')
+    
+
+def plt_profile_fitted_final(samp,RIN,ROUT,axx3):
+
+    fittype = '_2h_2q'
+
+    matplotlib.rcParams.update({'font.size': 12})    
+    ax,ax1,ax2 = axx3
+    
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    # '''
+    h   = profile[0].header
+    p   = profile[1].data
+    cov = profile[2].data
+        
+    ndots = p.shape[0]
+    
+    GT  = p.GAMMA_Tcos
+    GTr = p.GAMMA_Tcos_reduced
+    GTc = p.GAMMA_Tcos_control
+    
+    GX  = p.GAMMA_Xsin
+    GXr = p.GAMMA_Xsin_reduced
+    GXc = p.GAMMA_Xsin_control
+    
+    # '''
+    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovS   = cov.COV_S.reshape(len(GT),len(GT))
+    
+    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
+    CovGTc = cov.COV_GT_control.reshape(len(GT),len(GT))
+    
+    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
+    CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
+    CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
+
+    rplot = np.round(p.Rp,2)
+        
+    # MCMC results
+          
+    p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'.cat')
+
+    DS  = DS1h  + DS2h
+    gt  = gt1h  + gt2h
+    gtr = gt1hr + gt2hr
+    gx  = gx1h  + gx2h
+    gxr = gx1hr + gx2hr
+        
+    ##############    
+
+    ax.plot(p.Rp,p.DSigma_T,'C7')
+    ax.plot(rplot,DS1h,'C0',label='1h')
+    ax.plot(rplot,DS2h,'C9',label='2h')
+    ax.plot(rplot,DS,'C3',label='1h+2h')
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C7',alpha=0.4)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_ylabel(r'$\Delta\Sigma$',labelpad=2)
+    ax.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax.set_ylim(0.5,200)
+    ax.set_xlim(0.1,10)
+    ax.xaxis.set_ticks([0.1,1,5,7])
+    ax.set_xticklabels([0.1,1,5,7])
+    ax.yaxis.set_ticks([1,10,100])
+    ax.set_yticklabels([1,10,100])
+    ax.axvline(RIN/1000.,color='k',ls=':')
+    ax.axvline(ROUT/1000.,color='k',ls=':')
+    # ax.legend(loc=3,frameon=False,ncol=2)
+    
+    
+    ax1.plot(p.Rp,GT,'C7',label='standard')
+    ax1.plot(p.Rp,GTr,'C6--',label='reduced')
+    ax1.plot(rplot,gt,'C3')
+    ax1.plot(rplot,gtr,'C3--')
+    ax1.plot(rplot,gt1h,'C0')
+    ax1.plot(rplot,gt2h,'C9')
+    ax1.plot(rplot,gt1hr,'C0--')
+    ax1.plot(rplot,gt2hr,'C9--')
+    # ax1.legend(loc=3,frameon=False)
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C7',alpha=0.4)
+    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C7',alpha=0.4)
+    ax1.set_xscale('log')
+    ax1.set_yscale('log')
+    ax1.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax1.set_ylabel(r'$\Gamma_T$',labelpad=2)
+    ax1.set_ylim(0.5,100)
+    ax1.set_xlim(0.1,10)
+    ax1.xaxis.set_ticks([0.1,1,5,7])
+    ax1.set_xticklabels([0.1,1,5,7])
+    ax1.yaxis.set_ticks([1,10,100])
+    ax1.set_yticklabels([1,10,100])
+    ax1.axvline(RIN/1000.,color='k',ls=':')
+    ax1.axvline(ROUT/1000.,color='k',ls=':')
+        
+    ax2.plot([0,10],[0,0],'k')
+    ax2.plot(p.Rp,GX,'C7')
+    ax2.plot(p.Rp,GXr,'C5--')
+    ax2.plot(rplot,gx,'C3')
+    ax2.plot(rplot,gxr,'C3--')
+    ax2.plot(rplot,gx1h,'C0')
+    ax2.plot(rplot,gx2h,'C9')
+    ax2.plot(rplot,gx1hr,'C0--')
+    ax2.plot(rplot,gx2hr,'C9--')
+    ax2.axvline(RIN/1000.,color='k',ls=':')
+    ax2.axvline(ROUT/1000.,color='k',ls=':')
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C7',alpha=0.4)
+    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C6',alpha=0.4)
+    ax2.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax2.set_ylabel(r'$\Gamma_\times$',labelpad=2)
+    ax2.set_xscale('log')
+    ax2.set_xlim(0.1,10)
+    ax2.set_ylim(-16,17)
+    ax2.xaxis.set_ticks([0.1,1,5,7])
+    ax2.set_xticklabels([0.1,1,5,7])
+    
+    
+
+'''
+f, ax_all = plt.subplots(4,3, figsize=(14,14),sharex = True)
+f.subplots_adjust(hspace=0)
+
+hsamples = ['HM_Lz','LM_Lz','HM_Hz','LM_Hz']
+hsamples_relaxed = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
+
+for j in range(len(ax_all)):
+    
+    plt_profile_fitted_final(hsamples_relaxed[j],250,5000,ax_all[j])
+    ax_all[j,0].text(1,100,hsamples[j],fontsize=14)
+
+ax_all[0,0].legend(loc=3,frameon=False)
+ax_all[0,1].legend(loc=3,frameon=False)
+
 
     
-    corner.corner(mcmc,labels=labels)
-    corner.corner(mcmc_red,labels=labels)
-    
+f.savefig(folder+'../final_plots/profile_relaxed.pdf',bbox_inches='tight')
+'''
+
+save_fitted('LM_Lz_relaxed',250,5000,'_2h_2q_simul')
+save_fitted('HM_Lz_relaxed',250,5000,'_2h_2q_simul')
+save_fitted('LM_Hz_relaxed',250,5000,'_2h_2q_simul')
+save_fitted('HM_Hz_relaxed',250,5000,'_2h_2q_simul')

@@ -42,6 +42,8 @@ parser.add_argument('-q_min', action='store', dest='q_min', default=0.)
 parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
 parser.add_argument('-rs_min', action='store', dest='rs_min', default=0.)
 parser.add_argument('-rs_max', action='store', dest='rs_max', default=1.)
+parser.add_argument('-misaling', action='store', dest='misalign', default='False')
+parser.add_argument('-miscen', action='store', dest='miscen', default='False')
 parser.add_argument('-relax', action='store', dest='relax', default='False')
 parser.add_argument('-domap', action='store', dest='domap', default='False')
 parser.add_argument('-RIN', action='store', dest='RIN', default=100.)
@@ -86,6 +88,17 @@ if args.domap == 'True':
 elif args.domap == 'False':
     domap = False
 
+if args.misaling == 'True':
+    misalign = True
+elif args.misaling == 'False':
+    misaling = False
+
+if args.miscen == 'True':
+    miscen = True
+elif args.miscen == 'False':
+    miscen = False
+
+
 '''
 lcat = 'HALO_Props_MICE.fits'
 sample='pru'
@@ -118,7 +131,7 @@ folder = '/home/elizabeth/MICE/HS-lensing/'
 S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/MICE_sources_HSN.fits')[1].data
 
 def partial_map(RA0,DEC0,Z,angles,
-                RIN,ROUT,ndots,h):
+                RIN,ROUT,ndots,h,roff):
 
         
         lsize = int(np.sqrt(ndots))
@@ -177,7 +190,8 @@ def partial_map(RA0,DEC0,Z,angles,
         del(e1)
         del(e2)
         
-        r=np.rad2deg(rads)*3600*KPCSCALE
+        r = np.rad2deg(rads)*3600*KPCSCALE
+        r = np.sqrt(roff**2 +r**2)
         del(rads)
         
         
@@ -224,7 +238,7 @@ def partial_map_unpack(minput):
 	return partial_map(*minput)
 
 def partial_profile(RA0,DEC0,Z,angles,
-                    RIN,ROUT,ndots,h):
+                    RIN,ROUT,ndots,h,roff):
 
         ndots = int(ndots)
 
@@ -275,7 +289,8 @@ def partial_profile(RA0,DEC0,Z,angles,
         del(e1)
         del(e2)
         
-        r=np.rad2deg(rads)*3600*KPCSCALE
+        r = np.rad2deg(rads)*3600*KPCSCALE
+        r = np.sqrt(roff**2 +r**2)
         del(rads)
         
         
@@ -317,21 +332,6 @@ def partial_profile(RA0,DEC0,Z,angles,
                 N_inbin = np.append(N_inbin,len(et[mbin]))
                 
                 index = np.arange(mbin.sum())
-                '''
-                if mbin.sum() == 0:
-                        continue
-                else:
-                        with NumpyRNGContext(1):
-                                bootresult = bootstrap(index, nboot)
-                                
-                        INDEX=bootresult.astype(int)
-                        BOOTwsum_T[:,nbin] = np.sum(np.array(et[mbin])[INDEX],axis=1)
-                        BOOTwsum_X[:,nbin] = np.sum(np.array(ex[mbin])[INDEX],axis=1)
-
-                        BOOTwsum_Tcos[:,nbin,:] = np.sum(((np.tile(et[mbin],(3,1))*np.cos(2.*at[mbin]).T))[:,INDEX],axis=2).T
-                        BOOTwsum_Xsin[:,nbin,:] = np.sum(((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T))[:,INDEX],axis=2).T
-
-                '''
         
         output = {'SIGMAwsum':SIGMAwsum,'DSIGMAwsum_T':DSIGMAwsum_T,
                    'DSIGMAwsum_X':DSIGMAwsum_X,
@@ -368,7 +368,8 @@ def main(lcat, sample='pru',
          R5s_min = 0., R5s_max = 100.,
          domap = False, RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
-         idlist= None, hcosmo=1.0, vmice = '2'):
+         idlist= None, hcosmo=1.0, vmice = '2',
+         misalign = False, miscen = False):
 
         '''
         
@@ -394,6 +395,8 @@ def main(lcat, sample='pru',
         ndots          (int) Number of bins of the profile
         ncores         (int) to run in parallel, number of cores
         h              (float) H0 = 100.*h
+        misaling       (bool) add misalignment with a normal distribution of 30deg
+        miscen         (bool) add a miscentring for the 20percent of the halos
         '''
 
         cosmo = LambdaCDM(H0=100*hcosmo, Om0=0.25, Ode0=0.75)
@@ -420,7 +423,7 @@ def main(lcat, sample='pru',
         L = fits.open(folder+lcat)[1].data               
 
         '''
-        # To try all centre
+        # To try old centre
         
         ra = np.rad2deg(np.arctan(L.xc/L.yc))
         ra[L.yc==0] = 90.
@@ -445,9 +448,10 @@ def main(lcat, sample='pru',
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mres    = L.resNFW_S < resNFW_max
-                mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
-                mlenses = mmass*mz*mq*mrs*mres*mr5s
-                
+                # mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
+                mlenses = mmass*mz*mq*mrs*mres#*mr5s
+        
+        # SELECT RELAXED HALOS
         if relax:
             print('Only relaxed halos are considered')
             sample = sample+'_relaxed'
@@ -463,23 +467,40 @@ def main(lcat, sample='pru',
         
         L = L[mlenses]
                 
-        #Computing SMA axis
+        #Computing SMA axis        
+        
         theta  = np.array([np.zeros(sum(mlenses)),np.arctan(L.a2Dy/L.a2Dx),np.arctan(L.a2Dry/L.a2Drx)]).T                
         
-        # Define K masks                
-        kmask = np.zeros((101,len(ra)))
-        kmask[0] = np.ones(len(ra))
+        # Introduce misalignment
+        if misalign:
+            toff = np.random.normal(0,np.deg2rad(30.),mlenses.sum())
+            theta += np.vstack((toff,toff,toff)).T
+            sample = sample+'_misalign'
         
-        ind_rand = np.arange(len(ra))
-        np.random.shuffle(ind_rand)
-        lbins = int(round(len(ra)/100, 0))
+        # Define K masks                
+        kmask = np.zeros((101,Nlenses))
+        kmask[0] = np.ones(Nlenses)
+        
+        ind_rand0 = np.arange(Nlenses)
+        np.random.shuffle(ind_rand0)
+        lbins = int(round(Nlenses/100, 0))
         slices = ((np.arange(100)+1)*lbins).astype(int)
-        ind_rand = np.split(ind_rand,slices[:-1])
+        ind_rand = np.split(ind_rand0,slices[:-1])
 
         for j in range(len(ind_rand)):
-            m = ~np.in1d(np.arange(len(ra)),ind_rand[j])
+            m = ~np.in1d(np.arange(Nlenses),ind_rand[j])
             kmask[j+1][m] = 1
-                    
+        
+        # Introduce miscentring
+        roff = np.zeros(Nlenses)
+        
+        if miscen:
+            nshift = int(Nlenses*0.2)
+            x = np.random.uniform(0,5,10000)
+            peso = Rayleigh(x,0.4)/sum(Rayleigh(x,0.4))
+            roff[ind_rand0[:nshift]] = np.random.choice(x,nshift,p=peso)*1.e3
+            sample = sample+'_miscen'
+                                
         # SPLIT LENSING CAT
         
         lbins = int(round(Nlenses/float(ncores), 0))
@@ -488,6 +509,7 @@ def main(lcat, sample='pru',
         Lsplit = np.split(L,slices)
         Tsplit = np.split(theta,slices)        
         Ksplit = np.split(kmask.T,slices)
+        Rsplit = np.split(roff,slices)
         
         if domap:
 
@@ -574,13 +596,13 @@ def main(lcat, sample='pru',
                 if num == 1:
                         entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
                                    Lsplit[l].z[0],Tsplit[l][0],
-                                   RIN,ROUT,ndots,hcosmo]
+                                   RIN,ROUT,ndots,hcosmo,Rsplit[l][0]]
                         
                         salida = [partial(entrada)]
                 else:          
                         entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
                                         Lsplit[l].z,Tsplit[l].tolist(),
-                                        rin,rout,nd,h_array]).T
+                                        rin,rout,nd,h_array,Rsplit[l]]).T
                         
                         pool = Pool(processes=(num))
                         salida = np.array(pool.map(partial, entrada))
@@ -794,4 +816,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,misaling,miscen)

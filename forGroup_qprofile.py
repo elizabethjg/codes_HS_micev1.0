@@ -88,10 +88,10 @@ if args.domap == 'True':
 elif args.domap == 'False':
     domap = False
 
-if args.misaling == 'True':
+if args.misalign == 'True':
     misalign = True
-elif args.misaling == 'False':
-    misaling = False
+elif args.misalign == 'False':
+    misalign = False
 
 if args.miscen == 'True':
     miscen = True
@@ -816,4 +816,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,misaling,miscen)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,misalign,miscen)

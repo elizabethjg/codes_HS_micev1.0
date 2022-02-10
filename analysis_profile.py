@@ -1462,11 +1462,23 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     qh  = np.median(halos.b2D/halos.a2D)
     qhr = np.median(halos.b2Dr/halos.a2Dr)
 
-    # lMh = np.median(halos.lgMNFW_rho)
-    # ch  = np.median(halos.cNFW_rho)
+    lMNFW = np.percentile(halos.lgMNFW_rho, [16,50,84])
+    cNFW  = np.percentile(halos.cNFW_rho  , [16,50,84])
+    lMEin = np.percentile(halos.lgMNFW_rho, [16,50,84])
+    cEin  = np.percentile(halos.cNFW_rho , [16,50,84])
+    qdm   = np.percentile(halos.b2D/halos.a2D , [16,50,84])
+    qdmr  = np.percentile(halos.b2Dr/halos.a2Dr , [16,50,84])
+
+    lMfit  = np.percentile(fitd.lM200[1500:], [16,50,84])
+    cfit   = np.percentile(fitd.c200[1500:], [16,50,84])
+    qfit   = np.percentile(fitd.q[1500:], [16,50,84])
+    q2hfit = np.percentile(fitd.q2h[1500:], [16,50,84])
+    qfit_red   = np.percentile(fitd_red.q[1500:], [16,50,84])
+    q2hfit_red = np.percentile(fitd_red.q2h[1500:], [16,50,84])
+
+
     lMh = np.median(halos.lgMEin_rho)
     ch  = np.median(halos.cEin_rho)
-
 
     mcmc_DS  = np.array([fitd.lM200[1500:],fitd.c200[1500:]]).T
     mcmc     = np.array([fitd.q[1500:],fitd.q2h[1500:]]).T

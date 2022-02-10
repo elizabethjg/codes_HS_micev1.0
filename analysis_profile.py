@@ -63,7 +63,7 @@ def save_fitted(samp,RIN,ROUT,fittype='_2h_2q'):
     
     fitout = np.array([p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr])
 
-    np.savetxt(folder+'fitprofile'+fittype+samp+'.cat',fitout,fmt='%10.2f')
+    np.savetxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat',fitout,fmt='%10.2f')
 
 
 def plt_profile_compare(samp1,samp2):
@@ -709,7 +709,7 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
     fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
     fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
                 
-    p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'.cat')
+    rplot,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat')
 
     DS  = DS1h  + DS2h
     gt  = gt1h  + gt2h
@@ -1565,7 +1565,7 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3):
         
     # MCMC results
           
-    p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'.cat')
+    rplot,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat')
 
     DS  = DS1h  + DS2h
     gt  = gt1h  + gt2h
@@ -1640,7 +1640,7 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3):
     ax2.xaxis.set_ticks([0.1,1,5,7])
     ax2.set_xticklabels([0.1,1,5,7])
     
-    
+
 
 '''
 f, ax_all = plt.subplots(4,3, figsize=(14,14),sharex = True)

@@ -121,7 +121,7 @@ def log_likelihood_DS(data_model, R, ds, iCds):
     
     lM200, c200 = data_model
     
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
+    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h')
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
         

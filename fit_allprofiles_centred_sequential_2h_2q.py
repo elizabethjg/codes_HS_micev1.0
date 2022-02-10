@@ -121,7 +121,7 @@ def log_likelihood_DS(data_model, R, ds, iCds):
     
     lM200, c200 = data_model
     
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params)
+    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
         
@@ -163,13 +163,13 @@ mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
 c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
 
-'''
+
 t2 = time.time()
 
 print('TIME DS')    
 print((t2-t1)/60.)
 
-
+'''
 f = fits.open(folder+outfile)[1].data
 mcmc_out_DS = [f.lM200,f.c200]
 lM = np.percentile(f.lM200[1500:], [16, 50, 84])

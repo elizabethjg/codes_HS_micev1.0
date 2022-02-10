@@ -1429,7 +1429,8 @@ def try_einasto(samp,RIN,ROUT,fittype='_onlyq',
 
 
 def corner_plot(samp,RIN,ROUT,relax=True,
-                fittype='_2h_2q',component=''):
+                fittype = '_2h_2q',component='',
+                fname = 'pru.tab'):
 
     matplotlib.rcParams.update({'font.size': 14})
 
@@ -1464,8 +1465,9 @@ def corner_plot(samp,RIN,ROUT,relax=True,
 
     lMNFW = np.percentile(halos.lgMNFW_rho, [16,50,84])
     cNFW  = np.percentile(halos.cNFW_rho  , [16,50,84])
-    lMEin = np.percentile(halos.lgMNFW_rho, [16,50,84])
-    cEin  = np.percentile(halos.cNFW_rho , [16,50,84])
+    lMEin = np.percentile(halos.lgMEin_rho, [16,50,84])
+    cEin  = np.percentile(halos.cEin_rho , [16,50,84])
+    alpha = np.percentile(halos.alpha_rho , [16,50,84])
     qdm   = np.percentile(halos.b2D/halos.a2D , [16,50,84])
     qdmr  = np.percentile(halos.b2Dr/halos.a2Dr , [16,50,84])
 
@@ -1476,6 +1478,28 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     qfit_red   = np.percentile(fitd_red.q[1500:], [16,50,84])
     q2hfit_red = np.percentile(fitd_red.q2h[1500:], [16,50,84])
 
+    mres = [lMNFW,cNFW,lMEin,cEin,alpha,lMfit,cfit]
+    qres = [qdm,qfit,q2hfit,qdmr,qfit_red,q2hfit_red]
+
+    fm=open(folder+'../'+'mres_'+fname,'a')
+    fq=open(folder+'../'+'qres_'+fname,'a')
+
+    fm.write(samp+' & ')
+    fq.write(samp+' & ')
+
+    for x in mres[:-1]:
+        fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+'}$ & ')
+    x = mres[-1]
+    fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+r'}$ \\'+' \n')
+    fm.close()
+    
+    for x in qres[:-1]:
+        fq.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+'}$ & ')
+    x = qres[-1]
+    fq.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+r'}$ \\'+' \n')
+    fq.close()
+
+    
 
     lMh = np.median(halos.lgMEin_rho)
     ch  = np.median(halos.cEin_rho)
@@ -1493,9 +1517,9 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     fs  = corner.corner(mcmc,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qh,qh],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
     fr  = corner.corner(mcmc_red,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qhr,qhr],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
     
-    fds.savefig(folder+'../final_plots/mcmc_'+samp+'_fds.png',bbox_inches='tight')
-    fs.savefig(folder+'../final_plots/mcmc_'+samp+'_fs.png',bbox_inches='tight')
-    fr.savefig(folder+'../final_plots/mcmc_'+samp+'_fr.png',bbox_inches='tight')
+    fds.savefig(folder+'../final_plots/mcmc_'+samp+'_fds.pdf',bbox_inches='tight')
+    fs.savefig(folder+'../final_plots/mcmc_'+samp+'_fs.pdf',bbox_inches='tight')
+    fr.savefig(folder+'../final_plots/mcmc_'+samp+'_fr.pdf',bbox_inches='tight')
     
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3):

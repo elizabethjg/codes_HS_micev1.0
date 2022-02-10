@@ -78,9 +78,9 @@ else:
 backup      = folder+'backup_'+outfile
 
 if components == 'all':
-    outfile2     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile2     = 'fitresults_2h_2q_woc_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
-    outfile2     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile2     = 'fitresults_2h_2q_woc_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 
 
@@ -119,9 +119,9 @@ t1 = time.time()
 # '''
 # First running for DS
 
-def log_likelihood_DS(data_model, R, ds, iCds):
-    
-    lM200, c200 = data_model
+def log_likelihood_DS(lM200, R, ds, iCds):
+
+    c200 = concentration.concentration(10**lM200, '200c', zmean, model = cmodel)
     
     DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h')
 
@@ -132,9 +132,9 @@ def log_likelihood_DS(data_model, R, ds, iCds):
 
 def log_probability_DS(data_model, R, profiles, iCOV):
     
-    lM200,c200 = data_model
+    lM200 = data_model
     
-    if 12.5 < lM200 < 16.0 and 1 < c200 < 7:
+    if 12.5 < lM200 < 16.0:
         return log_likelihood_DS(data_model, R, profiles, iCOV)
         
     return -np.inf
@@ -146,8 +146,7 @@ CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
 iCds     =  np.linalg.inv(CovDS)
 
 
-pos = np.array([np.random.uniform(12.5,15.5,15),
-                np.random.uniform(1,5,15)]).T
+pos = np.array([np.random.uniform(12.5,15.5,15)]).T
 
 nwalkers, ndim = pos.shape
 
@@ -163,7 +162,7 @@ pool.terminate()
 
 mcmc_out_DS = sampler_DS.get_chain(flat=True).T
 lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
-c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
+c200   = concentration.concentration(10**lM[1], '200c', zmean, model = cmodel)
 
 
 t2 = time.time()
@@ -178,8 +177,8 @@ lM = np.percentile(f.lM200[1500:], [16, 50, 84])
 c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 '''
 
-GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h',pname='NFW')
-GT2h,GX2h = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='2h',pname='NFW')
+GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200,cosmo_params=params,terms='1h',pname='NFW')
+GT2h,GX2h = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200,cosmo_params=params,terms='2h',pname='NFW')
 
 
 # NOW FIT q with Gamma components
@@ -256,7 +255,6 @@ print((time.time()-t1)/60.)
 # saving mcmc out
 
 table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
-            fits.Column(name='c200', format='E', array=mcmc_out_DS[1]),
             fits.Column(name='q', format='E', array=mcmc_out_GC[0]),
             fits.Column(name='q2h', format='E', array=mcmc_out_GC[1])]
 
@@ -267,9 +265,7 @@ h.append(('lM200',np.round(lM[1],4)))
 h.append(('elM200M',np.round(np.diff(lM)[0],4)))
 h.append(('elM200m',np.round(np.diff(lM)[1],4)))
 
-h.append(('c200',np.round(c200[1],4)))
-h.append(('ec200M',np.round(np.diff(c200)[0],4)))
-h.append(('ec200m',np.round(np.diff(c200)[1],4)))
+h.append(('c200',np.round(c200,4)))
 
 h.append(('q',np.round(q[1],4)))
 h.append(('eqM',np.round(np.diff(q)[0],4)))

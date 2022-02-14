@@ -491,10 +491,6 @@ def plt_profile_fitted_2h(samp,RIN,ROUT,fittype='_onlyq',
     e = (1-q)/(1+q)
     er = (1-qr)/(1+qr)
     
-    H        = cosmo.H(zmean).value/(1.0e3*pc) #H at z_pair s-1 
-    roc      = (3.0*(H**2.0))/(8.0*np.pi*G) #critical density at z_pair (kg.m-3)
-    roc_mpc  = roc*((pc*1.0e6)**3.0)
-    
     
     ndots = p.shape[0]
     

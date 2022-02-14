@@ -16,6 +16,13 @@ Msun = M_sun.value # Solar mass (kg)
 import corner
 folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
 
+def g(x,disp): 
+    return (1./(np.sqrt(2*np.pi)*disp))*np.exp(-0.5*(x/disp)**2)
+
+
+argumento = lambda x: g(x,30.)*np.cos(2*np.deg2rad(x))
+D         = integrate.quad(argumento, -90., 90.)[0]
+print('EXPECTED DILUTION ',D)
 
 def qratios(samp):
 
@@ -51,7 +58,26 @@ def qratios(samp):
     # print('q2h ratio reduced')
     # print(q2hr_2h2q/q2hr_miss)
 
+    e1h_2h2q = (1. - q1h_2h2q)/(1. + q1h_2h2q)
+    e2h_2h2q = (1. - q2h_2h2q)/(1. + q2h_2h2q)
+    e1hr_2h2q = (1. - q1hr_2h2q)/(1. + q1hr_2h2q)
+    e2hr_2h2q = (1. - q2hr_2h2q)/(1. + q2hr_2h2q)
+
+    e1h_miss = (1. - q1h_miss)/(1. + q1h_miss)
+    e2h_miss = (1. - q2h_miss)/(1. + q2h_miss)
+    e1hr_miss = (1. - q1hr_miss)/(1. + q1hr_miss)
+    e2hr_miss = (1. - q2hr_miss)/(1. + q2hr_miss)
+
     print('q1h ratio')
-    print(q1h_2h2q/q1h_miss,q1hr_2h2q/q1hr_miss)
+    print(e1h_miss/e1h_2h2q,e1hr_miss/e1hr_2h2q)
     print('q2h ratio')
-    print(q2h_2h2q/q2h_miss,q2hr_2h2q/q2hr_miss)
+    print(e2h_miss/e2h_2h2q,e2hr_miss/e2hr_2h2q)
+
+    f=open(folder+'../misal_res.tab','a')
+    f.write(samp+' & ')
+    f.write('$'+str('%.2f' % (e1h_miss/e1h_2h2q))+'$ & ')
+    f.write('$'+str('%.2f' % (e2h_miss/e2h_2h2q))+'$ & ')
+    f.write('$'+str('%.2f' % (e1hr_miss/e1hr_2h2q))+'$ & ')
+    f.write('$'+str('%.2f' % (e2hr_miss/e2hr_2h2q))+r'$ \\ '+'\n') 
+    
+       

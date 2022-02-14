@@ -133,7 +133,7 @@ folder = '/home/elizabeth/MICE/HS-lensing/'
 S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/MICE_sources_HSN.fits')[1].data
 
 def partial_map(RA0,DEC0,Z,angles,
-                RIN,ROUT,ndots,h,roff):
+                RIN,ROUT,ndots,h,roff,phi_off):
 
         
         lsize = int(np.sqrt(ndots))
@@ -193,7 +193,7 @@ def partial_map(RA0,DEC0,Z,angles,
         del(e2)
         
         r = np.rad2deg(rads)*3600*KPCSCALE
-        r = np.sqrt(roff**2 +r**2)
+        r = np.sqrt(roff**2 + r**2 + 2.*roff*r*np.cos(phi_off))
         del(rads)
         
         
@@ -240,7 +240,7 @@ def partial_map_unpack(minput):
 	return partial_map(*minput)
 
 def partial_profile(RA0,DEC0,Z,angles,
-                    RIN,ROUT,ndots,h,roff):
+                    RIN,ROUT,ndots,h,roff,phi_off):
 
         ndots = int(ndots)
 
@@ -292,7 +292,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         del(e2)
         
         r = np.rad2deg(rads)*3600*KPCSCALE
-        r = np.sqrt(roff**2 +r**2)
+        r = np.sqrt(roff**2 + r**2 + 2.*roff*r*np.cos(phi_off))
         del(rads)
         
         
@@ -495,6 +495,7 @@ def main(lcat, sample='pru',
         
         # Introduce miscentring
         roff = np.zeros(Nlenses)
+        phi_off = np.zeros(Nlenses)
         
         if miscen:
             # nshift = int(Nlenses*0.2)
@@ -502,6 +503,7 @@ def main(lcat, sample='pru',
             x = np.random.uniform(0,5,10000)
             peso = Rayleigh(x,0.4)/sum(Rayleigh(x,0.4))
             roff[ind_rand0[:nshift]] = np.random.choice(x,nshift,p=peso)*1.e3
+            phi_off[ind_rand0[:nshift]] = np.random.uniform(0.,2.*np.pi,nshift)
             sample = sample+'_miscen'
                                 
         # SPLIT LENSING CAT
@@ -513,6 +515,7 @@ def main(lcat, sample='pru',
         Tsplit = np.split(theta,slices)        
         Ksplit = np.split(kmask.T,slices)
         Rsplit = np.split(roff,slices)
+        PHIsplit = np.split(phi_off,slices)
         
         if domap:
 
@@ -599,13 +602,13 @@ def main(lcat, sample='pru',
                 if num == 1:
                         entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
                                    Lsplit[l].z[0],Tsplit[l][0],
-                                   RIN,ROUT,ndots,hcosmo,Rsplit[l][0]]
+                                   RIN,ROUT,ndots,hcosmo,Rsplit[l][0],PHIsplit[l][0]]
                         
                         salida = [partial(entrada)]
                 else:          
                         entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
                                         Lsplit[l].z,Tsplit[l].tolist(),
-                                        rin,rout,nd,h_array,Rsplit[l]]).T
+                                        rin,rout,nd,h_array,Rsplit[l],PHIsplit[l]]).T
                         
                         pool = Pool(processes=(num))
                         salida = np.array(pool.map(partial, entrada))

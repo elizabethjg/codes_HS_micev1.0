@@ -124,6 +124,8 @@ domap = False
 R5s_min = 0
 R5s_max = 100.
 resNFW_max = 100.
+misalign = False
+miscen = True
 '''
 
 
@@ -448,8 +450,8 @@ def main(lcat, sample='pru',
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mres    = L.resNFW_S < resNFW_max
-                # mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
-                mlenses = mmass*mz*mq*mrs*mres#*mr5s
+                mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
+                mlenses = mmass*mz*mq*mrs*mres*mr5s
         
         # SELECT RELAXED HALOS
         if relax:
@@ -495,7 +497,8 @@ def main(lcat, sample='pru',
         roff = np.zeros(Nlenses)
         
         if miscen:
-            nshift = int(Nlenses*0.2)
+            # nshift = int(Nlenses*0.2)
+            nshift = int(Nlenses)
             x = np.random.uniform(0,5,10000)
             peso = Rayleigh(x,0.4)/sum(Rayleigh(x,0.4))
             roff[ind_rand0[:nshift]] = np.random.choice(x,nshift,p=peso)*1.e3

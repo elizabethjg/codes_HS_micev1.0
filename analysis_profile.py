@@ -1648,10 +1648,11 @@ f.subplots_adjust(hspace=0)
 
 hsamples = ['HM_Lz','LM_Lz','HM_Hz','LM_Hz']
 hsamples_relaxed = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
+hsamples_relaxed_misal = ['HM_Lz_relaxed_misalign','LM_Lz_relaxed_misalign','HM_Hz_relaxed_misalign','LM_Hz_relaxed_misalign']
 
 for j in range(len(ax_all)):
     
-    plt_profile_fitted_final(hsamples_relaxed[j],250,5000,ax_all[j])
+    plt_profile_fitted_final(hsamples_relaxed_misal[j],250,5000,ax_all[j])
     ax_all[j,0].text(1,100,hsamples[j],fontsize=14)
 
 ax_all[0,0].legend(loc=3,frameon=False)
@@ -1659,6 +1660,6 @@ ax_all[0,1].legend(loc=3,frameon=False)
 
 
     
-f.savefig(folder+'../final_plots/profile_relaxed.pdf',bbox_inches='tight')
+f.savefig(folder+'../final_plots/profile_relaxed_misal.pdf',bbox_inches='tight')
 '''
 

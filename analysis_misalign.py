@@ -19,6 +19,8 @@ folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/p
 
 def qratios(samp):
 
+    print(samp)
+
     RIN = 250
     ROUT = 5000
     
@@ -40,11 +42,16 @@ def qratios(samp):
     q2hr_2h2q = fits.open(folder+'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_profile_'+samp+'.fits')[0].header['q2h']
     q2hr_miss = fits.open(folder+'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_profile_'+samp+'_misalign.fits')[0].header['q2h']
     
-    print('q1h ratio standard')
-    print(q1h_q/q1h_miss,q1h_2h/q1h_miss,q1h_2h2q/q1h_miss)
-    print('q2h ratio standard')
-    print(q2h_2h2q/q2h_miss)
-    print('q1h ratio reduced')
-    print(q1hr_q/q1hr_miss,q1hr_2h/q1hr_miss,q1hr_2h2q/q1hr_miss)
-    print('q2h ratio reduced')
-    print(q2hr_2h2q/q2hr_miss)
+    # print('q1h ratio standard')
+    # print(q1h_q/q1h_miss,q1h_2h/q1h_miss,q1h_2h2q/q1h_miss)
+    # print('q2h ratio standard')
+    # print(q2h_2h2q/q2h_miss)
+    # print('q1h ratio reduced')
+    # print(q1hr_q/q1hr_miss,q1hr_2h/q1hr_miss,q1hr_2h2q/q1hr_miss)
+    # print('q2h ratio reduced')
+    # print(q2hr_2h2q/q2hr_miss)
+
+    print('q1h ratio')
+    print(q1h_2h2q/q1h_miss,q1hr_2h2q/q1hr_miss)
+    print('q2h ratio')
+    print(q2h_2h2q/q2h_miss,q2hr_2h2q/q2hr_miss)

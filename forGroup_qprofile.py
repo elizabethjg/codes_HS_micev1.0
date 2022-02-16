@@ -91,7 +91,7 @@ elif args.domap == 'False':
 if args.misalign == 'True':
     misalign = True
 elif args.misalign == 'False':
-    misalign = False
+    misalign = int(args.misalign)
 
 if args.miscen == 'True':
     miscen = True
@@ -419,6 +419,7 @@ def main(lcat, sample='pru',
                 print(R5s_min,' <= R5s < ',R5s_max)
                 print('resNFW_S < ',resNFW_max)
                 print('h ',hcosmo)
+                print('misaling '+str(misalign))
                         
         #reading cats
                 
@@ -475,9 +476,9 @@ def main(lcat, sample='pru',
         
         # Introduce misalignment
         if misalign:
-            toff = np.random.normal(0,np.deg2rad(30.),mlenses.sum())
+            toff = np.random.normal(0,np.deg2rad(misalign),mlenses.sum())
             theta += np.vstack((toff,toff,toff)).T
-            sample = sample+'_misalign'
+            sample = sample+'_mis'+str(misalign)
         
         # Define K masks                
         kmask = np.zeros((101,Nlenses))

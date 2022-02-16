@@ -1439,6 +1439,23 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     h   = profile[0].header
     p   = profile[1].data
 
+    # MCMC results
+          
+    rplot,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat')
+
+    DS  = DS1h  + DS2h
+    gt  = gt1h  + gt2h
+    gtr = gt1hr + gt2hr
+    gx  = gx1h  + gx2h
+    gxr = gx1hr + gx2hr
+        
+    ##############    
+    
+    res_DS  = np.sum((np.log10(DS) - np.log10(p.DSigma_T))**2)/(len(p) - 2.)
+    res_GT  = np.sum((np.log10(gt) - np.log10(p.GAMMA_Tcos))**2)/(len(p) - 2.)
+    res_GX  = np.sum((np.log10(gx) - np.log10(p.GAMMA_Xsin))**2)/(len(p) - 2.)
+    res_GTr = np.sum((np.log10(gtr) - np.log10(p.GAMMA_Tcos_reduced))**2)/(len(p) - 2.)
+    res_GXr = np.sum((np.log10(gxr) - np.log10(p.GAMMA_Xsin_reduced))**2)/(len(p) - 2.)
 
     fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
     fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
@@ -1477,16 +1494,20 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     mres = [lMNFW,cNFW,lMEin,cEin,alpha,lMfit,cfit]
     qres = [qdm,qfit,q2hfit,qdmr,qfit_red,q2hfit_red]
 
-    fm=open(folder+'../'+'mres_'+fname,'a')
+    mres = mres + qres
+    
+    fm=open(folder+'../'+'allres_'+fname,'a')
     fq=open(folder+'../'+'qres_'+fname,'a')
 
-    fm.write(samp+' & ')
-    fq.write(samp+' & ')
+    # fm.write(samp+' & ')
+    # fq.write(samp+' & ')
 
     for x in mres[:-1]:
-        fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+'}$ & ')
+        # fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+'}$ & ')
+        fm.write(str('%.2f' % (x[1]))+'  '+str('%.2f' % (np.diff(x)[0]))+'  '+str('%.2f' % (np.diff(x)[1]))+'  ')
     x = mres[-1]
-    fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+r'}$ \\'+' \n')
+    fm.write(str('%.2f' % (x[1]))+'  '+str('%.2f' % (np.diff(x)[0]))+'  '+str('%.2f' % (np.diff(x)[1]))+'  \n')
+    # fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+r'}$ \\'+' \n')
     fm.close()
     
     for x in qres[:-1]:
@@ -1659,3 +1680,43 @@ ax_all[0,1].legend(loc=3,frameon=False)
 f.savefig(folder+'../final_plots/profile_relaxed_misal.pdf',bbox_inches='tight')
 '''
 
+res = np.loadtxt(folder+'../allres_pru.tab').T
+lMNFW    = res[0]
+elMNFWm  = res[1]
+elMNFWM  = res[2]
+cNFW     = res[3]
+ecNFWm   = res[4]
+ecNFWM   = res[5]
+lMEin    = res[6]
+elMEinm  = res[7]
+elMEinM  = res[8]
+cEin     = res[9]
+ecEinm   = res[10]
+ecEinM   = res[11]
+alpha    = res[12]
+ealpham  = res[13]
+ealphaM  = res[14]
+lM       = res[15]
+elMm     = res[16]
+elMM     = res[17]
+c        = res[18]
+ecm      = res[19]
+ecM      = res[20]
+q        = res[21]
+eqm      = res[22]
+eqM      = res[23]
+q1h      = res[24]
+eq1hm    = res[25]
+eq1hM    = res[26]
+q2h      = res[27]
+eq2hm    = res[28]
+eq2hM    = res[29]
+qr       = res[30]
+eqrm     = res[31]
+eqrM     = res[32]
+q1hr     = res[33]
+eq1hrm   = res[34]
+eq1hrM   = res[35]
+q2hr     = res[36]
+eq2hrm   = res[37]
+eq2hrM   = res[38]

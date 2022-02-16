@@ -88,9 +88,9 @@ if args.domap == 'True':
 elif args.domap == 'False':
     domap = False
 
-if args.misalign == 'True':
-    misalign = True
-elif args.misalign == 'False':
+if args.misalign == 'False':
+    misalign = False
+else args.misalign:
     misalign = int(args.misalign)
 
 if args.miscen == 'True':

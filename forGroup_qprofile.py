@@ -90,7 +90,7 @@ elif args.domap == 'False':
 
 if args.misalign == 'False':
     misalign = False
-else args.misalign:
+else:
     misalign = int(args.misalign)
 
 if args.miscen == 'True':

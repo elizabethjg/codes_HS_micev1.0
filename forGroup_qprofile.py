@@ -425,7 +425,7 @@ def main(lcat, sample='pru',
                 
         L = fits.open(folder+lcat)[1].data               
 
-        '''
+        # '''
         # To try old centre
         
         ra = np.rad2deg(np.arctan(L.xc/L.yc))
@@ -434,9 +434,9 @@ def main(lcat, sample='pru',
 
         L.ra_rc = ra
         L.dec_rc = dec
-        '''
-        ra = L.ra_rc
-        dec = L.dec_rc
+        # '''
+        # ra = L.ra_rc
+        # dec = L.dec_rc
         
         Eratio = (2.*L.K/abs(L.U))
                                

@@ -90,3 +90,74 @@ def fit_profiles(samp,RIN,ROUT,fittype='_onlyq',
     axS.axvline(RIN/1000.,color='k',ls=':')
     axS.axvline(ROUT/1000.,color='k',ls=':')
     
+    out = np.array([np.log10(fitEinS.M200),fitEinS.c200,fitEinS.alpha,fitEinS.res,
+                    np.log10(fitEinDS.M200),fitEinDS.c200,fitEinDS.alpha,fitEinDS.res,
+                    np.log10(fitNFWS.M200),fitNFWS.c200,fitNFWS.alpha,fitNFWS.res,
+                    np.log10(fitNFWDS.M200),fitNFWDS.c200,fitNFWDS.alpha,fitNFWDS.res])
+    
+    np.savetxt(folder+'../fitlens.res',out,fmt='%10.2f')
+    
+    
+    halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data
+                
+    
+    Eratio = (2.*halos.K/abs(halos.U))
+    
+    mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+    
+    if relax:
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+        mhalos = mhalos*mrelax
+    
+    halos = halos[mhalos]
+
+
+    
+    f, ax = plt.subplots(2,3, figsize=(10,6), sharey=True)
+    
+    ax[0,0].set_title('3D')
+    ax[0,0].hist(halos.lgMNFW_rho,np.linspace(13.,14.5,50),histtype='step',label='NFW')
+    ax[0,0].hist(halos.lgMEin_rho,np.linspace(13.,14.5,50),histtype='step',label='Einasto')
+    ax[0,0].axvline(fitEinS.M200,ls='--')
+    ax[0,0].axvline(fitNFWS.M200,ls='-')
+    ax[0,0].legend(frameon=False)
+
+    ax[1,0].set_title('2D')
+    ax[1,0].hist(halos.lgMNFW_S,np.linspace(13.,14.5,50),histtype='step')
+    ax[1,0].hist(halos.lgMEin_S,np.linspace(13.,14.5,50),histtype='step')
+    ax[1,0].axvline(lM200[0],ls='--')
+    ax[1,0].axvline(lM200[1],ls='-')
+    ax[1,0].axvline(lM200[2],ls='--')
+    
+    ax[0,1].set_title('3D')
+    ax[0,1].hist(halos.cNFW_rho,np.linspace(1,10,50),histtype='step')
+    ax[0,1].hist(halos.cEin_rho,np.linspace(1,10,50),histtype='step')
+    ax[0,1].axvline(c200[0],ls='--')
+    ax[0,1].axvline(c200[1],ls='-')
+    ax[0,1].axvline(c200[2],ls='--')
+    
+    ax[1,1].set_title('2D')     
+    ax[1,1].hist(halos.cNFW_S,np.linspace(1,10,50),histtype='step')
+    ax[1,1].hist(halos.cEin_S,np.linspace(1,10,50),histtype='step')
+    ax[1,1].axvline(c200[0],ls='--')
+    ax[1,1].axvline(c200[1],ls='-')
+    ax[1,1].axvline(c200[2],ls='--')
+    
+    ax[0,2].set_title('standard')
+    ax[0,2].hist(qh,np.linspace(0,1,50),histtype='step')
+    ax[0,2].hist(qh,np.linspace(0,1,50),histtype='step')
+    ax[0,2].axvline(q[0],ls='--')
+    ax[0,2].axvline(q[1],ls='-')
+    ax[0,2].axvline(q[2],ls='--')
+    
+    ax[1,2].set_title('reduced')     
+    ax[1,2].hist(qhr,np.linspace(0,1,50),histtype='step')
+    ax[1,2].hist(qhr,np.linspace(0,1,50),histtype='step')
+    ax[1,2].axvline(qr[0],ls='--')
+    ax[1,2].axvline(qr[1],ls='-')
+    ax[1,2].axvline(qr[2],ls='--')
+    
+    ax[1,0].set_xlabel('$\log M_{200}$')
+    ax[1,1].set_xlabel('$c_{200}$')
+    ax[1,2].set_xlabel('$q$')
+

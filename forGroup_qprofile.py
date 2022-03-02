@@ -700,7 +700,8 @@ def main(lcat, sample='pru',
         h.append(('q3dr_mean',np.round(q3dr_mean,4)))
         h.append(('s3d_mean',np.round(s3d_mean,4)))        
         h.append(('s3dr_mean',np.round(s3dr_mean,4))) 
-        
+        if miscen:
+            h.append(('soff',np.round(soff,4)))
         if domap:
             
             # COMPUTING PROFILE        

@@ -57,6 +57,7 @@ parser.add_argument('-ides_list', action='store', dest='idlist', default=None)
 parser.add_argument('-resNFW_max', action='store', dest='resNFW_max', default=100.)
 parser.add_argument('-R5s_max', action='store', dest='R5s_max', default=100.)
 parser.add_argument('-R5s_min', action='store', dest='R5s_min', default=0.)
+parser.add_argument('-soff', action='store', dest='soff', default=0.3)
 args = parser.parse_args()
 
 sample     = args.sample
@@ -79,6 +80,7 @@ hcosmo     = float(args.h_cosmo)
 resNFW_max = float(args.resNFW_max)
 R5s_max = float(args.R5s_max)
 R5s_min = float(args.R5s_min)
+soff = float(args.soff)
 
 if args.relax == 'True':
     relax = True
@@ -377,7 +379,7 @@ def main(lcat, sample='pru',
          domap = False, RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
          idlist= None, hcosmo=1.0, vmice = '2',
-         misalign = False, miscen = False):
+         misalign = False, miscen = False, soff = 0.3):
 
         '''
         
@@ -404,7 +406,8 @@ def main(lcat, sample='pru',
         ncores         (int) to run in parallel, number of cores
         h              (float) H0 = 100.*h
         misaling       (bool) add misalignment with a normal distribution of 30deg
-        miscen         (bool) add a miscentring for the 20percent of the halos
+        miscen         (bool) add a miscentring for the 25percent of the halos
+        soff         (float) dispersion of Rayleigh distribution for miscenter
         '''
 
         cosmo = LambdaCDM(H0=100*hcosmo, Om0=0.25, Ode0=0.75)
@@ -505,9 +508,7 @@ def main(lcat, sample='pru',
         phi_off = np.zeros(Nlenses)
         
         if miscen:
-            # nshift = int(Nlenses*0.2)
-            nshift = int(Nlenses)
-            soff   = 0.4
+            nshift = int(Nlenses*0.25)
             x = np.random.uniform(0,5,10000)
             peso = Rayleigh(x,soff)/sum(Rayleigh(x,soff))
             roff[ind_rand0[:nshift]] = np.random.choice(x,nshift,p=peso)*1.e3
@@ -830,4 +831,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,misalign,miscen)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,misalign,miscen,soff)

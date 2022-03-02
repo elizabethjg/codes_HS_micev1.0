@@ -51,7 +51,7 @@ def compute_profiles(samp,s_off):
 def compute_profiles(samp): 
     
 
-    p_name = 'profile_HM_Lz_soff1_relaxed_miscen.fits'  
+    p_name = 'profile_HM_Lz_relaxed_miscen.fits'  
     # p_name = 'profile_pru_relaxed_miscen.fits'  
 
     pmiss = fits.open(folder+p_name)[1].data
@@ -67,7 +67,7 @@ def compute_profiles(samp):
 
     fitpar = fits.open(folder+'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+'_profile_HM_Lz_relaxed.fits')[0].header
         
-    S0,DS0,Soff,DSoff = np.loadtxt(folder+'missprof_HM_Lz_relaxed_1000.cat')
+    S0,DS0,Soff,DSoff = np.loadtxt(folder+'missprof_HM_Lz_relaxed_400.cat')
     # S0,DS0,Soff,DSoff = np.loadtxt(folder+'missprof_pru.cat')
     
     CovDS  = cov.COV_ST.reshape(len(p),len(p))
@@ -82,7 +82,7 @@ def compute_profiles(samp):
     plt.ylabel('$\Sigma$',fontsize=14)
     plt.xlabel('$R$',fontsize=14)
     plt.loglog()
-    plt.savefig(folder+'plots/miss_S_1000.png')
+    plt.savefig(folder+'plots/miss_S_400.png')
     
     plt.figure()
     plt.fill_between(p.Rp,pmiss.Sigma+np.diag(CovSmiss),pmiss.Sigma-np.diag(CovSmiss),color='C3',alpha=0.7)
@@ -91,7 +91,7 @@ def compute_profiles(samp):
     plt.ylabel('$\Sigma$',fontsize=14)
     plt.xlabel('$R$',fontsize=14)
     plt.loglog()
-    plt.savefig(folder+'plots/miss_Soff_1000.png')
+    plt.savefig(folder+'plots/miss_Soff_400.png')
     
     plt.figure()
     plt.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C3',alpha=0.7)
@@ -100,7 +100,7 @@ def compute_profiles(samp):
     plt.ylabel('$\Delta \Sigma$',fontsize=14)
     plt.xlabel('$R$',fontsize=14)
     plt.loglog()
-    plt.savefig(folder+'plots/miss_DS_1000.png')
+    plt.savefig(folder+'plots/miss_DS_400.png')
 
     
     plt.figure()
@@ -110,7 +110,7 @@ def compute_profiles(samp):
     plt.ylabel('$\Delta \Sigma$',fontsize=14)
     plt.xlabel('$R$',fontsize=14)
     plt.loglog()
-    plt.savefig(folder+'plots/miss_DSoff_1000.png')
+    plt.savefig(folder+'plots/miss_DSoff_400.png')
 
 
 def Delta_Sigma_NFW_miss(R,z,M200,s_off = None, tau = 0.2,

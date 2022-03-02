@@ -340,9 +340,10 @@ def plt_profile_wofit(samp):
     rplot = p.Rp
     
     nfwS    = Sigma_fit(p.Rp,p.Sigma*(1.e6**2),np.diag(CovS)*(1.e6**2),zmean,cosmo_as,True)
-    nfw     = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo_as,True)
-    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo_as)
-    gtr,gxr = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo_as)
+    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean)
+        
+    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
+    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=er,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
     
     
     mass = str(np.round(np.log10(nfw.M200),2))

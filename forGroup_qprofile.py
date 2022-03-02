@@ -17,6 +17,8 @@ from multiprocessing import Process
 import argparse
 from astropy.constants import G,c,M_sun,pc
 from scipy import stats
+import astropy.units as u
+from astropy.coordinates import SkyCoord
 # For map
 wcs = WCS(naxis=2)
 wcs.wcs.crpix = [0., 0.]
@@ -160,12 +162,16 @@ def partial_map(RA0,DEC0,Z,angles,
         Dl = dl*1.e6*pc
         sigma_c = (((cvel**2.0)/(4.0*np.pi*G*Dl))*(1./BETA_array))*(pc**2/Msun)
 
+        # Add miscentring
+        c1 = SkyCoord(RA0*u.degree, DEC0*u.degree)
+        roff_deg = roff/(KPCSCALE*3600.)
+        c2 = c1.directional_offset_by(phi_off*u.degree,roff_deg*u.degree)
 
 
         rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
                                         np.deg2rad(catdata.dec),
-                                        np.deg2rad(RA0),
-                                        np.deg2rad(DEC0))
+                                        np.deg2rad(c2.ra.value),
+                                        np.deg2rad(c2.dec.value))
 
 
         theta2 = (2.*np.pi - theta) +np.pi/2.
@@ -193,7 +199,7 @@ def partial_map(RA0,DEC0,Z,angles,
         del(e2)
         
         r = np.rad2deg(rads)*3600*KPCSCALE
-        r = np.sqrt(roff**2 + r**2 + 2.*roff*r*np.cos(phi_off))
+        
         del(rads)
         
         
@@ -250,10 +256,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         
         delta = ROUT/(3600*KPCSCALE)
         
-        t0 = time.time()
         mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
-        t1 = time.time()  
-        # print(t1-t0)             
         catdata = S[mask]
 
         ds  = cosmo.angular_diameter_distance(catdata.z_v).value
@@ -265,13 +268,16 @@ def partial_profile(RA0,DEC0,Z,angles,
         Dl = dl*1.e6*pc
         sigma_c = (((cvel**2.0)/(4.0*np.pi*G*Dl))*(1./BETA_array))*(pc**2/Msun)
 
-        t2 = time.time()
-        # print(RA0,DEC0,t2-t1)
+        # Add miscentring
+        c1 = SkyCoord(RA0*u.degree, DEC0*u.degree)
+        roff_deg = roff/(KPCSCALE*3600.)
+        c2 = c1.directional_offset_by(phi_off*u.degree,roff_deg*u.degree)
+
 
         rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
                                         np.deg2rad(catdata.dec),
-                                        np.deg2rad(RA0),
-                                        np.deg2rad(DEC0))
+                                        np.deg2rad(c2.ra.value),
+                                        np.deg2rad(c2.dec.value))
         
         theta2 = (2.*np.pi - theta) +np.pi/2.
         theta_ra = theta2
@@ -292,7 +298,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         del(e2)
         
         r = np.rad2deg(rads)*3600*KPCSCALE
-        r = np.sqrt(roff**2 + r**2 + 2.*roff*r*np.cos(phi_off))
+        # r = np.sqrt(roff**2 + r**2 + 2.*roff*r*np.cos(phi_off))
         del(rads)
         
         
@@ -501,11 +507,11 @@ def main(lcat, sample='pru',
         if miscen:
             # nshift = int(Nlenses*0.2)
             nshift = int(Nlenses)
-            soff   = 1.
+            soff   = 0.4
             x = np.random.uniform(0,5,10000)
             peso = Rayleigh(x,soff)/sum(Rayleigh(x,soff))
             roff[ind_rand0[:nshift]] = np.random.choice(x,nshift,p=peso)*1.e3
-            phi_off[ind_rand0[:nshift]] = np.random.uniform(0.,2.*np.pi,nshift)
+            phi_off[ind_rand0[:nshift]] = np.random.uniform(0.,360.,nshift)
             sample = sample+'_miscen'
                                 
         # SPLIT LENSING CAT

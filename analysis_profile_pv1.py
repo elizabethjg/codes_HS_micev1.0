@@ -120,7 +120,7 @@ def fit_profiles(samp,axes,relax=True):
         mhalos = mhalos*mrelax
     
     halos = halos[mhalos]
-    
+
     # f,axM = plt.subplots()    
     axM.hist(halos.lgMNFW_rho,np.linspace(13.1,14.4,50),histtype='step',label='NFW',color='orangered')
     axM.hist(halos.lgMEin_rho,np.linspace(13.1,14.4,50),histtype='step',label='Einasto',color='seagreen')
@@ -178,6 +178,7 @@ def fit_profiles(samp,axes,relax=True):
     print('alpha ratio')
     print(np.mean(halos.alpha_S)/fitEinDS.alpha)
     # '''    
+    
 
     f=open(plot_path+'compare_lens.tab','a')
     f.write(samp+' & ')
@@ -187,7 +188,8 @@ def fit_profiles(samp,axes,relax=True):
     f.write('$'+str('%.2f' % (10**(np.log10(fitEinDS.M200) - np.mean(np.log10(10**halos.lgMEin_rho)))))+'$ & ')
     f.write('$'+str('%.2f' % (fitEinDS.c200/np.mean(halos.cEin_rho)))+'$ & ')
     f.write('$'+str('%.2f' % (fitEinDS.alpha/np.mean(halos.alpha_rho)))+'$ & ')
-    f.write('$'+str('%.3f' % (fitEinDS.res))+r'$ \\ '+'\n') 
+    f.write('$'+str('%.3f' % (fitEinDS.res))+'$ & ')
+    f.write('$'+str('%.2f' % (fitNFWDS.c200/np.mean(halos.cEin_rho)))+r'$ \\ '+'\n') 
     f.close()
 
     # f=open(plot_path+'compare_lens_2d.tab','a')
@@ -203,8 +205,14 @@ def fit_profiles(samp,axes,relax=True):
 
 def plot_old():
 
-    fp, axp = plt.subplots(8, 1, gridspec_kw={'height_ratios': [3, 1,1,1,3,1,1,1]},figsize=(5,16),sharex = True)
-    fp.subplots_adjust(hspace=0)
+    fp1, axp1 = plt.subplots(4, 1, gridspec_kw={'height_ratios': [3, 1,1,1]},figsize=(5,8),sharex = True)
+    fp2, axp2 = plt.subplots(4, 1, gridspec_kw={'height_ratios': [3, 1,1,1]},figsize=(5,8),sharex = True)
+    
+        
+    axp = [axp1[0],axp1[1],axp1[2],axp1[3],axp2[0],axp2[1],axp2[2],axp2[3]]
+    
+    fp1.subplots_adjust(hspace=0)
+    fp2.subplots_adjust(hspace=0)
 
     for j in range(8):
         axp[j].axvline(RIN/1000.,color='k',ls=':')
@@ -270,6 +278,8 @@ def plot_old():
     axp[0].legend(frameon=False,loc=3,ncol=3)
     
     axp[0].set_xscale('log')
+    axp[5].set_xscale('log')
+    
     axp[0].set_yscale('log')
     axp[4].set_yscale('log')
     
@@ -285,6 +295,7 @@ def plot_old():
     axp[6].set_ylabel(r'$\widetilde{\Delta\Sigma^{SS}} / \Delta\Sigma^{NFW}$',labelpad=2)
     axp[7].set_ylabel(r'$\widetilde{\Delta\Sigma^{SS}} / \Delta\Sigma^{Ein}$',labelpad=2)
 
+    axp[3].set_xlabel('r [$h^{-1}$ Mpc]')
     axp[7].set_xlabel('r [$h^{-1}$ Mpc]')
     
     axp[0].set_ylim(2,200)
@@ -301,16 +312,22 @@ def plot_old():
     axp[0].set_xlim(0.1,5)
     axp[0].xaxis.set_ticks([0.1,1,5])
     axp[0].set_xticklabels([0.1,1,5])
+
+    axp[4].set_xlim(0.1,5)
+    axp[4].xaxis.set_ticks([0.1,1,5])
+    axp[4].set_xticklabels([0.1,1,5])
+    
     axp[0].text(1,100,'all halos')
     axp[4].text(1,100,'only relaxed')
     
 
-    fp.savefig(plot_path+'profile_lens_comparison.pdf',bbox_inches='tight')
+    fp1.savefig(plot_path+'profile_lens_comparison_all.pdf',bbox_inches='tight')
+    fp2.savefig(plot_path+'profile_lens_comparison_relax.pdf',bbox_inches='tight')
     
     
 
 
-'''    
+# '''    
 
 f, ax = plt.subplots(4,3, figsize=(14,7))
 f.subplots_adjust(hspace=0)

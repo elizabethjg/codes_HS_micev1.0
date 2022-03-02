@@ -93,10 +93,6 @@ def plt_profile_compare(samp1,samp2):
     e = (1-q)/(1+q)
     er = (1-qr)/(1+qr)
     
-    H        = cosmo.H(zmean).value/(1.0e3*pc) #H at z_pair s-1 
-    roc      = (3.0*(H**2.0))/(8.0*np.pi*G) #critical density at z_pair (kg.m-3)
-    roc_mpc  = roc*((pc*1.0e6)**3.0)
-    
     
     ndots = p.shape[0]
     
@@ -123,9 +119,10 @@ def plt_profile_compare(samp1,samp2):
     # FIT MONOPOLE
     rplot = np.arange(0.1,10,0.05)
     
-    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
-    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-    gt,gx = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean)
+    
+    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
+    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=er,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
     
     mass = str(np.round(np.log10(nfw.M200),1))
     
@@ -191,11 +188,6 @@ def plt_profile_compare(samp1,samp2):
     e = (1-q)/(1+q)
     er = (1-qr)/(1+qr)
     
-    H        = cosmo.H(zmean).value/(1.0e3*pc) #H at z_pair s-1 
-    roc      = (3.0*(H**2.0))/(8.0*np.pi*G) #critical density at z_pair (kg.m-3)
-    roc_mpc  = roc*((pc*1.0e6)**3.0)
-    
-    
     ndots = p.shape[0]
     
     
@@ -221,9 +213,10 @@ def plt_profile_compare(samp1,samp2):
     # FIT MONOPOLE
     rplot = np.arange(0.1,5,0.05)
     
-    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean,cosmo,True)
-    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
-    gt,gx = GAMMA_components(rplot,zmean,ellip=er,M200 =nfw.M200,c200 = nfw.c200,cosmo=cosmo)
+    nfw    = Delta_Sigma_fit(p.Rp,p.DSigma_T,np.diag(CovDS),zmean)
+        
+    gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
+    gtr,gxr   = GAMMA_components(rplot,zmean,ellip=er,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
     
     mass = str(np.round(np.log10(nfw.M200),1))
         

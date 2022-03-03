@@ -23,9 +23,9 @@ conda activate myenv
 ##srun ./run_fit_2h.sh $SLURM_JOB_NAME
 ##srun ./run_fit_2h_2q.sh $SLURM_JOB_NAME
 ##srun ./run_fit_misal.sh $SLURM_JOB_NAME
-srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True' -misaling 20
-srun ./run_fit.sh $SLURM_JOB_NAME
-##srun ./run_fit_micen.sh $SLURM_JOB_NAME
+##srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True' -misaling 20
+##srun ./run_fit.sh $SLURM_JOB_NAME
+srun ./run_fit_micen.sh $SLURM_JOB_NAME
 
 
 ##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_HM_Lz.fits -RIN 250 -ROUT 2000 -ncores 56

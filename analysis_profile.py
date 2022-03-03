@@ -345,6 +345,8 @@ def plt_profile_wofit(samp):
     gt,gx   = GAMMA_components(rplot,zmean,ellip=e,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
     gtr,gxr   = GAMMA_components(rplot,zmean,ellip=er,M200 = nfw.M200,c200=nfw.c200,cosmo_params=params)
     
+    qfit = str(q)
+    qfit_red = str(qr)
     
     mass = str(np.round(np.log10(nfw.M200),2))
     cfit = str(np.round((nfw.c200),2))

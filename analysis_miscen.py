@@ -60,7 +60,7 @@ def compute_profiles(samp):
     cov_miss = fits.open(folder+p_name)[2].data
     cov      = fits.open(folder+'profile_HM_Lz_relaxed.fits')[2].data      
     
-    zmean = h['z_mean']
+    zmean = fits.open(folder+'profile_HM_Lz_relaxed.fits')[0].header['z_mean']
 
     RIN = 250
     ROUT = 5000

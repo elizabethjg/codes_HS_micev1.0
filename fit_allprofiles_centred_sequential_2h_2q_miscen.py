@@ -38,7 +38,7 @@ components = 'all'
 parser = argparse.ArgumentParser()
 #parser.add_argument('-folder', action='store', dest='folder', default='/mnt/clemente/lensing/HALO_SHAPE/MICE_v1.0/catalogs/')
 parser.add_argument('-folder', action='store', dest='folder', default='/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles/')
-parser.add_argument('-samp', action='store', dest='file_name', default='HM_Lz_relaxed')
+parser.add_argument('-samp', action='store', dest='samp', default='HM_Lz_relaxed')
 parser.add_argument('-ang', action='store', dest='angle', default='standard')
 parser.add_argument('-ncores', action='store', dest='ncores', default=2)
 parser.add_argument('-RIN', action='store', dest='RIN', default=0)

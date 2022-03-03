@@ -50,7 +50,7 @@ args = parser.parse_args()
 
 
 folder     = args.folder
-file_name  = args.file_name
+file_name = 'profile_'+args.samp+'_miscen.fits'  
 angle      = args.angle
 components = args.comp
 
@@ -71,7 +71,6 @@ if angle == 'standard':
 elif angle == 'reduced':
     ang = '_reduced'
 
-file_name = 'profile_'+args.samp+'_miscen.fits'  
 
 if components == 'all':
     outfile     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+'profile_'+args.samp+'.fits'

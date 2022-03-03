@@ -172,7 +172,7 @@ print('TIME DS')
 print((t2-t1)/60.)
 
 '''
-
+t2 = t1
 f = fits.open(folder+outfile)[1].data
 mcmc_out_DS = [f.lM200,f.c200]
 lM = np.percentile(f.lM200[1500:], [16, 50, 84])

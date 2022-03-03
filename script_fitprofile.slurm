@@ -18,4 +18,4 @@ source $HOME/.bashrc
 
 conda activate myenv
 
-srun ./run_fit_micen.sh $SLURM_JOB_NAME
+srun ./run_fit_miscen.sh $SLURM_JOB_NAME

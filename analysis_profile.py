@@ -1653,7 +1653,10 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3):
     ax2.xaxis.set_ticks([0.1,1,5,7])
     ax2.set_xticklabels([0.1,1,5,7])
     
-
+# save_fitted('HM_Lz_relaxed_miscen',250,5000)
+# save_fitted('HM_Hz_relaxed_miscen',250,5000)
+save_fitted('LM_Lz_relaxed_miscen',250,5000)
+save_fitted('LM_Hz_relaxed_miscen',250,5000)
 
 '''
 f, ax_all = plt.subplots(4,3, figsize=(14,14),sharex = True)

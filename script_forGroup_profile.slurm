@@ -19,10 +19,11 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate myenv
 
-srun python -u forGroup_qprofile.py -sample 'HM_Lz' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True' -miscen 'True' -soff 0.3  -misaling 20
-srun python -u forGroup_qprofile.py -sample 'LM_Lz' -lM_min 13.5 -lM_max 14.0 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True'  -miscen 'True' -soff 0.2 -misaling 20
-srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True' -miscen 'True' -soff 0.2 -misaling 20
-srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True' -miscen 'True' -soff 0.3 -misaling 20
+srun python -u forGroup_qprofile.py -sample 'HM_Lz_soff' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True' -miscen 'True' -soff 0.3  -misaling 20
+##srun python -u forGroup_qprofile.py -sample 'HM_Lz' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True' -miscen 'True' -soff 0.3  -misaling 20
+##srun python -u forGroup_qprofile.py -sample 'LM_Lz' -lM_min 13.5 -lM_max 14.0 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True'  -miscen 'True' -soff 0.2 -misaling 20
+##srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True' -miscen 'True' -soff 0.2 -misaling 20
+##srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 -relax 'True' -miscen 'True' -soff 0.3 -misaling 20
 
 
 ##srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.35 -ncores 56 -domap 'True' -nbins 10000 -ROUT 5000

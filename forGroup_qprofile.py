@@ -508,7 +508,8 @@ def main(lcat, sample='pru',
         phi_off = np.zeros(Nlenses)
         
         if miscen:
-            nshift = int(Nlenses*0.25)
+            # nshift = int(Nlenses*0.25)
+            nshift = int(Nlenses)
             x = np.random.uniform(0,5,10000)
             peso = Rayleigh(x,soff)/sum(Rayleigh(x,soff))
             roff[ind_rand0[:nshift]] = np.random.choice(x,nshift,p=peso)*1.e3

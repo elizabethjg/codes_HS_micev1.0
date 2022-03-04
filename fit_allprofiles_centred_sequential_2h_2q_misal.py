@@ -182,7 +182,7 @@ c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h',pname='NFW')
 GT2h,GX2h = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='2h',pname='NFW')
 
-D = 0.78
+D = 0.94
 # NOW FIT q with Gamma components
 # initializing
 def log_likelihood(data_model, R, profiles, iCOV):

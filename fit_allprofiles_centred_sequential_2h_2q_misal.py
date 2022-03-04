@@ -182,12 +182,12 @@ c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h',pname='NFW')
 GT2h,GX2h = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='2h',pname='NFW')
 
-
+D = 0.58
 # NOW FIT q with Gamma components
 # initializing
 def log_likelihood(data_model, R, profiles, iCOV):
     
-    q,q2h,D = data_model
+    q,q2h = data_model
     
     e   = (1.-q)/(1.+q)
     e2h = (1.-q2h)/(1.+q2h)
@@ -213,9 +213,9 @@ def log_likelihood(data_model, R, profiles, iCOV):
 
 def log_probability(data_model, R, profiles, iCOV):
     
-    q,q2h,D = data_model
+    q,q2h = data_model
     
-    if 0.2 < q < 1.0 and 0.2 < q2h < 1.0 and 0.5 < D < 1.0:
+    if 0.2 < q < 1.0 and 0.2 < q2h < 1.0:
         return log_likelihood(data_model, R, profiles, iCOV)
         
     return -np.inf
@@ -230,8 +230,7 @@ profiles = [GT,GX]
 iCov     = [np.linalg.inv(CovGT),np.linalg.inv(CovGX)]
 
 pos = np.array([np.random.uniform(0.2,0.9,15),
-                np.random.uniform(0.2,0.9,15),
-                np.random.uniform(0.6,0.9,15)]).T
+                np.random.uniform(0.2,0.9,15)]).T
 
 nwalkers, ndim = pos.shape
 
@@ -250,7 +249,7 @@ print((t3-t2)/60.)
 mcmc_out_GC = sampler_GC.get_chain(flat=True).T
 q        = np.percentile(mcmc_out_GC[0][1500:], [16, 50, 84])
 q2h      = np.percentile(mcmc_out_GC[1][1500:], [16, 50, 84])
-D        = np.percentile(mcmc_out_GC[2][1500:], [16, 50, 84])
+# D        = np.percentile(mcmc_out_GC[2][1500:], [16, 50, 84])
     
 print('TOTAL TIME FIT')    
 print((time.time()-t1)/60.)
@@ -261,8 +260,8 @@ print((time.time()-t1)/60.)
 table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
             fits.Column(name='c200', format='E', array=mcmc_out_DS[1]),
             fits.Column(name='q', format='E', array=mcmc_out_GC[0]),
-            fits.Column(name='q2h', format='E', array=mcmc_out_GC[1]),
-            fits.Column(name='D', format='E', array=mcmc_out_GC[2])]
+            fits.Column(name='q2h', format='E', array=mcmc_out_GC[1])]
+            # fits.Column(name='D', format='E', array=mcmc_out_GC[2])]
 
 tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
@@ -283,9 +282,9 @@ h.append(('q2h',np.round(q2h[1],4)))
 h.append(('eqM',np.round(np.diff(q2h)[0],4)))
 h.append(('eqm',np.round(np.diff(q2h)[1],4)))
 
-h.append(('D',np.round(D[1],4)))
-h.append(('eDM',np.round(np.diff(D)[0],4)))
-h.append(('eDm',np.round(np.diff(D)[1],4)))
+# h.append(('D',np.round(D[1],4)))
+# h.append(('eDM',np.round(np.diff(D)[0],4)))
+# h.append(('eDm',np.round(np.diff(D)[1],4)))
 
 
 primary_hdu = fits.PrimaryHDU(header=h)

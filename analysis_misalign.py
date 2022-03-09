@@ -20,8 +20,7 @@ def g(x,disp):
     return (1./(np.sqrt(2*np.pi)*disp))*np.exp(-0.5*(x/disp)**2)
 
 
-
-def qratios(samp,miss):
+def qratios(samp,miss,qdm=0.6,qdmr=0.6):
 
     print(samp)
 
@@ -69,18 +68,25 @@ def qratios(samp,miss):
     e2h_miss = (1. - q2h_miss)/(1. + q2h_miss)
     e1hr_miss = (1. - q1hr_miss)/(1. + q1hr_miss)
     e2hr_miss = (1. - q2hr_miss)/(1. + q2hr_miss)
+    
+    edm = (1. - qdm)/(1. + qdm)
+    edmr = (1. - qdmr)/(1. + qdmr)
 
-    print('q1h ratio')
-    print(e1h_miss/e1h_2h2q,e1hr_miss/e1hr_2h2q)
-    print('q2h ratio')
-    print(e2h_miss/e2h_2h2q,e2hr_miss/e2hr_2h2q)
+    # print('q1h ratio')
+    # print(e1h_miss/e1h_2h2q,e1hr_miss/e1hr_2h2q)
+    # print('q2h ratio')
+    # print(e2h_miss/e2h_2h2q,e2hr_miss/e2hr_2h2q)
+    print('dm ratio')
+    print(e1h_miss/edm)
 
     f=open(folder+'../misal_res.tab','a')
     f.write(samp+' & ')
     f.write('$'+str('%.2f' % (e1h_miss/e1h_2h2q))+'$ & ')
     f.write('$'+str('%.2f' % (e2h_miss/e2h_2h2q))+'$ & ')
+    f.write('$'+str('%.2f' % (e1h_miss/edm))+'$ & ')
     f.write('$'+str('%.2f' % (e1hr_miss/e1hr_2h2q))+'$ & ')
-    f.write('$'+str('%.2f' % (e2hr_miss/e2hr_2h2q))+r'$ \\ '+'\n') 
+    f.write('$'+str('%.2f' % (e2hr_miss/e2hr_2h2q))+'$ & ')
+    f.write('$'+str('%.2f' % (e1h_miss/edmr))+r'$ \\ '+'\n') 
     
 
 def qratios_withD(samp,miss):
@@ -144,3 +150,5 @@ def qratios_withD(samp,miss):
     f.write('$'+str('%.2f' % (e1hr_miss/e1hr_2h2q))+'$ & ')
     f.write('$'+str('%.2f' % (e2hr_miss/e2hr_2h2q))+r'$ \\ '+'\n') 
        
+qdm = np.array([0.64, 0.66, 0.63, 0.64])
+qdmr = np.array([0.78, 0.79, 0.78, 0.78])

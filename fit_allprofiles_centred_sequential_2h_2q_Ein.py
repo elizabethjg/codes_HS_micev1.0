@@ -75,8 +75,6 @@ if components == 'all':
     outfile2     = 'fitresults_2h_2q_Ein_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
     outfile2     = 'fitresults_2h_2q_Ein_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-backup      = folder+'backup_'+outfile
-
 
 
 print('fitting profiles')

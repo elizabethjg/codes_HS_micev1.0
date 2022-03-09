@@ -1,5 +1,4 @@
 import sys
-sys.path.append('/mnt/projects/lensing/lens_codes_v3.7')
 sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
 import time
@@ -148,7 +147,7 @@ iCds     =  np.linalg.inv(CovDS)
 
 pos = np.array([np.random.uniform(12.5,15.5,15),
                 np.random.uniform(1,5,15),
-                np.random.uniform(0.2,0.45,10)]).T
+                np.random.uniform(0.2,0.45,15)]).T
 
 nwalkers, ndim = pos.shape
 

@@ -70,16 +70,11 @@ if angle == 'standard':
 elif angle == 'reduced':
     ang = '_reduced'
 
-if components == 'all':
-    outfile     = 'fitresults_2h_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-else:
-    outfile     = 'fitresults_2h_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-backup      = folder+'backup_'+outfile
 
 if components == 'all':
-    outfile2     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile2     = 'fitresults_2h_2q_Ein_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
-    outfile2     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile2     = 'fitresults_2h_2q_Ein_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 
 

@@ -355,14 +355,14 @@ ax[j,1].set_xlabel(r'$c_{200}$')
 ax[j,2].set_xlabel(r'$\alpha$')    
 
 
-f.savefig(plot_path+'dist_lens_compare_relaxed.pdf',bbox_inches='tight')
+f.savefig(plot_path+'dist_lens_compare_relaxed_rescut.pdf',bbox_inches='tight')
 f2d.savefig(plot_path+'dist_lens_compare2d_relaxed.pdf',bbox_inches='tight')
 fp.savefig(plot_path+'profile_lens_relaxed.pdf',bbox_inches='tight')
 
 
 '''
 # all
-'''
+
 
 f, ax = plt.subplots(4,3, figsize=(14,7))
 f.subplots_adjust(hspace=0)

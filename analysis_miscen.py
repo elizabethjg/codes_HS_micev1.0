@@ -130,3 +130,5 @@ def Delta_Sigma_NFW_miss(R,z,M200,s_off = None, tau = 0.2,
     DS    = (2./R**2)*integral - Sigma_NFW_2h(R,z,M200,c200)
 
     Delta_Sigma_NFW_2h(p.Rp,z,M200,c200)
+    
+

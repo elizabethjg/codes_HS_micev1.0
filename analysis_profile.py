@@ -65,6 +65,60 @@ def save_fitted(samp,RIN,ROUT,fittype='_2h_2q'):
 
     np.savetxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat',fitout,fmt='%10.2f')
 
+def save_fitted_Ein(samp,RIN,ROUT,fittype='_2h_2q'):
+
+    
+    component=''
+    terms='1h+2h'
+    pname='NFW'
+    
+    p_name = 'profile_'+samp+'.fits'  
+    profile = fits.open(folder+p_name)
+    
+    print(p_name)
+    h   = profile[0].header  
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    
+    zmean = h['z_mean']
+    
+    rplot = p.Rp
+
+    maskr   = (p.Rp > (RIN/1000.))*(p.Rp < (ROUT/1000.))
+
+    mr = np.meshgrid(maskr,maskr)[1]*np.meshgrid(maskr,maskr)[0]
+
+    CovDSfit  = (cov.COV_ST.reshape(len(p.Rp),len(p.Rp))[mr]).reshape(maskr.sum(),maskr.sum())
+    fitEin = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSfit),zmean,'Einasto',1.e14,3.)
+        
+    # MCMC results
+
+    
+    fitpar = fits.open(folder+'fitresults'+fittype+component+'_250_5000_'+p_name)[0].header
+    fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_250_5000_reduced_'+p_name)[0].header
+  
+    efit     = (1. - fitpar['q']) / (1. + fitpar['q'])
+    efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
+
+    efit2h     = (1. - fitpar['q2h']) / (1. + fitpar['q2h'])
+    efit_red2h = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
+
+
+    DS1h    = Delta_Sigma_Ein_2h(p.Rp,zmean,fitEin.M200,fitEin.c200,fitEin.alpha,terms='1h')
+    DS2h    = Delta_Sigma_Ein_2h(p.Rp,zmean,fitEin.M200,fitEin.c200,fitEin.alpha,terms='2h')
+
+    gt1h,gx1h   = GAMMA_components(p.Rp,zmean,ellip=efit,M200 = fitEin.M200,c200=fitEin.c200,cosmo_params=params,terms='1h',pname='Einasto',alpha=fitEin.alpha)
+    gt1hr,gx1hr = GAMMA_components(p.Rp,zmean,ellip=efit_red,M200 = fitEin.M200,c200=fitEin.c200,cosmo_params=params,terms='1h',pname='Einasto',alpha=fitEin.alpha)
+    
+    gt2h,gx2h   = GAMMA_components(p.Rp,zmean,ellip=efit2h,M200 = fitEin.M200,c200=fitEin.c200,cosmo_params=params,terms='2h',pname='Einasto',alpha=fitEin.alpha)
+    gt2hr,gx2hr = GAMMA_components(p.Rp,zmean,ellip=efit_red2h,M200 = fitEin.M200,c200=fitEin.c200,cosmo_params=params,terms='2h',pname='Einasto',alpha=fitEin.alpha)
+
+    
+    fitout = np.array([p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr])
+
+    np.savetxt(folder+'fitprofile_Ein_'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat',fitout,fmt='%10.2f')
+
 
 def plt_profile_compare(samp1,samp2):
     
@@ -1461,7 +1515,9 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     Eratio = (2.*halos.K/abs(halos.U))
     
     mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
-    mhalos = mhalos*(np.isfinite(halos.lgMNFW_rho))*(np.isfinite(halos.lgMEin_rho))
+    mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
+    mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
+    mhalos = mhalos*mfit_Ein*mfit_NFW
     
     if relax:
         mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
@@ -1469,8 +1525,8 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     
     halos = halos[mhalos]
 
-    qh  = np.median(halos.b2D/halos.a2D)
-    qhr = np.median(halos.b2Dr/halos.a2Dr)
+    qh  = np.mean(halos.b2D/halos.a2D)
+    qhr = np.mean(halos.b2Dr/halos.a2Dr)
 
     lMNFW = np.percentile(halos.lgMNFW_rho, [16,50,84])
     cNFW  = np.percentile(halos.cNFW_rho  , [16,50,84])
@@ -1479,6 +1535,14 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     alpha = np.percentile(halos.alpha_rho , [16,50,84])
     qdm   = np.percentile(halos.b2D/halos.a2D , [16,50,84])
     qdmr  = np.percentile(halos.b2Dr/halos.a2Dr , [16,50,84])
+
+    lMNFW_mean = np.mean(halos.lgMNFW_rho)
+    cNFW_mean  = np.mean(halos.cNFW_rho)
+    lMEin_mean = np.mean(halos.lgMEin_rho)
+    cEin_mean  = np.mean(halos.cEin_rho)
+    alpha_mean = np.mean(halos.alpha_rho)
+    qdm_mean   = np.mean(halos.b2D/halos.a2D)
+    qdmr_mean  = np.mean(halos.b2Dr/halos.a2Dr)
 
     lMfit  = np.percentile(fitd.lM200[1500:], [16,50,84])
     cfit   = np.percentile(fitd.c200[1500:], [16,50,84])
@@ -1489,8 +1553,9 @@ def corner_plot(samp,RIN,ROUT,relax=True,
 
     mres = [lMNFW,cNFW,lMEin,cEin,alpha,lMfit,cfit]
     qres = [qdm,qfit,q2hfit,qdmr,qfit_red,q2hfit_red]
+    mmean = [lMNFW_mean,cNFW_mean,lMEin_mean,cEin_mean,alpha_mean,qdm_mean,qdmr_mean]
 
-    mres = mres + qres
+    mres = mres + qres 
     
     fm=open(folder+'../'+'allres_'+fname,'a')
     fq=open(folder+'../'+'qres_'+fname,'a')
@@ -1498,12 +1563,18 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     # fm.write(samp+' & ')
     # fq.write(samp+' & ')
 
-    for x in mres[:-1]:
+    for x in mres:
         # fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+'}$ & ')
         fm.write(str('%.2f' % (x[1]))+'  '+str('%.2f' % (np.diff(x)[0]))+'  '+str('%.2f' % (np.diff(x)[1]))+'  ')
-    x = mres[-1]
-    fm.write(str('%.2f' % (x[1]))+'  '+str('%.2f' % (np.diff(x)[0]))+'  '+str('%.2f' % (np.diff(x)[1]))+'  \n')
+    # x = mres[-1]
+    # fm.write(str('%.2f' % (x[1]))+'  '+str('%.2f' % (np.diff(x)[0]))+'  '+str('%.2f' % (np.diff(x)[1]))+'  \n')
     # fm.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+r'}$ \\'+' \n')
+    
+    
+    for x in mmean[:-1]:
+        fm.write(str('%.2f' % x)+'  ')
+    x = mmean[-1]
+    fm.write(str('%.2f' % x)+'  \n')
     fm.close()
     
     for x in qres[:-1]:
@@ -1512,10 +1583,8 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     fq.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+r'}$ \\'+' \n')
     fq.close()
 
-    
-
-    lMh = np.median(halos.lgMEin_rho)
-    ch  = np.median(halos.cEin_rho)
+    lMh = np.mean(halos.lgMNFW_rho)
+    ch  = np.mean(halos.cNFW_rho)
 
     mcmc_DS  = np.array([fitd.lM200[1500:],fitd.c200[1500:]]).T
     mcmc     = np.array([fitd.q[1500:],fitd.q2h[1500:]]).T
@@ -1535,127 +1604,8 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     fr.savefig(folder+'../final_plots/mcmc_'+samp+'_fr.pdf',bbox_inches='tight')
     
 
-def plt_profile_fitted_final(samp,RIN,ROUT,axx3):
+def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 
-    fittype = '_2h_2q'
-
-    matplotlib.rcParams.update({'font.size': 12})    
-    ax,ax1,ax2 = axx3
-    
-    p_name = 'profile_'+samp+'.fits'
-    profile = fits.open(folder+p_name)
-
-    print(p_name)
-    
-    # '''
-    h   = profile[0].header
-    p   = profile[1].data
-    cov = profile[2].data
-        
-    ndots = p.shape[0]
-    
-    GT  = p.GAMMA_Tcos
-    GTr = p.GAMMA_Tcos_reduced
-    GTc = p.GAMMA_Tcos_control
-    
-    GX  = p.GAMMA_Xsin
-    GXr = p.GAMMA_Xsin_reduced
-    GXc = p.GAMMA_Xsin_control
-    
-    # '''
-    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
-    CovS   = cov.COV_S.reshape(len(GT),len(GT))
-    
-    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
-    CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
-    CovGTc = cov.COV_GT_control.reshape(len(GT),len(GT))
-    
-    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
-    CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
-    CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
-
-    rplot = np.round(p.Rp,2)
-        
-    # MCMC results
-          
-    rplot,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat')
-
-    DS  = DS1h  + DS2h
-    gt  = gt1h  + gt2h
-    gtr = gt1hr + gt2hr
-    gx  = gx1h  + gx2h
-    gxr = gx1hr + gx2hr
-        
-    ##############    
-
-    ax.plot(p.Rp,p.DSigma_T,'C7')
-    ax.plot(rplot,DS1h,'C0',label='1h')
-    ax.plot(rplot,DS2h,'C9',label='2h')
-    ax.plot(rplot,DS,'C3',label='1h+2h')
-    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C7',alpha=0.4)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_ylabel(r'$\Delta\Sigma$',labelpad=2)
-    ax.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax.set_ylim(0.5,200)
-    ax.set_xlim(0.1,10)
-    ax.xaxis.set_ticks([0.1,1,5,7])
-    ax.set_xticklabels([0.1,1,5,7])
-    ax.yaxis.set_ticks([1,10,100])
-    ax.set_yticklabels([1,10,100])
-    ax.axvline(RIN/1000.,color='k',ls=':')
-    ax.axvline(ROUT/1000.,color='k',ls=':')
-    # ax.legend(loc=3,frameon=False,ncol=2)
-    
-    
-    ax1.plot(p.Rp,GT,'C7',label='standard')
-    ax1.plot(p.Rp,GTr,'C6--',label='reduced')
-    ax1.plot(rplot,gt,'C3')
-    ax1.plot(rplot,gtr,'C3--')
-    ax1.plot(rplot,gt1h,'C0')
-    ax1.plot(rplot,gt2h,'C9')
-    ax1.plot(rplot,gt1hr,'C0--')
-    ax1.plot(rplot,gt2hr,'C9--')
-    # ax1.legend(loc=3,frameon=False)
-    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C7',alpha=0.4)
-    ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C7',alpha=0.4)
-    ax1.set_xscale('log')
-    ax1.set_yscale('log')
-    ax1.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax1.set_ylabel(r'$\Gamma_T$',labelpad=2)
-    ax1.set_ylim(0.5,100)
-    ax1.set_xlim(0.1,10)
-    ax1.xaxis.set_ticks([0.1,1,5,7])
-    ax1.set_xticklabels([0.1,1,5,7])
-    ax1.yaxis.set_ticks([1,10,100])
-    ax1.set_yticklabels([1,10,100])
-    ax1.axvline(RIN/1000.,color='k',ls=':')
-    ax1.axvline(ROUT/1000.,color='k',ls=':')
-        
-    ax2.plot([0,10],[0,0],'k')
-    ax2.plot(p.Rp,GX,'C7')
-    ax2.plot(p.Rp,GXr,'C5--')
-    ax2.plot(rplot,gx,'C3')
-    ax2.plot(rplot,gxr,'C3--')
-    ax2.plot(rplot,gx1h,'C0')
-    ax2.plot(rplot,gx2h,'C9')
-    ax2.plot(rplot,gx1hr,'C0--')
-    ax2.plot(rplot,gx2hr,'C9--')
-    ax2.axvline(RIN/1000.,color='k',ls=':')
-    ax2.axvline(ROUT/1000.,color='k',ls=':')
-    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C7',alpha=0.4)
-    ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C6',alpha=0.4)
-    ax2.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax2.set_ylabel(r'$\Gamma_\times$',labelpad=2)
-    ax2.set_xscale('log')
-    ax2.set_xlim(0.1,10)
-    ax2.set_ylim(-16,17)
-    ax2.xaxis.set_ticks([0.1,1,5,7])
-    ax2.set_xticklabels([0.1,1,5,7])
-
-def plt_profile_bias(samp,RIN,ROUT,axx3):
-
-    fittype = '_2h_2q'
 
     matplotlib.rcParams.update({'font.size': 12})    
     ax,ax1,ax2 = axx3
@@ -1770,6 +1720,156 @@ def plt_profile_bias(samp,RIN,ROUT,axx3):
     ax2.set_ylim(-16,17)
     ax2.xaxis.set_ticks([0.1,1,5,7])
     ax2.set_xticklabels([0.1,1,5,7])
+
+def plt_profile_bias():
+    
+
+    samp = 'HM_Lz_relaxed'
+
+    matplotlib.rcParams.update({'font.size': 12})    
+    
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS  = p.DSigma_T
+    GT  = p.GAMMA_Tcos    
+    GX  = p.GAMMA_Xsin
+    
+    # '''
+    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))    
+    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
+        
+    ##############    
+    # misal
+    ##############    
+    
+    p_name = 'profile_'+samp+'_mis30.fits'
+    profile = fits.open(folder+p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS_al  = p.DSigma_T
+    GT_al  = p.GAMMA_Tcos
+    GX_al  = p.GAMMA_Xsin
+    
+    # '''
+    CovDS_al  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT_al  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGX_al  = cov.COV_GX.reshape(len(GT),len(GT))
+
+    ##############    
+    # miscen
+    ##############    
+    
+    p_name = 'profile_HM_Lz_soff_relaxed_miscen.fits'
+    profile = fits.open(folder+p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS_c  = p.DSigma_T
+    GT_c  = p.GAMMA_Tcos
+    GX_c  = p.GAMMA_Xsin
+    
+    # '''
+    CovDS_c  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT_c  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGX_c  = cov.COV_GX.reshape(len(GT),len(GT))
+
+    ##############    
+    # miscen + misal
+    ##############    
+    
+    p_name = 'profile_'+samp+'_mis20_miscen.fits'
+    profile = fits.open(folder+p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS_cal  = p.DSigma_T
+    GT_cal  = p.GAMMA_Tcos
+    GX_cal  = p.GAMMA_Xsin
+    # '''
+    CovDS_cal  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT_cal  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGX_cal  = cov.COV_GX.reshape(len(GT),len(GT))
+    
+    # '''    
+    y  = [DS,GT,GX]
+    Cy = [np.diag(CovDS),np.diag(CovGT),np.diag(CovGX)]
+
+    y_c  = [DS_c,GT_c,GX_c]
+    Cy_c = [np.diag(CovDS_c),np.diag(CovGT_c),np.diag(CovGX_c)]
+
+    y_al  = [DS_al,GT_al,GX_al]
+    Cy_al = [np.diag(CovDS_al),np.diag(CovGT_al),np.diag(CovGX_al)]
+
+    y_cal  = [DS_cal,GT_cal,GX_cal]
+    Cy_cal = [np.diag(CovDS_cal),np.diag(CovGT_cal),np.diag(CovGX_cal)]
+    
+    y2  = [y_al,y_c,y_cal]
+    Cy2 = [Cy_al,Cy_c,Cy_cal]
+    
+    labels = [r'$\sigma(\Delta \theta) = 30^{\circ}$',r'$p_{cc} = 0.0$',r'$\sigma(\Delta \theta) = 20^{\circ}, p_{cc} = 0.75$']
+    
+    f, ax = plt.subplots(6,3, gridspec_kw={'height_ratios': [3, 1]*3},figsize=(14,10),sharex = True)
+    f.subplots_adjust(hspace=0)
+    
+    for j in range(3):
+        
+        for i in range(3):
+            ax[j*2,i].plot(p.Rp,y[i],'C7')        
+            ax[j*2,i].fill_between(p.Rp,y[i]+Cy[i],y[i]-Cy[i],color='C7',alpha=0.4)
+            ax[j*2,i].plot(p.Rp,y2[j][i],'C3',label = labels[j])        
+            ax[j*2,i].fill_between(p.Rp,y2[j][i]+Cy2[j][i],y2[j][i]-Cy2[j][i],color='C3',alpha=0.4)
+            ax[j*2+1,i].plot(p.Rp,(y[i]-y2[j][i])/y[i],'C7')        
+            ax[j*2+1,i].plot([0,10],[0,0],'k')        
+            ax[j*2+1,i].set_ylim(-0.5,1.)
+
+        ax[j*2+1,i].set_ylim(-5,5)
+        ax[-1,j].set_xlabel('r [$h^{-1}$ Mpc]')
+        
+        
+        j *= 2
+        
+        ax[j,0].legend(frameon=False,loc=4)
+        
+        ax[j,0].set_xscale('log')
+        ax[j,0].set_yscale('log')
+        ax[j,0].set_ylabel(r'$\Delta\Sigma$',labelpad=2)
+        ax[j,0].set_ylim(0.5,200)
+        ax[j,0].set_xlim(0.1,10)
+        ax[j,0].xaxis.set_ticks([0.1,1,5,7])
+        ax[j,0].set_xticklabels([0.1,1,5,7])
+        ax[j,0].yaxis.set_ticks([1,10,100])
+        ax[j,0].set_yticklabels([1,10,100])
+        
+        ax[j,1].set_xscale('log')
+        ax[j,1].set_yscale('log')
+        ax[j,1].set_ylabel(r'$\Gamma_T$',labelpad=2)
+        ax[j,1].set_ylim(0.5,100)
+        ax[j,1].set_xlim(0.1,10)
+        ax[j,1].xaxis.set_ticks([0.1,1,5,7])
+        ax[j,1].set_xticklabels([0.1,1,5,7])
+        ax[j,1].yaxis.set_ticks([1,10,100])
+        ax[j,1].set_yticklabels([1,10,100])
+            
+        ax[j,2].plot([0,10],[0,0],'k')
+        ax[j,2].set_ylabel(r'$\Gamma_\times$',labelpad=2)
+        ax[j,2].set_xscale('log')
+        ax[j,2].set_xlim(0.1,10)
+        ax[j,2].set_ylim(-16,17)
+        ax[j,2].xaxis.set_ticks([0.1,1,5,7])
+        ax[j,2].set_xticklabels([0.1,1,5,7])
+        
+        f.savefig(folder+'../final_plots/profile_test_bias.pdf',bbox_inches='tight')
 
 
 
@@ -1788,7 +1888,7 @@ hsamples_relaxed_misal = ['HM_Lz_relaxed_misalign','LM_Lz_relaxed_misalign','HM_
 
 for j in range(len(ax_all)):
     
-    plt_profile_fitted_final(hsamples_relaxed_misal[j],250,5000,ax_all[j])
+    plt_profile_fitted_final(hsamples_relaxed[j],250,5000,ax_all[j],fittype='_Ein_2h_2q')
     ax_all[j,0].text(1,100,hsamples[j],fontsize=14)
 
 ax_all[0,0].legend(loc=3,frameon=False)
@@ -1796,8 +1896,8 @@ ax_all[0,1].legend(loc=3,frameon=False)
 
 
     
-f.savefig(folder+'../final_plots/profile_relaxed_misal.pdf',bbox_inches='tight')
-'''
+f.savefig(folder+'../final_plots/profile_relaxed_Ein.pdf',bbox_inches='tight')
+# '''
 
 res = np.loadtxt(folder+'../allres_pru.tab').T
 lMNFW    = res[0]
@@ -1839,3 +1939,10 @@ eq1hrM   = res[35]
 q2hr     = res[36]
 eq2hrm   = res[37]
 eq2hrM   = res[38]
+lMNFW_mean = res[39]
+cNFW_mean  = res[40]
+lMEin_mean = res[41]
+cEin_mean  = res[42]
+alpha_mean = res[43]
+qdm_mean   = res[44]
+qdmr_mean  = res[45]

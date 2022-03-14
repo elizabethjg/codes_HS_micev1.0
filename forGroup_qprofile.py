@@ -42,6 +42,8 @@ parser.add_argument('-z_min', action='store', dest='z_min', default=0.1)
 parser.add_argument('-z_max', action='store', dest='z_max', default=0.4)
 parser.add_argument('-q_min', action='store', dest='q_min', default=0.)
 parser.add_argument('-q_max', action='store', dest='q_max', default=1.)
+parser.add_argument('-T_min', action='store', dest='T_min', default=0.)
+parser.add_argument('-T_max', action='store', dest='T_max', default=1.)
 parser.add_argument('-rs_min', action='store', dest='rs_min', default=0.)
 parser.add_argument('-rs_max', action='store', dest='rs_max', default=1.)
 parser.add_argument('-misaling', action='store', dest='misalign', default='False')
@@ -70,6 +72,8 @@ z_min      = float(args.z_min)
 z_max      = float(args.z_max) 
 q_min      = float(args.q_min) 
 q_max      = float(args.q_max) 
+T_min      = float(args.T_min) 
+T_max      = float(args.T_max) 
 rs_min     = float(args.rs_min) 
 rs_max     = float(args.rs_max) 
 RIN        = float(args.RIN)
@@ -373,6 +377,7 @@ def main(lcat, sample='pru',
          lM_min=14.,lM_max=14.2,
          z_min = 0.1, z_max = 0.4,
          q_min = 0., q_max = 1.0,
+         T_min = 0., T_max = 1.0,
          rs_min = 0., rs_max = 1.0,
          resNFW_max = 100., relax=False,
          R5s_min = 0., R5s_max = 100.,
@@ -392,6 +397,8 @@ def main(lcat, sample='pru',
         z_max          (float) higher limit for z - <
         q_min          (float) lower limit for q - >=
         q_max          (float) higher limit for q - <
+        T_min          (float) lower limit for T - >=
+        T_max          (float) higher limit for T - <
         rs_min         (float) lower limit r_scale = r_c/r_max
         rs_max         (float) higher limit r_scale = r_c/r_max
         R5s_min         (float) lower limit R5 scaled
@@ -455,13 +462,16 @@ def main(lcat, sample='pru',
         else:
                 
                 rs      = L.offset
+                T       = (1. - L.q**2)/(1. - L.s**2)
+                
                 mmass   = (L.lgM >= lM_min)*(L.lgM < lM_max)
                 mz      = (L.z >= z_min)*(L.z < z_max)
                 mq      = (L.q2d >= q_min)*(L.q2d < q_max)
+                mT      = (T >= T_min)*(T < T_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mres    = L.resNFW_S < resNFW_max
                 mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
-                mlenses = mmass*mz*mq*mrs*mres*mr5s
+                mlenses = mmass*mz*mq*mT*mrs*mres*mr5s
         
         # SELECT RELAXED HALOS
         if relax:
@@ -688,6 +698,8 @@ def main(lcat, sample='pru',
         h.append(('z_max',np.round(z_max,2)))
         h.append(('q_min',np.round(q_min,2)))
         h.append(('q_max',np.round(q_max,2)))
+        h.append(('T_min',np.round(T_min,2)))
+        h.append(('T_max',np.round(T_max,2)))
         h.append(('resNFW_max',np.round(resNFW_max,2)))
         h.append(('hcosmo',np.round(hcosmo,4)))
         h.append(('lM_mean',np.round(lM_mean,4)))
@@ -832,4 +844,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,misalign,miscen,soff)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,T_min,T_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,misalign,miscen,soff)

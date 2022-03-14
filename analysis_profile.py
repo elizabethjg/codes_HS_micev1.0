@@ -845,7 +845,9 @@ def plt_profile_fitted_2h_2q(samp,RIN,ROUT,fittype='_2h_2q',
 
 def corner_plot(samp,RIN,ROUT,relax=True,
                 fittype = '_2h_2q',component='',
-                fname = 'pru.tab'):
+                fname = 'pru.tab',model='NFW'):
+
+    
 
     matplotlib.rcParams.update({'font.size': 14})
 
@@ -860,21 +862,6 @@ def corner_plot(samp,RIN,ROUT,relax=True,
 
     # MCMC results
           
-    rplot,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr = np.loadtxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat')
-
-    DS  = DS1h  + DS2h
-    gt  = gt1h  + gt2h
-    gtr = gt1hr + gt2hr
-    gx  = gx1h  + gx2h
-    gxr = gx1hr + gx2hr
-        
-    ##############    
-    
-    res_DS  = np.sum((np.log10(DS) - np.log10(p.DSigma_T))**2)/(len(p) - 2.)
-    res_GT  = np.sum((np.log10(gt) - np.log10(p.GAMMA_Tcos))**2)/(len(p) - 2.)
-    res_GX  = np.sum((np.log10(gx) - np.log10(p.GAMMA_Xsin))**2)/(len(p) - 2.)
-    res_GTr = np.sum((np.log10(gtr) - np.log10(p.GAMMA_Tcos_reduced))**2)/(len(p) - 2.)
-    res_GXr = np.sum((np.log10(gxr) - np.log10(p.GAMMA_Xsin_reduced))**2)/(len(p) - 2.)
 
     fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
     fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
@@ -920,6 +907,49 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     qfit_red   = np.percentile(fitd_red.q[1500:], [16,50,84])
     q2hfit_red = np.percentile(fitd_red.q2h[1500:], [16,50,84])
 
+    lM200 = np.median(fitd.lM200[1500:])
+    mcmc     = np.array([fitd.q[1500:],fitd.q2h[1500:]]).T
+    mcmc_red = np.array([fitd_red.q[1500:],fitd_red.q2h[1500:]]).T
+    
+    
+    labels      = ['$q_{1h}$','$q_{2h}$']
+        
+    fs  = corner.corner(mcmc,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qh,qh],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+    fr  = corner.corner(mcmc_red,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qhr,qhr],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+
+    if model == 'Einasto':
+        
+        lMh = np.mean(halos.lgMEin_rho)
+        ch  = np.mean(halos.cEin_rho)
+        ah  = np.mean(halos.alpha_rho)
+        
+        labels_DS   = ['$\log M_{200}$','$c_{200}$',r'$\alpha$']
+        
+        mcmc_DS  = np.array([fitd.lM200[1500:],fitd.c200[1500:],fitd.alpha[1500:]]).T
+        
+        fds = corner.corner(mcmc_DS,labels=labels_DS,smooth=1.,range=[(lM200-0.07,lM200+0.07),(2.,4.5),(0.1,0.5)],truths=[lMh,ch,ah],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+        
+        fds.savefig(folder+'../final_plots/mcmc_'+samp+'_Ein_fds.pdf',bbox_inches='tight')
+        fs.savefig(folder+'../final_plots/mcmc_'+samp+'_Ein_fs.pdf',bbox_inches='tight')
+        fr.savefig(folder+'../final_plots/mcmc_'+samp+'_Ein_fr.pdf',bbox_inches='tight')
+    
+    
+    else:
+        
+        lMh = np.mean(halos.lgMNFW_rho)
+        ch  = np.mean(halos.cNFW_rho)
+        labels_DS   = ['$\log M_{200}$','$c_{200}$']
+        
+        mcmc_DS  = np.array([fitd.lM200[1500:],fitd.c200[1500:]]).T
+        
+        fds = corner.corner(mcmc_DS,labels=labels_DS,smooth=1.,range=[(lM200-0.07,lM200+0.07),(2.,4.5)],truths=[lMh,ch],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+        
+        fds.savefig(folder+'../final_plots/mcmc_'+samp+'_fds.pdf',bbox_inches='tight')
+        fs.savefig(folder+'../final_plots/mcmc_'+samp+'_fs.pdf',bbox_inches='tight')
+        fr.savefig(folder+'../final_plots/mcmc_'+samp+'_fr.pdf',bbox_inches='tight')
+
+    # Write tables
+    
     mres = [lMNFW,cNFW,lMEin,cEin,alpha,lMfit,cfit]
     qres = [qdm,qfit,q2hfit,qdmr,qfit_red,q2hfit_red]
     mmean = [lMNFW_mean,cNFW_mean,lMEin_mean,cEin_mean,alpha_mean,qdm_mean,qdmr_mean]
@@ -952,25 +982,6 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     fq.write('$'+str('%.2f' % (x[1]))+'_{-'+str('%.2f' % (np.diff(x)[0]))+'}^{+'+str('%.2f' % (np.diff(x)[1]))+r'}$ \\'+' \n')
     fq.close()
 
-    lMh = np.mean(halos.lgMNFW_rho)
-    ch  = np.mean(halos.cNFW_rho)
-
-    mcmc_DS  = np.array([fitd.lM200[1500:],fitd.c200[1500:]]).T
-    mcmc     = np.array([fitd.q[1500:],fitd.q2h[1500:]]).T
-    mcmc_red = np.array([fitd_red.q[1500:],fitd_red.q2h[1500:]]).T
-    
-    lM200 = np.median(fitd.lM200[1500:])
-
-    labels_DS   = ['$\log M_{200}$','$c_{200}$']
-    labels      = ['$q_{1h}$','$q_{2h}$']
-    
-    fds = corner.corner(mcmc_DS,labels=labels_DS,smooth=1.,range=[(lM200-0.07,lM200+0.07),(2.5,4)],truths=[lMh,ch],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
-    fs  = corner.corner(mcmc,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qh,qh],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
-    fr  = corner.corner(mcmc_red,labels=labels,smooth=1.,range=[(0.2,1.),(0.2,1.)],truths=[qhr,qhr],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
-    
-    fds.savefig(folder+'../final_plots/mcmc_'+samp+'_fds.pdf',bbox_inches='tight')
-    fs.savefig(folder+'../final_plots/mcmc_'+samp+'_fs.pdf',bbox_inches='tight')
-    fr.savefig(folder+'../final_plots/mcmc_'+samp+'_fr.pdf',bbox_inches='tight')
     
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):

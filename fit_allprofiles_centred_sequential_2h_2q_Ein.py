@@ -251,6 +251,7 @@ print((time.time()-t1)/60.)
 
 table = [fits.Column(name='lM200', format='E', array=mcmc_out_DS[0]),
             fits.Column(name='c200', format='E', array=mcmc_out_DS[1]),
+            fits.Column(name='alpha', format='E', array=mcmc_out_DS[2]),
             fits.Column(name='q', format='E', array=mcmc_out_GC[0]),
             fits.Column(name='q2h', format='E', array=mcmc_out_GC[1])]
 
@@ -258,20 +259,10 @@ tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(table))
 
 h = fits.Header()
 h.append(('lM200',np.round(lM[1],4)))
-h.append(('elM200M',np.round(np.diff(lM)[0],4)))
-h.append(('elM200m',np.round(np.diff(lM)[1],4)))
-
 h.append(('c200',np.round(c200[1],4)))
-h.append(('ec200M',np.round(np.diff(c200)[0],4)))
-h.append(('ec200m',np.round(np.diff(c200)[1],4)))
-
+h.append(('alpha',np.round(alpha[1],4)))
 h.append(('q',np.round(q[1],4)))
-h.append(('eqM',np.round(np.diff(q)[0],4)))
-h.append(('eqm',np.round(np.diff(q)[1],4)))
-
 h.append(('q2h',np.round(q2h[1],4)))
-h.append(('eqM',np.round(np.diff(q2h)[0],4)))
-h.append(('eqm',np.round(np.diff(q2h)[1],4)))
 
 
 primary_hdu = fits.PrimaryHDU(header=h)

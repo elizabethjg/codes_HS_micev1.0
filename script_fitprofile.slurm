@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fitwo
+#SBATCH --job-name=fitEin
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00
@@ -18,4 +18,4 @@ source $HOME/.bashrc
 
 conda activate myenv
 
-srun ./run_fit_2h_2q.sh $SLURM_JOB_NAME
+srun ./run_fit_2h.sh $SLURM_JOB_NAME

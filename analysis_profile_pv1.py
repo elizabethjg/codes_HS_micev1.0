@@ -17,7 +17,7 @@ folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/p
 
 plot_path = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/plot_paper_HSMice/'    
 
-RIN = 250.
+RIN  = 250.
 ROUT = 2500.
 
 
@@ -54,19 +54,21 @@ def fit_profiles(samp,axes,relax=True):
     CovSf = (cov.COV_S.reshape(len(p.Rp),len(p.Rp))[mr]).reshape(maskr.sum(),maskr.sum())
 
     fitEinDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),zmean,'Einasto',1.e14,3.)
-    # fitEinS  = Sigma_fit(p.Rp[maskr],p.Sigma[maskr],np.diag(CovSf),zmean,'Einasto',1.e14,3.)
+    # fitEinDS  = Sigma_fit(p.Rp[maskr],p.Sigma[maskr],np.diag(CovSf),zmean,'Einasto',1.e14,3.)
     fitNFWDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),zmean)
-    # fitNFWS  = Sigma_fit(p.Rp[maskr],p.Sigma[maskr],np.diag(CovSf),zmean)
+    # fitNFWDS  = Sigma_fit(p.Rp[maskr],p.Sigma[maskr],np.diag(CovSf),zmean)
 
     out = np.array([fitEinDS.xplot,fitNFWDS.yplot,fitEinDS.yplot])
     
-    np.savetxt(plot_path+'profile_'+samp+'.fit',out,fmt='%12.3f')
+    np.savetxt(plot_path+'profile_'+samp+'_S.fit',out,fmt='%12.3f')
 
     # f,axDS = plt.subplots()
     axDS.plot(p.Rp,p.DSigma_T,'C7')
+    axDS.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C7',alpha=0.4)
+    # axDS.fill_between(p.Rp,p.Sigma+np.diag(CovS),p.Sigma-np.diag(CovS),color='C7',alpha=0.4)
+    # axDS.plot(p.Rp,p.Sigma,'C7')
     axDS.plot(fitEinDS.xplot,fitEinDS.yplot,'seagreen',label='Einasto')
     axDS.plot(fitNFWDS.xplot,fitNFWDS.yplot,'orangered',label='NFW')
-    axDS.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C7',alpha=0.4)
     axDS.set_xscale('log')
     axDS.set_yscale('log')
     axDS.set_ylabel(r'$\Delta\Sigma [M_\odot h/pc^2]$',labelpad=2)
@@ -180,7 +182,7 @@ def fit_profiles(samp,axes,relax=True):
     # '''    
     
 
-    f=open(plot_path+'compare_lens.tab','a')
+    f=open(plot_path+'compare_lens_S.tab','a')
     f.write(samp+' & ')
     f.write('$'+str('%.2f' % (10**(np.log10(fitNFWDS.M200) - np.mean(np.log10(10**halos.lgMNFW_rho)))))+'$ & ')
     f.write('$'+str('%.2f' % (fitNFWDS.c200/np.mean(halos.cNFW_rho)))+'$ & ')
@@ -324,6 +326,126 @@ def plot_old():
     fp1.savefig(plot_path+'profile_lens_comparison_all.pdf',bbox_inches='tight')
     fp2.savefig(plot_path+'profile_lens_comparison_relax.pdf',bbox_inches='tight')
     
+def plot_old_S():
+
+    fp1, axp1 = plt.subplots(4, 1, gridspec_kw={'height_ratios': [3, 1,1,1]},figsize=(5,8),sharex = True)
+    fp2, axp2 = plt.subplots(4, 1, gridspec_kw={'height_ratios': [3, 1,1,1]},figsize=(5,8),sharex = True)
+    
+        
+    axp = [axp1[0],axp1[1],axp1[2],axp1[3],axp2[0],axp2[1],axp2[2],axp2[3]]
+    
+    fp1.subplots_adjust(hspace=0)
+    fp2.subplots_adjust(hspace=0)
+
+    for j in range(8):
+        axp[j].axvline(RIN/1000.,color='k',ls=':')
+        axp[j].axvline(ROUT/1000.,color='k',ls=':')
+        axp[j].plot([0,10],[1,1],'k')
+
+
+    def make_plot(samp,cline,samp_name):
+
+        pro = fits.open(folder+'profile_'+samp+'.fits')
+        pro_old = fits.open(folder+'profile_'+samp+'_old.fits')
+        x,ynfw,yein = np.loadtxt(plot_path+'profile_'+samp+'_S.fit')
+        
+        p   = pro[1].data
+        cov = pro[2].data
+        pold   = pro_old[1].data
+        covold = pro_old[2].data
+        
+        CovS  = cov.COV_S.reshape(len(p),len(p))
+        CovSold  = covold.COV_S.reshape(len(p),len(p))
+
+        axp[0].fill_between(p.Rp,p.Sigma+np.diag(CovS),p.Sigma-np.diag(CovS),color=cline,alpha=0.4)    
+        axp[0].fill_between(pold.Rp,pold.Sigma+np.diag(CovSold),pold.Sigma-np.diag(CovSold),color=cline,alpha=0.4)    
+        axp[0].plot(p.Rp,p.Sigma,cline,label=samp_name)
+        axp[0].plot(pold.Rp,pold.Sigma,cline+'--')
+        
+        axp[1].plot(p.Rp,p.Sigma/pold.Sigma,cline)
+        axp[2].plot(p.Rp,p.Sigma/ynfw,cline)
+        axp[3].plot(p.Rp,p.Sigma/yein,cline)
+        
+        pro = fits.open(folder+'profile_'+samp+'_relaxed.fits')
+        pro_old = fits.open(folder+'profile_'+samp+'_old_relaxed.fits')
+        x,ynfw,yein = np.loadtxt(plot_path+'profile_'+samp+'_relaxed_S.fit')
+        
+        p   = pro[1].data
+        cov = pro[2].data
+        pold   = pro_old[1].data
+        covold = pro_old[2].data
+        
+        CovDS  = cov.COV_S.reshape(len(p),len(p))
+        CovDSold  = covold.COV_S.reshape(len(p),len(p))
+
+        axp[4].fill_between(p.Rp,p.Sigma+np.diag(CovS),p.Sigma-np.diag(CovS),color=cline,alpha=0.4)    
+        axp[4].fill_between(pold.Rp,pold.Sigma+np.diag(CovSold),pold.Sigma-np.diag(CovSold),color=cline,alpha=0.4)    
+        axp[4].plot(p.Rp,p.Sigma,cline)
+        axp[4].plot(pold.Rp,pold.Sigma,cline+'--')
+        
+        axp[5].plot(p.Rp,p.Sigma/pold.Sigma,cline)
+        axp[6].plot(p.Rp,p.Sigma/ynfw,cline)
+        axp[7].plot(p.Rp,p.Sigma/yein,cline)
+
+
+    hsamples = ['HM_Lz','LM_Lz','HM_Hz','LM_Hz']
+    clines   = ['C0','C1','C2','C3']
+    labels = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
+
+    for j in range(len(hsamples)):
+        make_plot(hsamples[j],clines[j],labels[j])
+
+    
+    axp[0].plot([-10,-12],[-10,-12],'k',label='SS')
+    axp[0].plot([-10,-12],[-10,-12],'k--',label='CM')
+    axp[0].legend(frameon=False,loc=3,ncol=3)
+    
+    axp[0].set_xscale('log')
+    axp[5].set_xscale('log')
+    
+    axp[0].set_yscale('log')
+    axp[4].set_yscale('log')
+    
+
+    axp[0].set_ylabel(r'$\widetilde{\Sigma} [M_\odot h/pc^2]$',labelpad=2)
+    axp[4].set_ylabel(r'$\widetilde{\Sigma} [M_\odot h/pc^2]$',labelpad=2)
+    
+    axp[1].set_ylabel(r'$\widetilde{\Sigma^{SS}} / \widetilde{\Sigma^{CM}}$',labelpad=2)
+    axp[5].set_ylabel(r'$\widetilde{\Sigma^{SS}} / \widetilde{\Sigma^{CM}}$',labelpad=2)
+    
+    axp[2].set_ylabel(r'$\widetilde{\Sigma^{SS}} / \Sigma^{NFW}$',labelpad=2)
+    axp[3].set_ylabel(r'$\widetilde{\Sigma^{SS}} / \Sigma^{Ein}$',labelpad=2)
+    axp[6].set_ylabel(r'$\widetilde{\Sigma^{SS}} / \Sigma^{NFW}$',labelpad=2)
+    axp[7].set_ylabel(r'$\widetilde{\Sigma^{SS}} / \Sigma^{Ein}$',labelpad=2)
+
+    axp[3].set_xlabel('r [$h^{-1}$ Mpc]')
+    axp[7].set_xlabel('r [$h^{-1}$ Mpc]')
+    
+    axp[0].set_ylim(2,200)
+    axp[4].set_ylim(2,200)
+    
+    axp[1].set_ylim(0.6,2.5)
+    axp[5].set_ylim(0.6,2.5)
+    
+    axp[2].set_ylim(0.1,2)
+    axp[3].set_ylim(0.1,2)
+    axp[6].set_ylim(0.1,2)
+    axp[7].set_ylim(0.1,2)
+
+    axp[0].set_xlim(0.1,5)
+    axp[0].xaxis.set_ticks([0.1,1,5])
+    axp[0].set_xticklabels([0.1,1,5])
+
+    axp[4].set_xlim(0.1,5)
+    axp[4].xaxis.set_ticks([0.1,1,5])
+    axp[4].set_xticklabels([0.1,1,5])
+    
+    axp[0].text(1,100,'all halos')
+    axp[4].text(1,100,'only relaxed')
+    
+
+    fp1.savefig(plot_path+'profile_lens_comparison_S_all.pdf',bbox_inches='tight')
+    fp2.savefig(plot_path+'profile_lens_comparison_S_relax.pdf',bbox_inches='tight')
     
 
 
@@ -362,7 +484,7 @@ fp.savefig(plot_path+'profile_lens_relaxed.pdf',bbox_inches='tight')
 
 '''
 # all
-
+'''
 
 f, ax = plt.subplots(4,3, figsize=(14,7))
 f.subplots_adjust(hspace=0)

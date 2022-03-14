@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=elong
+#SBATCH --job-name=round
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00

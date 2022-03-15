@@ -111,11 +111,20 @@ def fit_profiles(samp,axes,relax=True):
                 
     
     Eratio = (2.*halos.K/abs(halos.U))
+    T       = (1. - halos.q**2)/(1. - halos.s**2)
+    
+    try:
+        T_min = h['T_min']
+        T_max = h['T_max']
+    except:
+        T_min = 0.
+        T_max = 1.
     
     mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
     mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
     mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
-    mhalos = mhalos*mfit_Ein*mfit_NFW
+    mshape   = (T >= T_min)*(T < T_max)*(halos.q2d >= h['q_min'])*(halos.q2d < h['q_max'])
+    mhalos = mhalos*mfit_Ein*mfit_NFW*mshape
     
     if relax:
         mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
@@ -182,7 +191,7 @@ def fit_profiles(samp,axes,relax=True):
     # '''    
     
 
-    f=open(plot_path+'compare_lens_S.tab','a')
+    f=open(plot_path+'compare_lens.tab','a')
     f.write(samp+' & ')
     f.write('$'+str('%.2f' % (10**(np.log10(fitNFWDS.M200) - np.mean(np.log10(10**halos.lgMNFW_rho)))))+'$ & ')
     f.write('$'+str('%.2f' % (fitNFWDS.c200/np.mean(halos.cNFW_rho)))+'$ & ')
@@ -460,7 +469,12 @@ f2d.subplots_adjust(hspace=0)
 fp, axp = plt.subplots(4,1, figsize=(4,9),sharey=True,sharex=True)
 fp.subplots_adjust(hspace=0,wspace=0)
 
-hsamples_relaxed = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
+# hsamples_relaxed = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
+# hsamples_relaxed = ['HM_Lz_elong_relaxed','LM_Lz_elong_relaxed','HM_Hz_elong_relaxed','LM_Hz_elong_relaxed']
+# hsamples_relaxed = ['HM_Lz_round_relaxed','LM_Lz_round_relaxed','HM_Hz_round_relaxed','LM_Hz_round_relaxed']
+# hsamples_relaxed = ['HM_Lz_round_obl_relaxed','LM_Lz_round_obl_relaxed','HM_Hz_round_obl_relaxed','LM_Hz_round_obl_relaxed']
+hsamples_relaxed = ['HM_Lz_round_pro_relaxed','LM_Lz_round_pro_relaxed','HM_Hz_round_pro_relaxed','LM_Hz_round_pro_relaxed']
+
 ct = [25,100,35,130]
 labels = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
 
@@ -477,14 +491,14 @@ ax[j,1].set_xlabel(r'$c_{200}$')
 ax[j,2].set_xlabel(r'$\alpha$')    
 
 
-f.savefig(plot_path+'dist_lens_compare_relaxed_rescut.pdf',bbox_inches='tight')
-f2d.savefig(plot_path+'dist_lens_compare2d_relaxed.pdf',bbox_inches='tight')
-fp.savefig(plot_path+'profile_lens_relaxed.pdf',bbox_inches='tight')
+# f.savefig(plot_path+'dist_lens_compare_relaxed_rescut.pdf',bbox_inches='tight')
+# f2d.savefig(plot_path+'dist_lens_compare2d_relaxed.pdf',bbox_inches='tight')
+# fp.savefig(plot_path+'profile_lens_relaxed.pdf',bbox_inches='tight')
 
 
 '''
 # all
-'''
+
 
 f, ax = plt.subplots(4,3, figsize=(14,7))
 f.subplots_adjust(hspace=0)

@@ -850,6 +850,9 @@ def corner_plot(samp,RIN,ROUT,relax=True,
     
 
     matplotlib.rcParams.update({'font.size': 14})
+    
+    if model == 'Einasto':
+        fittype += '_Ein'
 
     p_name = 'profile_'+samp+'.fits'
     profile = fits.open(folder+p_name)

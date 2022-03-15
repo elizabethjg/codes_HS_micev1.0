@@ -87,7 +87,7 @@ print('RIN ',RIN)
 print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
-print('outfile',outfile2)
+print('outfile',outfile)
 print('fitting components ',components)
 
 # extracting data from profile

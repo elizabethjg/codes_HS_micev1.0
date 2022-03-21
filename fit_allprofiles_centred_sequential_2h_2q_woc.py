@@ -123,7 +123,7 @@ def log_likelihood_DS(lM200, R, ds, iCds):
 
     c200 = concentration.concentration(10**lM200, '200c', zmean, model = cmodel)
     
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h')
+    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
 
     L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
         

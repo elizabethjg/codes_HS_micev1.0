@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fitEin
+#SBATCH --job-name=fnonrex
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00
@@ -18,4 +18,10 @@ source $HOME/.bashrc
 
 conda activate myenv
 
-srun ./run_fit_2h.sh $SLURM_JOB_NAME
+srun ./run_fit_2h_2q
+srun ./run_fit_forz_400.sh Hz_relaxed
+srun ./run_fit_forz_400.sh Lz_relaxed
+srun ./run_fit_forz_400.sh Lz
+srun ./run_fit_forz_250.sh Lz
+srun ./run_fit_forz_400.sh Hz
+srun ./run_fit_forz_250.sh Hz

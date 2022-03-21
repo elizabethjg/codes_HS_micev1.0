@@ -18,7 +18,7 @@ source $HOME/.bashrc
 
 conda activate myenv
 
-srun ./run_fit_2h_2q
+srun ./run_fit_2h_2q.sh
 srun ./run_fit_forz_400.sh Hz_relaxed
 srun ./run_fit_forz_400.sh Lz_relaxed
 srun ./run_fit_forz_400.sh Lz

@@ -19,14 +19,14 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate myenv
 
-srun python -u forGroup_qprofile.py -sample 'HM_Mz' -lM_min 14.0 -lM_max 14.5 -z_min 0.2 -z_max 0.3  -ncores 56 -relax 'True' 
-srun python -u forGroup_qprofile.py -sample 'LM_Mz' -lM_min 13.5 -lM_max 14.0 -z_min 0.2 -z_max 0.3  -ncores 56 -relax 'True' 
-srun python -u forGroup_qprofile.py -sample 'LM_HHz' -lM_min 13.5 -lM_max 14.0 -z_min 0.35 -z_max 0.4 -ncores 56 -relax 'True'
-srun python -u forGroup_qprofile.py -sample 'HM_HHz' -lM_min 14.0 -lM_max 14.5 -z_min 0.35 -z_max 0.4 -ncores 56 -relax 'True'
-srun ./run_fit_forz_400.sh HHz_relaxed
-srun ./run_fit_forz_400.sh Mz_relaxed
-srun ./run_fit_forz_250.sh HHz_relaxed
-srun ./run_fit_forz_250.sh Mz_relaxed
+##srun python -u forGroup_qprofile.py -sample 'HM_Mz' -lM_min 14.0 -lM_max 14.5 -z_min 0.2 -z_max 0.3  -ncores 56 -relax 'True' 
+##srun python -u forGroup_qprofile.py -sample 'LM_Mz' -lM_min 13.5 -lM_max 14.0 -z_min 0.2 -z_max 0.3  -ncores 56 -relax 'True' 
+##srun python -u forGroup_qprofile.py -sample 'LM_HHz' -lM_min 13.5 -lM_max 14.0 -z_min 0.35 -z_max 0.4 -ncores 56 -relax 'True'
+##srun python -u forGroup_qprofile.py -sample 'HM_HHz' -lM_min 14.0 -lM_max 14.5 -z_min 0.35 -z_max 0.4 -ncores 56 -relax 'True'
+##srun ./run_fit_forz_400.sh HHz_relaxed
+##srun ./run_fit_forz_400.sh Mz_relaxed
+srun ./run_fit_forz.sh HHz_relaxed
+srun ./run_fit_forz.sh Mz_relaxed
 
 ##srun python -u forGroup_qprofile.py -sample 'HM_Lz_soff' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2 -ncores 56 -relax 'True' -miscen 'True' -soff 0.3  -misaling 20
 ##srun python -u forGroup_qprofile.py -sample 'HM_Lz_round_obl' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2  -ncores 56 -relax 'True' -q_min 0.6 -T_max 0.8

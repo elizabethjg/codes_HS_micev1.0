@@ -109,14 +109,14 @@ def extract_params(hsamples,RIN=250,relax=True):
         halos_samp = halos[mhalos]
     
         qwh   += [h['q2d_mean']]
-        lMNFW = np.percentile(halos_samp.lgMNFW_rho, [16,50,84])
-        cNFW  = np.percentile(halos_samp.cNFW_rho  , [16,50,84])
-        lMEin = np.percentile(halos_samp.lgMEin_rho, [16,50,84])
-        cEin  = np.percentile(halos_samp.cEin_rho , [16,50,84])
-        alpha = np.percentile(halos_samp.alpha_rho , [16,50,84])
+        lMNFW = np.mean(halos_samp.lgMNFW_rho)
+        cNFW  = np.mean(halos_samp.cNFW_rho)
+        lMEin = np.mean(halos_samp.lgMEin_rho)
+        cEin  = np.mean(halos_samp.cEin_rho)
+        alpha = np.mean(halos_samp.alpha_rho)
         
-        NFW_h += [[lMNFW[1],cNFW[1]]]
-        Ein_h += [[lMEin[1],cEin[1],alpha[1]]]
+        NFW_h += [[lMNFW,cNFW]]
+        Ein_h += [[lMEin,cEin,alpha]]
 
 
         # 1 halo
@@ -177,9 +177,37 @@ def extract_params(hsamples,RIN=250,relax=True):
 qwh,NFW_h,Ein_h,NFW,Ein,o1h,woc = extract_params(['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed'])
 
 # '''
-
+###########
+#   q1h
+###########
 fq = [NFW,Ein,woc,o1h]
 
+
+f,ax = plt.subplots(figsize=(14,3))
+plt.plot([0,5],[1,1],'C7--')
+
+lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
+xl = ['NFW','Ein','fix $c_{200}$','1h']
+cstyle = ['C0^','C0v','C3^','C3v']
+
+param = 1
+
+ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+
+for hs in range(4):
+    for fp in range(4):
+        plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,fmt=cstyle[hs],markersize=10)
+
+plt.legend(frameon = False)
+plt.ylabel(r'$\tilde{q}_{1h}/\langle q \rangle$')
+ax.set_xticks(np.arange(4)+1)
+ax.set_xticklabels(xl)
+f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+# '''
+
+###########
+#   q2h
+###########
 
 f,ax = plt.subplots(figsize=(14,3))
 plt.plot([0,5],[1,1],'C7--')
@@ -197,8 +225,33 @@ for hs in range(4):
         plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,fmt=cstyle[hs],markersize=10)
 
 plt.legend(frameon = False)
-plt.ylabel(r'$\tilde{q}_{1h}/\langle q \rangle$')
+plt.ylabel(r'$\tilde{q}_{2h}/\langle q \rangle$')
+ax.set_xticks(np.arange(3)+1)
+ax.set_xticklabels(xl[:-1])
+f.savefig(folder+'../final_plots/model_q2h.pdf',bbox_inches='tight')
+
+###########
+#   lM200
+###########
+
+f,ax = plt.subplots(figsize=(14,3))
+plt.plot([0,5],[1,1],'C7--')
+
+lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
+xl = ['NFW','Ein','fix $c_{200}$','1h']
+cstyle = ['C0^','C0v','C3^','C3v']
+
+param = 0
+
+ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+
+for hs in range(4):
+    for fp in range(4):
+        diff = 10**(fq[fp][0][hs][param] - NFW_h[hs][param])
+        plt.errorbar(fp+1+0.1*hs,(diff),yerr=np.array([fq[fp][1][hs][param]*np.log(10)*diff]).T,fmt=cstyle[hs],markersize=10)
+
+plt.legend(frameon = False)
+plt.ylabel(r'$\tilde{M_{200}}/M_{200}$')
 ax.set_xticks(np.arange(4)+1)
 ax.set_xticklabels(xl)
-f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
-# '''
+f.savefig(folder+'../final_plots/model_M200.pdf',bbox_inches='tight')

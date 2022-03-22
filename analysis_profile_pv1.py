@@ -53,14 +53,14 @@ def fit_profiles(samp,axes,relax=True):
     CovDSf = (cov.COV_ST.reshape(len(p.Rp),len(p.Rp))[mr]).reshape(maskr.sum(),maskr.sum())
     CovSf = (cov.COV_S.reshape(len(p.Rp),len(p.Rp))[mr]).reshape(maskr.sum(),maskr.sum())
 
+    fitNFWDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),zmean)
     fitEinDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),zmean,'Einasto',1.e14,3.)
     # fitEinDS  = Sigma_fit(p.Rp[maskr],p.Sigma[maskr],np.diag(CovSf),zmean,'Einasto',1.e14,3.)
-    fitNFWDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),zmean)
     # fitNFWDS  = Sigma_fit(p.Rp[maskr],p.Sigma[maskr],np.diag(CovSf),zmean)
 
     out = np.array([fitEinDS.xplot,fitNFWDS.yplot,fitEinDS.yplot])
     
-    np.savetxt(plot_path+'profile_'+samp+'_S.fit',out,fmt='%12.3f')
+    np.savetxt(plot_path+'profile_'+samp+'.fit',out,fmt='%12.3f')
 
     # f,axDS = plt.subplots()
     axDS.plot(p.Rp,p.DSigma_T,'C7')

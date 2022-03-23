@@ -1,7 +1,6 @@
 import sys
-sys.path.append('/mnt/projects/lensing')
-sys.path.append('/mnt/projects/lensing/lens_codes_v3.7')
 sys.path.append('/home/eli/lens_codes_v3.7')
+sys.path.append('/home/elizabeth/lens_codes_v3.7')
 import time
 import numpy as np
 from astropy.io import fits

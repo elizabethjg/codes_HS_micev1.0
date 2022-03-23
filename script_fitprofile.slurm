@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fit
+#SBATCH --job-name=complete_rel
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00
@@ -18,10 +18,4 @@ source $HOME/.bashrc
 
 conda activate myenv
 
-##srun ./run_fit_2h_2q.sh
-srun ./run_fit_forz.sh Hz_relaxed
-srun ./run_fit_forz.sh Lz_relaxed
-##srun ./run_fit_forz_400.sh Lz
-srun ./run_fit_forz.sh Lz
-##srun ./run_fit_forz_400.sh Hz
-srun ./run_fit_forz.sh Hz
+srun ./run_fit_forz_400.sh

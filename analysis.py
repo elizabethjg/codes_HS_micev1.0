@@ -250,120 +250,145 @@ def test_fitting(hsamples,RIN=250,relax=True):
         
         ax[0].set_ylim([0.6,1.15])
         ax[1].set_ylim([0.6,1.15])
-        f.savefig(folder+'../final_plots/test_fit_'+samp+'.png',bbox_inches='tight')
-
-               
-
+        # f.savefig(folder+'../final_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
+        f.savefig(folder+'../test_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
 
 
+def plot_bias(hsamps,lhs,cstyle,nplot):
+    qwh,NFW_h,Ein_h,NFW,Ein,o1h,woc = extract_params(hsamps)
+    ###########
+    #   q1h
+    ###########
+    fq = [NFW,Ein,woc,o1h]
+    
+    
+    f,ax = plt.subplots(figsize=(14,3))
+    plt.plot([0,5],[1,1],'C7--')
+    
+    
+    xl = ['NFW','Ein','fix $c_{200}$','1h']
+    
+    param = 1
+    
+    ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+    
+    for hs in range(4):
+        for fp in range(4):
+            if fp == 0:
+                plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+            else:
+                plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                            fmt=cstyle[hs],markersize=10)
+    
+    plt.legend(frameon = False)
+    plt.ylabel(r'$\tilde{q}_{1h}/\langle q \rangle$')
+    ax.set_xticks(np.arange(4)+1)
+    ax.set_xticklabels(xl)
+    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
+    
+    
+    ###########
+    #   q2h
+    ###########
+    
+    f,ax = plt.subplots(figsize=(14,3))
+    plt.plot([0,5],[1,1],'C7--')
+    
+    param = -1
+    
+    ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+    
+    for hs in range(4):
+        for fp in range(3):
+            if fp == 0:
+                plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+            else:
+                plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                            fmt=cstyle[hs],markersize=10)
+    
+    plt.legend(frameon = False)
+    plt.ylabel(r'$\tilde{q}_{2h}/\langle q \rangle$')
+    ax.set_xticks(np.arange(3)+1)
+    ax.set_xticklabels(xl[:-1])
+    # f.savefig(folder+'../final_plots/model_q2h.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_q2h_'+nplot+'.png',bbox_inches='tight')
+    
+    ###########
+    #   lM200
+    ###########
+    
+    f,ax = plt.subplots(figsize=(14,3))
+    plt.plot([0,5],[1,1],'C7--')
+    
+    param = 0
+    
+    ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+    
+    for hs in range(4):
+        for fp in range(4):
+            diff = 10**(fq[fp][0][hs][param] - NFW_h[hs][param])
+            if fp == 0:
+                plt.errorbar(fp+1+0.1*hs,(diff),
+                            yerr=np.array([fq[fp][1][hs][param]*np.log(10)*diff]).T,
+                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+            else:
+                plt.errorbar(fp+1+0.1*hs,(diff),
+                            yerr=np.array([fq[fp][1][hs][param]*np.log(10)*diff]).T,
+                            fmt=cstyle[hs],markersize=10)
+    
+    plt.legend(frameon = False)
+    plt.ylabel(r'$\tilde{M_{200}}/M_{200}$')
+    ax.set_xticks(np.arange(4)+1)
+    ax.set_xticklabels(xl)
+    # f.savefig(folder+'../final_plots/model_M200.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_M200_'+nplot+'.png',bbox_inches='tight')
+    
+    ##############
+    #   lM200/q
+    ##############
+    
+    
+    f,ax = plt.subplots(figsize=(14,3))
+    # plt.plot([0,1],[1,1],'C7--')
+    
+    param = 1
+    
+    ax.axhspan(0.95,1.05,0,1,color='C7',alpha=0.5)
+    ax.axvspan(0.95,1.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
+    plt.axhline(1,color='C7',ls='--')
+    plt.axvline(1,color='C7',ls='--')
+    for hs in range(4):
+        for fp in range(4):
+            diff = 10**(fq[fp][0][hs][0] - NFW_h[hs][0])
+            if fp == 0:
+                plt.errorbar(diff,fq[fp][0][hs][param]/qwh[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                        fmt=cstyle[hs],markersize=10,label=lhs[hs])
+            else:
+                plt.errorbar(diff,fq[fp][0][hs][param]/qwh[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                        fmt=cstyle[hs],markersize=10)
+    
+    plt.legend(frameon = False)
+    plt.xlabel(r'$\tilde{M_{200}}/M_{200}$')
+    plt.ylabel(r'$\tilde{q}/\langle q \rangle$')
+    # f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
 
 
 # test_fitting(['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed'])
 
 # '''
-qwh,NFW_h,Ein_h,NFW,Ein,o1h,woc = extract_params(['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed'])
-###########
-#   q1h
-###########
-fq = [NFW,Ein,woc,o1h]
-
-
-f,ax = plt.subplots(figsize=(14,3))
-plt.plot([0,5],[1,1],'C7--')
-
 lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
-xl = ['NFW','Ein','fix $c_{200}$','1h']
 cstyle = ['C0^','C0v','C3^','C3v']
+hsamps = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
 
-param = 1
+plot_bias(hsamps,lhs,cstyle,'original_samps')
 
-ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
-
-for hs in range(4):
-    for fp in range(4):
-        plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,fmt=cstyle[hs],markersize=10)
-
-plt.legend(frameon = False)
-plt.ylabel(r'$\tilde{q}_{1h}/\langle q \rangle$')
-ax.set_xticks(np.arange(4)+1)
-ax.set_xticklabels(xl)
-f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
-
-
-###########
-#   q2h
-###########
-
-f,ax = plt.subplots(figsize=(14,3))
-plt.plot([0,5],[1,1],'C7--')
-
-lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
-xl = ['NFW','Ein','fix $c_{200}$','1h']
-cstyle = ['C0^','C0v','C3^','C3v']
-
-param = -1
-
-ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
-
-for hs in range(4):
-    for fp in range(3):
-        plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,fmt=cstyle[hs],markersize=10)
-
-plt.legend(frameon = False)
-plt.ylabel(r'$\tilde{q}_{2h}/\langle q \rangle$')
-ax.set_xticks(np.arange(3)+1)
-ax.set_xticklabels(xl[:-1])
-f.savefig(folder+'../final_plots/model_q2h.pdf',bbox_inches='tight')
-
-###########
-#   lM200
-###########
-
-f,ax = plt.subplots(figsize=(14,3))
-plt.plot([0,5],[1,1],'C7--')
-
-lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
-xl = ['NFW','Ein','fix $c_{200}$','1h']
-cstyle = ['C0^','C0v','C3^','C3v']
-
-param = 0
-
-ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
-
-for hs in range(4):
-    for fp in range(4):
-        diff = 10**(fq[fp][0][hs][param] - NFW_h[hs][param])
-        plt.errorbar(fp+1+0.1*hs,(diff),yerr=np.array([fq[fp][1][hs][param]*np.log(10)*diff]).T,fmt=cstyle[hs],markersize=10)
-
-plt.legend(frameon = False)
-plt.ylabel(r'$\tilde{M_{200}}/M_{200}$')
-ax.set_xticks(np.arange(4)+1)
-ax.set_xticklabels(xl)
-f.savefig(folder+'../final_plots/model_M200.pdf',bbox_inches='tight')
-
-
-f,ax = plt.subplots(figsize=(14,3))
-# plt.plot([0,1],[1,1],'C7--')
-
-lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
-xl = ['NFW','Ein','fix $c_{200}$','1h']
-cstyle = ['C0^','C0v','C3^','C3v']
-
-param = 1
-
-ax.axhspan(0.95,1.05,0,1,color='C7',alpha=0.5)
-ax.axvspan(0.95,1.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
-plt.axhline(1,color='C7',ls='--')
-plt.axvline(1,color='C7',ls='--')
-for hs in range(4):
-    for fp in range(4):
-        diff = 10**(fq[fp][0][hs][0] - NFW_h[hs][0])
-        plt.errorbar(diff,fq[fp][0][hs][param]/qwh[hs],yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,fmt=cstyle[hs],markersize=10)
-
-plt.legend(frameon = False)
-plt.xlabel(r'$\tilde{M_{200}}/M_{200}$')
-plt.ylabel(r'$\tilde{q}/\langle q \rangle$')
-f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
-
-
-# '''

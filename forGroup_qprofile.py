@@ -111,8 +111,8 @@ lcat = 'HALO_Props_MICE.fits'
 sample='pru'
 lM_min=14.0
 lM_max=14.5
-z_min = 0.1
-z_max = 0.2
+z_min = 0.3
+z_max = 0.35
 q_min = 0.
 q_max = 1.
 rs_min = 0
@@ -137,7 +137,7 @@ miscen = True
 
 
 folder = '/home/elizabeth/MICE/HS-lensing/'
-S      = fits.open('/mnt/projects/lensing/HALO_SHAPE/MICEv'+vmice+'.0/catalogs/MICE_sources_HSN.fits')[1].data
+S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
 
 def partial_map(RA0,DEC0,Z,angles,
                 RIN,ROUT,ndots,h,roff,phi_off):
@@ -498,19 +498,36 @@ def main(lcat, sample='pru',
             theta += np.vstack((toff,toff,toff)).T
             sample = sample+'_mis'+str(misalign)
         
-        # Define K masks                
-        kmask = np.zeros((101,Nlenses))
-        kmask[0] = np.ones(Nlenses)
+        # Define K masks   
+        kmask = np.zeros((101,len(ra)))
+        kmask[0] = np.ones(len(ra)).astype(bool)
+        
+        ramin  = np.min(ra)
+        cdec   = np.sin(np.deg2rad(dec))
+        decmin = np.min(cdec)
+        dra  = ((np.max(ra)+1.e-5)  - ramin)/10.
+        ddec = ((np.max(cdec)+1.e-5) - decmin)/10.
+        
+        c    = 1
+        
+        for a in range(10): 
+                for d in range(10): 
+                        mra  = (ra  >= ramin + a*dra)*(ra < ramin + (a+1)*dra) 
+                        mdec = (cdec >= decmin + d*ddec)*(cdec < decmin + (d+1)*ddec) 
+                        # plt.plot(ra[(mra*mdec)],dec[(mra*mdec)],'C'+str(c+1)+',')
+                        kmask[c] = ~(mra*mdec)
+                        c += 1
         
         ind_rand0 = np.arange(Nlenses)
         np.random.shuffle(ind_rand0)
-        lbins = int(round(Nlenses/100, 0))
-        slices = ((np.arange(100)+1)*lbins).astype(int)
-        ind_rand = np.split(ind_rand0,slices[:-1])
+        
+        # lbins = int(round(Nlenses/100, 0))
+        # slices = ((np.arange(100)+1)*lbins).astype(int)
+        # ind_rand = np.split(ind_rand0,slices[:-1])
 
-        for j in range(len(ind_rand)):
-            m = ~np.in1d(np.arange(Nlenses),ind_rand[j])
-            kmask[j+1][m] = 1
+        # for j in range(len(ind_rand)):
+            # m = ~np.in1d(np.arange(Nlenses),ind_rand[j])
+            # kmask[j+1][m] = 1
         
         # Introduce miscentring
         roff = np.zeros(Nlenses)

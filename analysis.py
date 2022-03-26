@@ -67,12 +67,15 @@ def save_fitted(samp,RIN,ROUT,fittype='_2h_2q'):
 
     np.savetxt(folder+'fitprofile'+fittype+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat',fitout,fmt='%10.2f')
 
-def extract_params(hsamples,RIN=250,relax=True):
+def extract_params(hsamples,
+                   RIN=250,
+                   ROUToq = ['2000','1000','2000','1000'],
+                   relax=True):
     
     RIN = str(RIN)
-        
-    ROUT = ['2000','1000','2000','1000']
     
+    ROUT = ROUToq
+    print(ROUT)
     qwh   = []
     NFW_h = []
     Ein_h = []
@@ -96,20 +99,22 @@ def extract_params(hsamples,RIN=250,relax=True):
         # from individual halos
 
         h = fits.open(folder+'profile_'+samp+'.fits')[0].header
-    
+        print(h['N_LENSES'])
         mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+        
+        if relax:
+            mhalos = mhalos*mrelax
+        
+        qwh   += [np.mean(halos.q2d[mhalos])]
+    
         mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
         mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
         mhalos = mhalos*mfit_Ein*mfit_NFW
     
-        if relax:
-            mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
-            mhalos = mhalos*mrelax
-    
         halos_samp = halos[mhalos]
-    
-        qwh   += [h['q2d_mean']]
-        # qwh   += [np.mean(halos_samp.q2d)]
+        
+        # qwh   += [h['q2d_mean']]
         lMNFW = np.mean(halos_samp.lgMNFW_rho)
         cNFW  = np.mean(halos_samp.cNFW_rho)
         lMEin = np.mean(halos_samp.lgMEin_rho)
@@ -134,7 +139,7 @@ def extract_params(hsamples,RIN=250,relax=True):
 
         # without_c
 
-        fstd = fits.open(folder+'fitresults_2h_2q_woc_250_5000_profile_'+samp+'.fits')[1].data
+        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN+'_5000_profile_'+samp+'.fits')[1].data
 
         woc  += [[np.median(fstd.lM200[1500:]),
                  np.median(fstd.q[1500:]),
@@ -174,11 +179,14 @@ def extract_params(hsamples,RIN=250,relax=True):
                
     return qwh,NFW_h,Ein_h,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc]
 
-def test_fitting(hsamples,RIN=250,relax=True):
+def test_fitting(hsamples,
+                   RIN=250,
+                   ROUToq = ['2000','1000','2000','1000'],
+                   relax=True):
     
     RIN = str(RIN)
         
-    ROUT = ['2000','1000','2000','1000']
+    ROUT = ROUToq
     
     
     for j in range(len(hsamples)):
@@ -203,7 +211,7 @@ def test_fitting(hsamples,RIN=250,relax=True):
         mr = np.meshgrid(maskr,maskr)[1]*np.meshgrid(maskr,maskr)[0]
         CovDSf = (cov.COV_ST.reshape(len(p.Rp),len(p.Rp))[mr]).reshape(maskr.sum(),maskr.sum())
 
-        fitNFWDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),zmean)
+        fitNFWDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),h['z_mean'])
 
         # from individual halos
         mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
@@ -239,7 +247,7 @@ def test_fitting(hsamples,RIN=250,relax=True):
         ax[1].plot(fstd.c200[1500:]/cNFW,label='NFW',alpha=0.5)
 
         # without_c
-        fstd = fits.open(folder+'fitresults_2h_2q_woc_250_5000_profile_'+samp+'.fits')[1].data
+        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN+'_5000_profile_'+samp+'.fits')[1].data
         ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='fix c',alpha=0.5)
         
         ax[0].axhline(fitNFWDS.M200/10**lMNFW,color='C3',lw=2)
@@ -250,12 +258,18 @@ def test_fitting(hsamples,RIN=250,relax=True):
         
         ax[0].set_ylim([0.6,1.15])
         ax[1].set_ylim([0.6,1.15])
+        
+        ax[1].set_xlabel(r'Nit $\times$ Nchains')
+        ax[1].set_ylabel(r'$c_{200}/\langle c_{200} \rangle$')
+        ax[0].set_ylabel(r'$M_{200}/\langle M_{200} \rangle$')
+        
         # f.savefig(folder+'../final_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
         f.savefig(folder+'../test_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
 
 
-def plot_bias(hsamps,lhs,cstyle,nplot):
-    qwh,NFW_h,Ein_h,NFW,Ein,o1h,woc = extract_params(hsamps)
+def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
+    
+    qwh,NFW_h,Ein_h,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq,relax)
     ###########
     #   q1h
     ###########
@@ -266,13 +280,18 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
     plt.plot([0,5],[1,1],'C7--')
     
     
-    xl = ['NFW','Ein','fix $c_{200}$','1h']
+    xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
     
     param = 1
     
     ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+    qlC = 0.6103
+    qlsq = 0.6126
+    eqlC = [0.01633087, 0.0162191 ]
+    eqlsq = [0.01543122, 0.01635861]
     
-    for hs in range(4):
+    
+    for hs in range(len(hsamps)):
         for fp in range(4):
             if fp == 0:
                 plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
@@ -283,8 +302,12 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
                             yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
                             fmt=cstyle[hs],markersize=10)
     
+    plt.errorbar(fp+1+0.2*hs,qlC/qwh[2],yerr=np.array([eqlC]).T,fmt='C3s',markersize=10)
+    plt.errorbar(fp+1+0.3*hs,qlsq/qwh[2],yerr=np.array([eqlsq]).T,fmt='C3o',markersize=10)
+    
     plt.legend(frameon = False)
     plt.ylabel(r'$\tilde{q}_{1h}/\langle q \rangle$')
+    plt.axis([0,5,0.82,1.12])
     ax.set_xticks(np.arange(4)+1)
     ax.set_xticklabels(xl)
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
@@ -302,7 +325,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
     
     ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
     
-    for hs in range(4):
+    for hs in range(len(hsamps)):
         for fp in range(3):
             if fp == 0:
                 plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
@@ -312,17 +335,20 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
                 plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
                             yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
                             fmt=cstyle[hs],markersize=10)
+
     
     plt.legend(frameon = False)
     plt.ylabel(r'$\tilde{q}_{2h}/\langle q \rangle$')
     ax.set_xticks(np.arange(3)+1)
     ax.set_xticklabels(xl[:-1])
+    plt.axis([0,5,0.3,1.12])
     # f.savefig(folder+'../final_plots/model_q2h.pdf',bbox_inches='tight')
     f.savefig(folder+'../test_plots/model_q2h_'+nplot+'.png',bbox_inches='tight')
     
     ###########
     #   lM200
     ###########
+    
     
     f,ax = plt.subplots(figsize=(14,3))
     plt.plot([0,5],[1,1],'C7--')
@@ -331,7 +357,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
     
     ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
     
-    for hs in range(4):
+    for hs in range(len(hsamps)):
         for fp in range(4):
             diff = 10**(fq[fp][0][hs][param] - NFW_h[hs][param])
             if fp == 0:
@@ -342,11 +368,14 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
                 plt.errorbar(fp+1+0.1*hs,(diff),
                             yerr=np.array([fq[fp][1][hs][param]*np.log(10)*diff]).T,
                             fmt=cstyle[hs],markersize=10)
+                            
+
     
     plt.legend(frameon = False)
     plt.ylabel(r'$\tilde{M_{200}}/M_{200}$')
     ax.set_xticks(np.arange(4)+1)
     ax.set_xticklabels(xl)
+    plt.axis([0,5,0.6,1.12])
     # f.savefig(folder+'../final_plots/model_M200.pdf',bbox_inches='tight')
     f.savefig(folder+'../test_plots/model_M200_'+nplot+'.png',bbox_inches='tight')
     
@@ -364,7 +393,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
     ax.axvspan(0.95,1.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
     plt.axhline(1,color='C7',ls='--')
     plt.axvline(1,color='C7',ls='--')
-    for hs in range(4):
+    for hs in range(len(hsamps)):
         for fp in range(4):
             diff = 10**(fq[fp][0][hs][0] - NFW_h[hs][0])
             if fp == 0:
@@ -375,20 +404,54 @@ def plot_bias(hsamps,lhs,cstyle,nplot):
                 plt.errorbar(diff,fq[fp][0][hs][param]/qwh[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
                         fmt=cstyle[hs],markersize=10)
+                        
+    lMlC = 14.0544
+    elMlC = [0.00343227, 0.00317295]
+                        
+    lMlsq = 14.0456
+    diffCl = 10**(lMlC - NFW_h[2][0])
+    difflsq = 10**(lMlsq - NFW_h[2][0])
+    
+    plt.errorbar(diffCl,qlC/qwh[2],yerr=np.array([eqlC]).T,fmt='C3s',markersize=10)
+    plt.errorbar(difflsq,qlsq/qwh[2],yerr=np.array([eqlsq]).T,fmt='C3o',markersize=10)
+
     
     plt.legend(frameon = False)
     plt.xlabel(r'$\tilde{M_{200}}/M_{200}$')
     plt.ylabel(r'$\tilde{q}/\langle q \rangle$')
+    plt.axis([0.6,1.1,0.8,1.12])
     # f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
     f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
 
 
-# test_fitting(['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed'])
+
 
 # '''
 lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
 cstyle = ['C0^','C0v','C3^','C3v']
 hsamps = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
+hsamps_nr = ['HM_Lz','LM_Lz','HM_Hz','LM_Hz']
+ROUToq = ['2000','1000','2000','1000']
 
-plot_bias(hsamps,lhs,cstyle,'original_samps')
+lhs_ext = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz','HM-HHz','LM-HHz']
+cstyle_ext = ['C0^','C0v','C1^','C1v','C3^','C3v','C4^','C4v']
+ROUToq_ext = ['2000','1000','2000','1000','2000','1000','2000','1000']
+hsamps_ext = ['HM_Lz_relaxed',
+          'LM_Lz_relaxed',
+          'HM_Mz_relaxed',
+          'LM_Mz_relaxed',
+          'HM_Hz_relaxed',
+          'LM_Hz_relaxed',
+          'HM_HHz_relaxed',
+          'LM_HHz_relaxed']
 
+# '''
+# plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
+# plot_bias(hsamps_nr,lhs,cstyle,'nonrex_samps',250,ROUToq,False)
+plot_bias(hsamps,lhs,cstyle,'relax_samps',250,ROUToq,True)
+# plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'extend_relax_samps',400,ROUToq_ext,True)
+
+# test_fitting(hsamps_ext,400,ROUToq_ext,True)
+# test_fitting(hsamps,250,ROUToq,True)
+# test_fitting(hsamps_nr,250,ROUToq,False)
+# '''

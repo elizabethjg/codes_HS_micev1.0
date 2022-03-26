@@ -72,7 +72,7 @@ elif angle == 'reduced':
     ang = '_reduced'
 
 if components == 'all':
-    outfile     = 'fitresults_onlyq_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_onlyq_lsq_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
     outfile     = 'fitresults_onlyq_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
@@ -136,6 +136,7 @@ def log_probability_DS(data_model, R, profiles, iCOV):
 
 DSt = p.DSigma_T
 CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
+# CovDS = np.identity(CovDS.shape[0])*CovDS
 iCds     =  np.linalg.inv(CovDS)
 
 
@@ -163,6 +164,10 @@ t2 = time.time()
 
 print('TIME DS')    
 print((t2-t1)/60.)
+
+# lMlsq = 14.0456
+# clsq = 3.127
+# GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lMlsq,c200=clsq,cosmo_params=params,terms='1h',pname='NFW')
 
 GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h',pname='NFW')
 

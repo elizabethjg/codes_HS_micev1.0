@@ -431,7 +431,7 @@ def main(lcat, sample='pru',
                 print(z_min,' <= z < ',z_max)
                 print(q_min,' <= q < ',q_max)
                 print(rs_min,' <= rs < ',rs_max)
-                print(R5s_min,' <= R5s < ',R5s_max)
+                # print(R5s_min,' <= R5s < ',R5s_max)
                 print('resNFW_S < ',resNFW_max)
                 print('h ',hcosmo)
                 print('misaling '+str(misalign))
@@ -469,8 +469,8 @@ def main(lcat, sample='pru',
                 mT      = (T >= T_min)*(T < T_max)
                 mrs     = (rs >= rs_min)*(rs < rs_max)
                 mres    = L.resNFW_S < resNFW_max
-                mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
-                mlenses = mmass*mz*mq*mT*mrs*mres*mr5s
+                # mr5s    = (L.R5scale >= R5s_min)*(L.R5scale < R5s_max)
+                mlenses = mmass*mz*mq*mT*mrs*mres
         
         # SELECT RELAXED HALOS
         if relax:

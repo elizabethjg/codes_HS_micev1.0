@@ -78,30 +78,61 @@ halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data
 Eratio = (2.*halos.K/abs(halos.U))
 
 mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
-mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
+mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_rho < 10.)*(halos.lgMNFW_rho > 13.3)*(halos.lgMNFW_rho_E > 13.3)
 mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
-mhalos = mrelax*mfit_Ein*mfit_NFW*(halos.z <= 0.5)
+mhalos = mrelax*mfit_NFW*(halos.z <= 0.5)
 
 halos = halos[mhalos]
 
 nu200 = peaks.peakHeight(10**halos.lgMNFW_rho, halos.z)
+nu200_E = peaks.peakHeight(10**halos.lgMNFW_rho_E, halos.z)
 nufof = peaks.peakHeight(10**halos.lgM, halos.z)
 
+nu = nufof
 nu = nu200
+nu = nu200_E
 
 mzL = (halos.z > 0.1)*(halos.z < 0.2)
 mzH = (halos.z > 0.2)*(halos.z < 0.4)
 
-plt.figure()
-make_plot2(nu,halos.s,'C2',15)
-make_plot2(nu[mzL],halos.s[mzL],'C0',15)
-make_plot2(nu[mzH],halos.s[mzH],'C3',15)
-plt.xlabel(r'$\nu(M_{200},z)$')
-plt.ylabel(r'$s = c/a$')
+a = -0.257
+b = -0.219
+
 
 plt.figure()
-make_plot2(nu,halos.q2d,'C2',15)
-make_plot2(nu[mzL],halos.q2d[mzL],'C0',15)
-make_plot2(nu[mzH],halos.q2d[mzH],'C3',15)
-plt.xlabel(r'$\nu(M_{200},z)$')
-plt.ylabel(r'$q_{2D} = b/a$')
+plt.plot(np.log10(nu200),a*np.log10(nu200)+b,'C4',lw=3,label='Bonamigo et al. 2015')
+make_plot2(np.log10(nufof),np.log10(halos.s),'C3',15,label=r'$M_{FOF}$')
+make_plot2(np.log10(nu200),np.log10(halos.s),'C2',15,label=r'$M^S_{200}$')
+make_plot2(np.log10(nu200_E),np.log10(halos.s),'C1',15,label=r'$M^E_{200}$')
+plt.xlabel(r'$\log \nu(M,z)$')
+plt.ylabel(r'$\log(s = c/a)$')
+plt.axis([0.15,0.65,-0.55,-0.2])
+plt.legend(loc=3)
+
+
+plt.figure()
+make_plot2(np.log10(nufof),np.log10(halos.q2d),'C3',15,label=r'$M_{FOF}$')
+make_plot2(np.log10(nu200),np.log10(halos.q2d),'C2',15,label=r'$M^S_{200}$')
+make_plot2(np.log10(nu200_E),np.log10(halos.q2d),'C1',15,label=r'$M^E_{200}$')
+plt.xlabel(r'$\log \nu(M_{200},z)$')
+plt.ylabel(r'$\log(q = b/a)$')
+plt.axis([0.15,0.65,-0.4,-0.1])
+plt.legend(loc=3)
+
+
+'''
+plt.figure()
+plt.plot(np.log10(nu),a*np.log10(nu)+b,'C4',lw=3,label='Bonamigo et al. 2015')
+make_plot2(np.log10(nu),np.log10(halos.s),'C2',15)
+# make_plot2(np.log10(nu[mzL]),np.log10(halos.s[mzL]),'C0',15)
+# make_plot2(np.log10(nu[mzH]),np.log10(halos.s[mzH]),'C3',15)
+plt.xlabel(r'$\log \nu(M_{200},z)$')
+plt.ylabel(r'$\log(s = c/a)$')
+
+plt.figure()
+make_plot2(np.log10(nu),np.log10(halos.q2d),'C2',15)
+# make_plot2(np.log10(nu[mzL]),np.log10(halos.q2d[mzL]),'C0',15)
+# make_plot2(np.log10(nu[mzH]),np.log10(halos.q2d[mzH]),'C3',15)
+plt.xlabel(r'$\log \nu(M_{200},z)$')
+plt.ylabel(r'$\log(q = b/a)$')
+'''

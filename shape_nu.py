@@ -119,6 +119,16 @@ plt.ylabel(r'$\log(q = b/a)$')
 plt.axis([0.15,0.65,-0.4,-0.1])
 plt.legend(loc=3)
 
+plt.figure()
+make_plot2(halos.lgM+3.*np.log10(1+halos.z),halos.s,'C3',15,label=r'$M_{FOF}$')
+make_plot2(halos.lgMNFW_rho+3.*np.log10(1+halos.z),halos.s,'C2',15,label=r'$M^S_{200}$')
+make_plot2(halos.lgMNFW_rho_E+3.*np.log10(1+halos.z),halos.s,'C1',15,label=r'$M^E_{200}$')
+plt.xlabel(r'$\log (M_{200},z)$')
+plt.ylabel(r'$(s = b/a)$')
+# plt.axis([0.15,0.65,-0.4,-0.1])
+plt.legend(loc=3)
+
+
 
 '''
 plt.figure()

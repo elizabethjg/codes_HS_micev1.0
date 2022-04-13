@@ -14,7 +14,7 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 import corner
-folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
+folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
 halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
 Eratio = (2.*halos.K/abs(halos.U))
 
@@ -85,6 +85,8 @@ def extract_params(hsamples,
                    relax=True):
     
     rarray = [False,False,False,False,True,True]
+    # RINoq = ['250','250','350','350','450','450']
+    RINoq = ['350']*6
     
     ROUT = ROUToq
     print(ROUT)
@@ -105,17 +107,20 @@ def extract_params(hsamples,
     
     for j in range(len(hsamples)):
         
-        relax = rarray[j]
+        # relax = rarray[j]
         
         samp = hsamples[j]
-        print(samp)
-
         # from individual halos
 
         h = fits.open(folder+'profile_'+samp+'.fits')[0].header
         print(h['N_LENSES'])
         mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
         mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+
+        print(samp)
+        print(h['LM_MIN'],h['LM_MAX'])
+        print(h['z_min'],h['z_max'])
+
         
         qwh   += [np.mean(halos.q2d[mhalos*mrelax])]
         
@@ -142,7 +147,7 @@ def extract_params(hsamples,
 
         # 1 halo
         
-        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUT[j]+'_profile_'+samp+'.fits')[1].data
+        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUToq[j]+'_profile_'+samp+'.fits')[1].data
         
         o1h  += [[np.median(fstd.lM200[1500:]),
                  np.median(fstd.q[1500:]),
@@ -278,7 +283,7 @@ def test_fitting(hsamples,
         ax[0].set_ylabel(r'$M_{200}/\langle M_{200} \rangle$')
         
         # f.savefig(folder+'../final_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
-        f.savefig(folder+'../test_plots/final/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
+        f.savefig(folder+'../test_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
 
 
 def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
@@ -435,7 +440,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     plt.ylabel(r'$\tilde{q}/\langle q \rangle$')
     plt.axis([0.8,1.2,0.8,1.12])
     # f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/final/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 
@@ -570,19 +575,20 @@ ROUToq_ext_rel = ['2000','1000','2000','1000','2000','1000','2000','1000']
 lhs_ext = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
 cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
+RIN_mix2 = ['200','200','300','300','400','400']
 RIN_mix = ['250','250','350','350','400','400']
 
 
-
-hsamps_ext = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz','LM_HHz']
 hsamps_mix = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz_relaxed','LM_HHz_relaxed']
+hsamps_ext = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz','LM_HHz']
+hsamps_mix2 = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 
 hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
                   'HM_Mz_relaxed','LM_Mz_relaxed',
                   'HM_Hz_relaxed','LM_Hz_relaxed',
                   'HM_HHz_relaxed','LM_HHz_relaxed']
 
-plot_bias(hsamps_mix,lhs_ext,cstyle_ext,'mix_samps',RIN_mix,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix_samps350',RIN_mix2,ROUToq_ext,False)
 # '''
 # plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
 # plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'final',350,ROUToq_ext,False)

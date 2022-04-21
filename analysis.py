@@ -206,7 +206,7 @@ def test_fitting(hsamples,
     
         
     ROUT = ROUToq
-    
+        
     
     for j in range(len(hsamples)):
 
@@ -251,22 +251,22 @@ def test_fitting(hsamples,
         alpha = np.mean(halos_samp.alpha_rho)
 
         # 1 halo
-        fstd = fits.open(folder+'fitresults_onlyq_'+RIN+'_'+ROUT[j]+'_profile_'+samp+'.fits')[1].data
+        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUT[j]+'_profile_'+samp+'.fits')[1].data
         ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='1halo',alpha=0.5)
         ax[1].plot(fstd.c200[1500:]/cNFW,label='1halo',alpha=0.5)
                        
         # Einasto
-        fstd = fits.open(folder+'fitresults_2h_2q_Ein_'+RIN+'_5000_profile_'+samp+'.fits')[1].data
+        fstd = fits.open(folder+'fitresults_2h_2q_Ein_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
         ax[0].plot(10**(fstd.lM200[1500:]-lMEin),label='Einasto',alpha=0.5)
         ax[1].plot(fstd.c200[1500:]/cEin,label='Einasto',alpha=0.5)
         
         # NFW
-        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN+'_5000_profile_'+samp+'.fits')[1].data
+        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
         ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='NFW',alpha=0.5)
         ax[1].plot(fstd.c200[1500:]/cNFW,label='NFW',alpha=0.5)
 
         # without_c
-        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN+'_5000_profile_'+samp+'.fits')[1].data
+        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
         ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='fix c',alpha=0.5)
         
         ax[0].axhline(fitNFWDS.M200/10**lMNFW,color='C3',lw=2)
@@ -283,7 +283,7 @@ def test_fitting(hsamples,
         ax[0].set_ylabel(r'$M_{200}/\langle M_{200} \rangle$')
         
         # f.savefig(folder+'../final_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
-        f.savefig(folder+'../test_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
+        f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
 
 
 def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
@@ -576,7 +576,7 @@ lhs_ext = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
 cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix2 = ['200','200','300','300','400','400']
-RIN_mix = ['250','250','350','350','400','400']
+RIN_mix = ['250','250','350','350','450','400']
 
 
 hsamps_mix = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz_relaxed','LM_HHz_relaxed']
@@ -588,11 +588,11 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
                   'HM_Hz_relaxed','LM_Hz_relaxed',
                   'HM_HHz_relaxed','LM_HHz_relaxed']
 
-plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix_samps350',RIN_mix2,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix_samps',RIN_mix,ROUToq_ext,False)
 # '''
 # plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
 # plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'final',350,ROUToq_ext,False)
-# test_fitting(hsamps_ext,350,ROUToq_ext,False)
+# test_fitting(hsamps_mix2,RIN_mix2,ROUToq_ext,False)
 
 # plot_bias(hsamps,lhs,cstyle,'relax_samps',250,ROUToq,True)
 # plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'extend_relax_samps',400,ROUToq_ext,True)

@@ -283,6 +283,7 @@ def test_fitting(hsamples,
         ax[0].set_ylabel(r'$M_{200}/\langle M_{200} \rangle$')
         
         # f.savefig(folder+'../final_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
+        # f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
         f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
 
 
@@ -440,7 +441,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     plt.ylabel(r'$\tilde{q}/\langle q \rangle$')
     plt.axis([0.8,1.2,0.8,1.12])
     # f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/final/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 
@@ -575,8 +576,9 @@ ROUToq_ext_rel = ['2000','1000','2000','1000','2000','1000','2000','1000']
 lhs_ext = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
 cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
-RIN_mix2 = ['200','200','300','300','400','400']
-RIN_mix = ['250','250','350','350','450','400']
+RIN_mix00 = ['200','200','300','300','400','400']
+RIN_mix50 = ['250','250','350','350','450','450']
+RIN_mix350 = ['350','350','350','350','400','400']
 
 
 hsamps_mix = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz_relaxed','LM_HHz_relaxed']
@@ -588,7 +590,9 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
                   'HM_Hz_relaxed','LM_Hz_relaxed',
                   'HM_HHz_relaxed','LM_HHz_relaxed']
 
-plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix_samps',RIN_mix,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix00',RIN_mix00,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
 # '''
 # plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
 # plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'final',350,ROUToq_ext,False)

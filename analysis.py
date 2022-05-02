@@ -580,6 +580,7 @@ RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
 RIN_mix = ['250','250','300','400','400','40 	0']
 RIN_mix350 = ['350','350','350','350','350','350']
+RIN_mix400 = ['400']*6
 
 
 hsamps_mix = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz_relaxed','LM_HHz_relaxed']
@@ -594,6 +595,7 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix00',RIN_mix00,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix400',RIN_mix400,ROUToq_ext,False)
 ##plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
 # '''
 # plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
@@ -628,17 +630,16 @@ ax_all[0,1].legend(loc=3,frameon=False)
 
     
 f.savefig(folder+'../test_plots/profile_relaxed_Ein.png',bbox_inches='tight')
-'''
 
-f, ax_all = plt.subplots(1,3, figsize=(16,5),sharex = True)
+
+f, ax_all = plt.subplots(1,3, figsize=(16,4),sharex = True)
 f.subplots_adjust(hspace=0)
 
 plt_profile_fitted_final('HM_Lz',250,5000,ax_all,fittype='_2h_2q')
 
 
-ax_all[0,0].legend(loc=3,frameon=False)
-ax_all[0,1].legend(loc=3,frameon=False)
-
+ax_all[0].legend(loc=3,frameon=False)
 
     
 f.savefig(folder+'../test_plots/final/profile_HM_Lz.png',bbox_inches='tight')
+'''

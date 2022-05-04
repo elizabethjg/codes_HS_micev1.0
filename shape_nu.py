@@ -73,7 +73,8 @@ def make_plot2(X,Y,color='C0',nbins=20,plt=plt,label='',error = False,lw=1,lt='-
         plt.fill_between(x,q75,q25,color=color,alpha=0.2)
 
 
-folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
+# folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
+folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
 halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
 Eratio = (2.*halos.K/abs(halos.U))
 

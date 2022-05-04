@@ -14,7 +14,8 @@ G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
 pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 import corner
-folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
+# folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
+folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
 halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
 Eratio = (2.*halos.K/abs(halos.U))
 
@@ -84,12 +85,7 @@ def extract_params(hsamples,
                    ROUToq = ['2000','1000','2000','1000'],
                    relax=True):
     
-    rarray = [False,False,False,False,True,True]
-    # RINoq = ['250','250','350','350','450','450']
-    RINoq = ['350']*6
     
-    ROUT = ROUToq
-    print(ROUT)
     qwh   = []
     NFW_h = []
     Ein_h = []
@@ -106,8 +102,6 @@ def extract_params(hsamples,
     
     
     for j in range(len(hsamples)):
-        
-        # relax = rarray[j]
         
         samp = hsamples[j]
         # from individual halos
@@ -198,6 +192,43 @@ def extract_params(hsamples,
                  np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
                
     return qwh,NFW_h,Ein_h,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc]
+
+def plot_q_dist():
+    
+    hsamples = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
+    colors = ['C1','C1','C3','C3','C5','C5']
+    # hsamples = ['HM_Lz','HM_Mz','HM_Hz']
+    # colors = ['C1','C3','C5']
+    # hsamples = ['LM_Lz','LM_Mz','LM_Hz']
+    # colors = ['C1','C3','C5']
+    # f, ax_all = plt.subplots(6,3, figsize=(16,14),sharex = True)
+    
+    
+    for j in range(len(hsamples)):
+        
+        samp = hsamples[j]
+        # from individual halos
+
+        h = fits.open(folder+'profile_'+samp+'.fits')[0].header
+        print(h['N_LENSES'])
+        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+
+        print(samp)
+        print(h['LM_MIN'],h['LM_MAX'])
+        print(h['z_min'],h['z_max'])
+        
+        n,c    = np.histogram(halos.q2d[mhalos*mrelax],10,density=True)      
+        c      = (c+(c[1]-c[0])*0.5)[:-1]
+        sns.kdeplot(halos.q2d[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j])
+        # plt.hist(halos.q2d[mhalos],histtype='step',density=True,color=colors[j])
+        # plt.hist(halos.q2d[mhalos*mrelax],histtype='step',density=True,color=colors[j],lw=2)
+        
+        
+        
+        
+
+        
 
 def test_fitting(hsamples,
                    RIN,
@@ -331,7 +362,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     ax.set_xticks(np.arange(4)+1)
     ax.set_xticklabels(xl)
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/final/model_q1h_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
     
     
     ###########
@@ -363,7 +394,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     ax.set_xticklabels(xl[:-1])
     plt.axis([0,5,0.3,1.12])
     # f.savefig(folder+'../final_plots/model_q2h.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/final/model_q2h_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_q2h_'+nplot+'.png',bbox_inches='tight')
     
     ###########
     #   lM200
@@ -397,7 +428,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     ax.set_xticklabels(xl)
     plt.axis([0,5,0.8,1.2])
     # f.savefig(folder+'../final_plots/model_M200.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/final/model_M200_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_M200_'+nplot+'.png',bbox_inches='tight')
     
     ##############
     #   lM200/q
@@ -441,7 +472,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     plt.ylabel(r'$\tilde{q}/\langle q \rangle$')
     plt.axis([0.8,1.2,0.8,1.12])
     # f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/final/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 
@@ -578,7 +609,7 @@ cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
-RIN_mix = ['250','250','300','400','400','40 	0']
+RIN_mix = ['350','350','350','350','450','400']
 RIN_mix350 = ['350','350','350','350','350','350']
 RIN_mix400 = ['400']*6
 
@@ -595,7 +626,7 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix00',RIN_mix00,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
-plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix400',RIN_mix400,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
 ##plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
 # '''
 # plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)

@@ -18,6 +18,7 @@ from astropy.constants import G,c,M_sun,pc
 from scipy import stats
 import astropy.units as u
 from astropy.coordinates import SkyCoord
+from models_profiles import Gamma
 # For map
 wcs = WCS(naxis=2)
 wcs.wcs.crpix = [0., 0.]
@@ -536,7 +537,7 @@ def main(lcat, sample='pru',
         if miscen:
             nshift = int(Nlenses*0.25)
             x = np.random.uniform(0,5,10000)
-            peso = Rayleigh(x,soff)/sum(Rayleigh(x,soff))
+            peso = Gamma(x,soff)/sum(Gamma(x,soff))
             roff[ind_rand0[:nshift]] = np.random.choice(x,nshift,p=peso)*1.e3
             phi_off[ind_rand0[:nshift]] = np.random.uniform(0.,360.,nshift)
             sample = sample+'_miscen'

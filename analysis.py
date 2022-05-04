@@ -113,7 +113,7 @@ def extract_params(hsamples,
 
         print(samp)
         print(h['LM_MIN'],h['LM_MAX'])
-        print(h['z_min'],h['z_max'])
+        print(h['z_min'],h['z_max'],h['z_mean'])
 
         
         qwh   += [np.mean(halos.q2d[mhalos*mrelax])]

@@ -107,14 +107,16 @@ def extract_params(hsamples,
         # from individual halos
 
         h = fits.open(folder+'profile_'+samp+'.fits')[0].header
-        print(h['N_LENSES'])
+        
         mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
         mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
 
         print(samp)
         print(h['LM_MIN'],h['LM_MAX'])
         print(h['z_min'],h['z_max'],h['z_mean'])
-
+        print(h['N_LENSES'])
+        print(mhalos.sum())
+        print((mhalos*mrelax).sum())
         
         qwh   += [np.mean(halos.q2d[mhalos*mrelax])]
         
@@ -195,21 +197,34 @@ def extract_params(hsamples,
 
 def plot_q_dist():
     
-    hsamples = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
-    colors = ['C1','C1','C3','C3','C5','C5']
+    import seaborn as sns
+    
+    hsamples = ['Lz','Mz','Hz']
+    colors = ['C1','C3','C5']
     # hsamples = ['HM_Lz','HM_Mz','HM_Hz']
     # colors = ['C1','C3','C5']
     # hsamples = ['LM_Lz','LM_Mz','LM_Hz']
     # colors = ['C1','C3','C5']
-    # f, ax_all = plt.subplots(6,3, figsize=(16,14),sharex = True)
+    f, ax = plt.subplots(2,2, figsize=(6,5),sharex = True,sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
     
+
+    ax[0,0].set_xlim([0,1.15])
+    ax[0,0].set_ylim([0,4.53])
+    ax[0,0].text(1,4,'HM')
+    ax[0,1].text(1,4,'LM')
+    ax[0,0].text(0.1,4,'all halos')
+    ax[1,0].text(0.1,4,'only relaxed')
     
     for j in range(len(hsamples)):
-        
+
+        ax[0,1].plot([-1]*2,[-1]*2,colors[j],label=hsamples[j])        
         samp = hsamples[j]
         # from individual halos
 
-        h = fits.open(folder+'profile_'+samp+'.fits')[0].header
+        # FIRST HM
+
+        h = fits.open(folder+'profile_HM_'+samp+'.fits')[0].header
         print(h['N_LENSES'])
         mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
         mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
@@ -218,11 +233,45 @@ def plot_q_dist():
         print(h['LM_MIN'],h['LM_MAX'])
         print(h['z_min'],h['z_max'])
         
-        n,c    = np.histogram(halos.q2d[mhalos*mrelax],10,density=True)      
-        c      = (c+(c[1]-c[0])*0.5)[:-1]
-        sns.kdeplot(halos.q2d[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j])
-        # plt.hist(halos.q2d[mhalos],histtype='step',density=True,color=colors[j])
-        # plt.hist(halos.q2d[mhalos*mrelax],histtype='step',density=True,color=colors[j],lw=2)
+        sns.kdeplot(halos.q2d[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1,0])
+        ax[1,0].plot([np.mean(halos.q2d[mhalos*mrelax])]*2,[4.0,4.4],colors[j])
+        sns.kdeplot(halos.q2dr[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1,0],ls='--')
+        ax[1,0].plot([np.mean(halos.q2dr[mhalos*mrelax])]*2,[4.0,4.4],colors[j]+'--')
+        sns.kdeplot(halos.q2d[mhalos].byteswap().newbyteorder(),color=colors[j],ax=ax[0,0])
+        ax[0,0].plot([np.mean(halos.q2d[mhalos])]*2,[4.0,4.4],colors[j])
+        sns.kdeplot(halos.q2dr[mhalos].byteswap().newbyteorder(),color=colors[j],ax=ax[0,0],ls='--')
+        ax[0,0].plot([np.mean(halos.q2dr[mhalos])]*2,[4.0,4.4],colors[j]+'--')
+
+        samp = hsamples[j]
+        # from individual halos
+
+        # NOW LM
+
+        h = fits.open(folder+'profile_LM_'+samp+'.fits')[0].header
+        print(h['N_LENSES'])
+        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+
+        print(samp)
+        print(h['LM_MIN'],h['LM_MAX'])
+        print(h['z_min'],h['z_max'])
+        
+        sns.kdeplot(halos.q2d[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1,1])
+        ax[1,1].plot([np.mean(halos.q2d[mhalos*mrelax])]*2,[4.0,4.4],colors[j])
+        sns.kdeplot(halos.q2dr[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1,1],ls='--')
+        ax[1,1].plot([np.mean(halos.q2dr[mhalos*mrelax])]*2,[4.0,4.4],colors[j]+'--')
+        sns.kdeplot(halos.q2d[mhalos].byteswap().newbyteorder(),color=colors[j],ax=ax[0,1])
+        ax[0,1].plot([np.mean(halos.q2d[mhalos])]*2,[4.0,4.4],colors[j])
+        sns.kdeplot(halos.q2dr[mhalos].byteswap().newbyteorder(),color=colors[j],ax=ax[0,1],ls='--')
+        ax[0,1].plot([np.mean(halos.q2dr[mhalos])]*2,[4.0,4.4],colors[j]+'--')
+
+    ax[0,1].plot([-1]*2,[-1]*2,'k--',label='standard')
+    ax[0,1].plot([-1]*2,[-1]*2,'k-',label='reduced')
+    
+    ax[0,1].legend(loc=2,frameon=False)
+    ax[1,1].set_xlabel('q')
+    ax[1,0].set_xlabel('q')
+    f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')
         
         
         

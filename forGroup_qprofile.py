@@ -1,5 +1,4 @@
 import sys
-sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
 import time
 import numpy as np

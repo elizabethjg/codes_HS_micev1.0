@@ -45,7 +45,7 @@ parser.add_argument('-T_min', action='store', dest='T_min', default=0.)
 parser.add_argument('-T_max', action='store', dest='T_max', default=1.)
 parser.add_argument('-rs_min', action='store', dest='rs_min', default=0.)
 parser.add_argument('-rs_max', action='store', dest='rs_max', default=1.)
-parser.add_argument('-misaling', action='store', dest='misalign', default='False')
+parser.add_argument('-misalign', action='store', dest='misalign', default='False')
 parser.add_argument('-miscen', action='store', dest='miscen', default='False')
 parser.add_argument('-relax', action='store', dest='relax', default='False')
 parser.add_argument('-domap', action='store', dest='domap', default='False')
@@ -411,7 +411,7 @@ def main(lcat, sample='pru',
         ndots          (int) Number of bins of the profile
         ncores         (int) to run in parallel, number of cores
         h              (float) H0 = 100.*h
-        misaling       (bool) add misalignment with a normal distribution of 30deg
+               (bool) add misalignment with a normal distribution of 30deg
         miscen         (bool) add a miscentring for the 25percent of the halos
         soff         (float) dispersion of Rayleigh distribution for miscenter
         '''
@@ -434,7 +434,7 @@ def main(lcat, sample='pru',
                 # print(R5s_min,' <= R5s < ',R5s_max)
                 print('resNFW_S < ',resNFW_max)
                 print('h ',hcosmo)
-                print('misaling '+str(misalign))
+                print(' '+str(misalign))
                         
         #reading cats
                 

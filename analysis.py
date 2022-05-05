@@ -15,7 +15,7 @@ pc   = pc.value # 1 pc (m)
 Msun = M_sun.value # Solar mass (kg)
 import corner
 # folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
-folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
+folder = '../profiles3/'
 halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
 Eratio = (2.*halos.K/abs(halos.U))
 
@@ -658,7 +658,7 @@ cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
-RIN_mix = ['350','350','350','350','450','400']
+RIN_mix = ['350','350','350','350','400','400']
 RIN_mix350 = ['350','350','350','350','350','350']
 RIN_mix400 = ['400']*6
 

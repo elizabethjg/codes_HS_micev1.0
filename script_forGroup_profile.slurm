@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=mis30
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=56
+#SBATCH --cpus-per-task=miscen
 #SBATCH --time=3-00:00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address
@@ -18,9 +18,9 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate myenv
-
-srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 30
-srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 30
+srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.4 -ncores 56  -miscen True -soff 0.10 
+##srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 30
+##srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 30
 ##srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 10
 
 

@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=mis30
+#SBATCH --job-name=miscen
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=miscen
+#SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00
 ## An email is sent when the job is canceled or finished
 ## Change "root" for your e-mail address

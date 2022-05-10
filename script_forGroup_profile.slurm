@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=mis1020
+#SBATCH --job-name=mis30
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00
@@ -19,9 +19,9 @@ export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 conda activate myenv
 
-srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 20
-srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 20
-srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 10
+srun python -u forGroup_qprofile.py -sample 'HM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 30
+srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 30
+##srun python -u forGroup_qprofile.py -sample 'LM_Hz' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.4 -ncores 56  -misalign 10
 
 
 

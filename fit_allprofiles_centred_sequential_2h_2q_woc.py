@@ -46,6 +46,7 @@ parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
 parser.add_argument('-nit', action='store', dest='nit', default=250)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
 parser.add_argument('-components', action='store', dest='comp', default='all')
+parser.add_argument('-qext', action='store', dest='comp', default='')
 args = parser.parse_args()
 
 
@@ -53,6 +54,7 @@ folder     = args.folder
 file_name  = args.file_name
 angle      = args.angle
 components = args.comp
+qext       = args.qext
 
 if 'True' in args.cont:
 	cont      = True
@@ -72,16 +74,15 @@ elif angle == 'reduced':
     ang = '_reduced'
 
 if components == 'all':
-    outfile     = 'fitresults_2h_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_2q_woc_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
-    outfile     = 'fitresults_2h_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_2q_woc_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 
 if components == 'all':
-    outfile2     = 'fitresults_2h_2q_woc_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile2     = 'fitresults_2h_2q_woc_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+qext+'.fits'
 else:
-    outfile2     = 'fitresults_2h_2q_woc_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
-backup      = folder+'backup_'+outfile
+    outfile2     = 'fitresults_2h_2q_woc_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+qext+'.fits'
 
 
 
@@ -116,66 +117,66 @@ p  = p[maskr]
 
 t1 = time.time()
 
-# '''
-# First running for DS
-
-def log_likelihood_DS(lM200, R, ds, iCds):
-
-    c200 = concentration.concentration(10**lM200, '200c', zmean, model = cmodel)
+if qext == '':
+    # '''
+    # First running for DS
     
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
-
-    L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
+    def log_likelihood_DS(lM200, R, ds, iCds):
+    
+        c200 = concentration.concentration(10**lM200, '200c', zmean, model = cmodel)
         
-    return L_DS
+        DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h+2h')
     
-
-def log_probability_DS(data_model, R, profiles, iCOV):
-    
-    lM200 = data_model
-    
-    if 12.5 < lM200 < 16.0:
-        return log_likelihood_DS(data_model, R, profiles, iCOV)
+        L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
+            
+        return L_DS
         
-    return -np.inf
+    
+    def log_probability_DS(data_model, R, profiles, iCOV):
+        
+        lM200 = data_model
+        
+        if 12.5 < lM200 < 16.0:
+            return log_likelihood_DS(data_model, R, profiles, iCOV)
+            
+        return -np.inf
+    
+    # initializing
+    
+    DSt = p.DSigma_T
+    CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
+    iCds     =  np.linalg.inv(CovDS)
+    
+    
+    pos = np.array([np.random.uniform(12.5,15.5,15)]).T
+    
+    nwalkers, ndim = pos.shape
+    
+    
+    
+    pool = Pool(processes=(ncores))    
+    sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS, 
+                                    args=(p.Rp,DSt,iCds),pool = pool)
+    
+    sampler_DS.run_mcmc(pos, nit, progress=True)
+    pool.terminate()
+    
+    
+    mcmc_out_DS = sampler_DS.get_chain(flat=True).T
+    lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
+    c200   = concentration.concentration(10**lM[1], '200c', zmean, model = cmodel)
+    
+    
+    t2 = time.time()
+    
+    print('TIME DS')    
+    print((t2-t1)/60.)
 
-# initializing
-
-DSt = p.DSigma_T
-CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
-iCds     =  np.linalg.inv(CovDS)
-
-
-pos = np.array([np.random.uniform(12.5,15.5,15)]).T
-
-nwalkers, ndim = pos.shape
-
-
-
-pool = Pool(processes=(ncores))    
-sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS, 
-                                args=(p.Rp,DSt,iCds),pool = pool)
-
-sampler_DS.run_mcmc(pos, nit, progress=True)
-pool.terminate()
-
-
-mcmc_out_DS = sampler_DS.get_chain(flat=True).T
-lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
-c200   = concentration.concentration(10**lM[1], '200c', zmean, model = cmodel)
-
-
-t2 = time.time()
-
-print('TIME DS')    
-print((t2-t1)/60.)
-
-'''
-f = fits.open(folder+outfile)[1].data
-mcmc_out_DS = [f.lM200,f.c200]
-lM = np.percentile(f.lM200[1500:], [16, 50, 84])
-c200 = np.percentile(f.c200[1500:], [16, 50, 84])
-'''
+else:
+    f = fits.open(folder+outfile)[1].data
+    mcmc_out_DS = [f.lM200,f.c200]
+    lM = np.percentile(f.lM200[1500:], [16, 50, 84])
+    c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 
 GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200,cosmo_params=params,terms='1h',pname='NFW')
 GT2h,GX2h = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200,cosmo_params=params,terms='2h',pname='NFW')

@@ -80,163 +80,6 @@ def save_fitted(samp,RIN,ROUT,fittype='_2h_2q'):
 
     np.savetxt(folder+'fitprofile'+fittype+'_'+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat',fitout,fmt='%10.2f')
 
-def extract_params(hsamples,
-                   RIN=250,
-                   ROUToq = ['2000','1000','2000','1000'],
-                   cornplot=False):
-    
-    
-    qsh   = []
-    qrh   = []
-    NFW_h = []
-    Ein_h = []
-        
-    qshr   = []
-    qrhr   = []
-    NFW_hr = []
-    Ein_hr = []
-        
-    NFW = []
-    NFWr = []
-    Ein = []
-    o1h = []
-    woc = []
-
-    eNFW = []
-    eNFWr = []
-    eEin = []
-    eo1h = []
-    ewoc = []
-    
-    
-    for j in range(len(hsamples)):
-        
-        samp = hsamples[j]
-        # from individual halos
-
-        h = fits.open(folder+'profile_'+samp+'.fits')[0].header
-        
-        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
-        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
-
-        print(samp)
-        print(h['LM_MIN'],h['LM_MAX'])
-        print(h['z_min'],h['z_max'],h['z_mean'])
-        print(h['N_LENSES'])
-        print(mhalos.sum())
-        print((mhalos*mrelax).sum())
-        
-        qshr   += [np.mean(halos.q2d[mhalos*mrelax])]
-        qsh    += [np.mean(halos.q2d[mhalos])]
-        qrhr   += [np.mean(halos.q2dr[mhalos*mrelax])]
-        qrh    += [np.mean(halos.q2dr[mhalos])]
-               
-    
-        mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
-        mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
-        mhalos = mhalos*mfit_Ein*mfit_NFW
-    
-        halos_samp = halos[mhalos]
-        
-        # qwh   += [h['q2d_mean']]
-        lMNFW = np.mean(halos[mhalos].lgMNFW_rho)
-        cNFW  = np.mean(halos[mhalos].cNFW_rho)
-        lMEin = np.mean(halos[mhalos].lgMEin_rho)
-        cEin  = np.mean(halos[mhalos].cEin_rho)
-        alpha = np.mean(halos[mhalos].alpha_rho)
-
-        NFW_h += [[lMNFW,cNFW]]
-        Ein_h += [[lMEin,cEin,alpha]]
-
-
-        lMNFWr = np.mean(halos[mhalos*mrelax].lgMNFW_rho)
-        cNFWr  = np.mean(halos[mhalos*mrelax].cNFW_rho)
-        lMEinr = np.mean(halos[mhalos*mrelax].lgMEin_rho)
-        cEinr  = np.mean(halos[mhalos*mrelax].cEin_rho)
-        alphar = np.mean(halos[mhalos*mrelax].alpha_rho)
-        
-        NFW_hr += [[lMNFWr,cNFWr]]
-        Ein_hr += [[lMEinr,cEinr,alphar]]
-
-
-        # 1 halo
-        
-        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUToq[j]+'_profile_'+samp+'.fits')[1].data
-        
-        o1h  += [[np.median(fstd.lM200[1500:]),
-                 np.median(fstd.q[1500:]),
-                 np.median(fstd.c200[1500:])]]
-                 
-        eo1h += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84]))]]
-                 
-        if cornplot:
-            
-            lM200 = np.median(fstd.lM200[1500:])
-            labels_DS   = ['$\log M_{200}$','$c_{200}$']
-        
-            mcmc_DS  = np.array([fstd.lM200[1500:],fstd.c200[1500:]]).T
-        
-            fds = corner.corner(mcmc_DS,labels=labels_DS,smooth=1.,range=[(lM200-0.07,lM200+0.07),(2.,4.5)],truths=[lMNFWr,cNFWr],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
-            
-
-
-        # without_c
-
-        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
-
-        woc  += [[np.median(fstd.lM200[1500:]),
-                 np.median(fstd.q[1500:]),
-                 np.median(fstd.q2h[1500:])]]
-                 
-        ewoc += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
-               
-        # Einasto
-        fstd = fits.open(folder+'fitresults_2h_2q_Ein_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
-
-        Ein  += [[np.median(fstd.lM200[1500:]),
-                 np.median(fstd.q[1500:]),
-                 np.median(fstd.c200[1500:]),
-                 np.median(fstd.alpha[1500:]),
-                 np.median(fstd.q2h[1500:])]]
-                 
-        eEin += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.alpha[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
-        
-        # NFW
-        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
-
-        NFW  += [[np.median(fstd.lM200[1500:]),
-                 np.median(fstd.q[1500:]),
-                 np.median(fstd.c200[1500:]),
-                 np.median(fstd.q2h[1500:])]]
-                 
-        eNFW += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
-
-        # NFW reduced
-        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_reduced_profile_'+samp+'.fits')[1].data
-
-        NFWr  += [[np.median(fstd.lM200[1500:]),
-                 np.median(fstd.q[1500:]),
-                 np.median(fstd.c200[1500:]),
-                 np.median(fstd.q2h[1500:])]]
-                 
-        eNFWr += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
-                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
-               
-    return qsh,qrh,NFW_h,Ein_h,qshr,qrhr,NFW_hr,Ein_hr,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc],[NFWr,eNFWr]
-
 def plot_q_dist():
     
     import seaborn as sns
@@ -314,141 +157,206 @@ def plot_q_dist():
     ax[1,1].set_xlabel('q')
     ax[1,0].set_xlabel('q')
     f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')
-        
-        
-def test_fitting(hsamples,
-                   RIN,
+
+def extract_params(hsamples,
+                   RIN=250,
                    ROUToq = ['2000','1000','2000','1000'],
-                   relax=True):
+                   reduced=False,
+                   cornplot=False):
     
+    
+    qh   = []
+    qhr   = []
+    NFW_h = []
+    Ein_h = []
+    NFW_hr = []
+    Ein_hr = []
         
-    ROUT = ROUToq
         
+    NFW = []
+    Ein = []
+    o1h = []
+    woc = []
+
+    eNFW = []
+    eNFWr = []
+    eEin = []
+    eo1h = []
+    ewoc = []
+    
+    if reduced:
+        ang = '_reduced'
+        q2d = 'q2dr'
+    else:
+        ang = ''
+        q2d = 'q2d'
     
     for j in range(len(hsamples)):
-
-        samp = hsamples[j]
-        print(samp)
-
-        f, ax = plt.subplots(2,1, figsize=(12,6),sharex = True)
-        f.subplots_adjust(hspace=0)
-        ax[0].set_title(samp)
-        ax[0].axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
-        ax[1].axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
-
-        # alternative fit
-
-        profile = fits.open(folder+'profile_'+samp+'.fits')
-        h   = profile[0].header
-        p   = profile[1].data
-        cov = profile[2].data
         
-        maskr   = (p.Rp > (float(RIN[j])/1000.))*(p.Rp < (float(ROUT[j])/1000.))
-        mr = np.meshgrid(maskr,maskr)[1]*np.meshgrid(maskr,maskr)[0]
-        CovDSf = (cov.COV_ST.reshape(len(p.Rp),len(p.Rp))[mr]).reshape(maskr.sum(),maskr.sum())
-
-        fitNFWDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),h['z_mean'])
-
+        samp = hsamples[j]
         # from individual halos
+
+        h = fits.open(folder+'profile_'+samp+'.fits')[0].header
+        
         mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+
+        print(samp)
+        print(h['LM_MIN'],h['LM_MAX'])
+        print(h['z_min'],h['z_max'],h['z_mean'])
+        print(h['N_LENSES'])
+        print(mhalos.sum())
+        print((mhalos*mrelax).sum())
+        
+        qhr   += [np.mean(halos[q2d][mhalos*mrelax])]
+        qh    += [np.mean(halos[q2d][mhalos])]
+               
+    
         mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
         mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
         mhalos = mhalos*mfit_Ein*mfit_NFW
     
-        if relax:
-            mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
-            mhalos = mhalos*mrelax
-    
         halos_samp = halos[mhalos]
-    
-        lMNFW = np.mean(halos_samp.lgMNFW_rho)
-        cNFW  = np.mean(halos_samp.cNFW_rho)
-        lMEin = np.mean(halos_samp.lgMEin_rho)
-        cEin  = np.mean(halos_samp.cEin_rho)
-        alpha = np.mean(halos_samp.alpha_rho)
+        
+        # qwh   += [h['q2d_mean']]
+        lMNFW = np.mean(halos[mhalos].lgMNFW_rho)
+        cNFW  = np.mean(halos[mhalos].cNFW_rho)
+        lMEin = np.mean(halos[mhalos].lgMEin_rho)
+        cEin  = np.mean(halos[mhalos].cEin_rho)
+        alpha = np.mean(halos[mhalos].alpha_rho)
+
+        NFW_h += [[lMNFW,cNFW]]
+        Ein_h += [[lMEin,cEin,alpha]]
+
+
+        lMNFWr = np.mean(halos[mhalos*mrelax].lgMNFW_rho)
+        cNFWr  = np.mean(halos[mhalos*mrelax].cNFW_rho)
+        lMEinr = np.mean(halos[mhalos*mrelax].lgMEin_rho)
+        cEinr  = np.mean(halos[mhalos*mrelax].cEin_rho)
+        alphar = np.mean(halos[mhalos*mrelax].alpha_rho)
+        
+        NFW_hr += [[lMNFWr,cNFWr]]
+        Ein_hr += [[lMEinr,cEinr,alphar]]
+
 
         # 1 halo
-        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUT[j]+'_profile_'+samp+'.fits')[1].data
-        ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='1halo',alpha=0.5)
-        ax[1].plot(fstd.c200[1500:]/cNFW,label='1halo',alpha=0.5)
-                       
-        # Einasto
-        fstd = fits.open(folder+'fitresults_2h_2q_Ein_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
-        ax[0].plot(10**(fstd.lM200[1500:]-lMEin),label='Einasto',alpha=0.5)
-        ax[1].plot(fstd.c200[1500:]/cEin,label='Einasto',alpha=0.5)
         
-        # NFW
-        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
-        ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='NFW',alpha=0.5)
-        ax[1].plot(fstd.c200[1500:]/cNFW,label='NFW',alpha=0.5)
+        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUToq[j]+ang+'_profile_'+samp+'.fits')[1].data
+        
+        o1h  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.c200[1500:])]]
+                 
+        eo1h += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84]))]]
+                 
+        if cornplot:
+            
+            lM200 = np.median(fstd.lM200[1500:])
+            labels_DS   = ['$\log M_{200}$','$c_{200}$']
+        
+            mcmc_DS  = np.array([fstd.lM200[1500:],fstd.c200[1500:]]).T
+        
+            fds = corner.corner(mcmc_DS,labels=labels_DS,smooth=1.,range=[(lM200-0.07,lM200+0.07),(2.,4.5)],truths=[lMNFWr,cNFWr],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+            
+
 
         # without_c
-        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
-        ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='fix c',alpha=0.5)
-        
-        ax[0].axhline(fitNFWDS.M200/10**lMNFW,color='C3',lw=2)
-        ax[1].axhline(fitNFWDS.c200/cNFW,color='C3',lw=2)
-        ax[1].axhline(cEin/cNFW,color='C1',lw=2)
-        
-        ax[0].legend(frameon=False,ncol=4,loc=3)
-        
-        ax[0].set_ylim([0.6,1.15])
-        ax[1].set_ylim([0.6,1.15])
-        
-        ax[1].set_xlabel(r'Nit $\times$ Nchains')
-        ax[1].set_ylabel(r'$c_{200}/\langle c_{200} \rangle$')
-        ax[0].set_ylabel(r'$M_{200}/\langle M_{200} \rangle$')
-        
-        # f.savefig(folder+'../final_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
-        # f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
-        f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
 
+        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN[j]+'_5000'+ang+'_profile_'+samp+'.fits')[1].data
+
+        woc  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.q2h[1500:])]]
+                 
+        ewoc += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
+               
+        # Einasto
+        fstd = fits.open(folder+'fitresults_2h_2q_Ein_'+RIN[j]+'_5000'+ang+'_profile_'+samp+'.fits')[1].data
+
+        Ein  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.c200[1500:]),
+                 np.median(fstd.alpha[1500:]),
+                 np.median(fstd.q2h[1500:])]]
+                 
+        eEin += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.alpha[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
+        
+        # NFW
+        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000'+ang+'_profile_'+samp+'.fits')[1].data
+
+        NFW  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.c200[1500:]),
+                 np.median(fstd.q2h[1500:])]]
+                 
+        eNFW += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
+
+               
+    return qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc]
+
+      
+        
 
 def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     
-    qsh,qrh,NFW_h,Ein_h,qshr,qrhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
     ###########
     #   q1h
     ###########
     fq = [NFW,Ein,woc,o1h]
+    fqr = [NFW_r,Ein_r,woc_r,o1h_R]
+    
+    param = 1
 
-    f, ax = plt.subplots(1,2, figsize=(16,14),sharex = True)
+    f, ax = plt.subplots(2,1, figsize=(16,14))
 
     for hs in range(len(hsamps)):
-        ax[0].errorbar(fq[fp][0][hs][param],qshr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,
+        ax[0].errorbar(qhr[hs],NFW[0][hs][param],
+                            yerr=np.array([NFW[1][hs][param]]).T,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
-        ax[0].errorbar(fq[fp][0][hs][param],qrhr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,alpha=0.5,
+        ax[0].errorbar(qhr_r[hs],NFW[0][hs][param],
+                            yerr=np.array([NFW[1][hs][param]]).T,alpha=0.5,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
-        ax[0].errorbar(fq[fp][0][hs][param],qsh[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,
+        ax[0].errorbar(qh[hs],NFW[0][hs][param],
+                            yerr=np.array([NFW[1][hs][param]]).T,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs])
-        ax[0].errorbar(fq[fp][0][hs][param],qrh[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,alpha=0.5,
+        ax[0].errorbar(qh_r[hs],NFW[0][hs][param],
+                            yerr=np.array([NFW[1][hs][param]]).T,alpha=0.5,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs])
 
-        ax[1].errorbar(fq[fp][0][hs][param],qshr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,
+        ax[1].errorbar(qhr[hs],NFW_r[0][hs][param],
+                            yerr=np.array([NFWr[1][hs][param]]).T,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
-        ax[1].errorbar(fq[fp][0][hs][param],qrhr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,alpha=0.5,
+        ax[1].errorbar(qhr_r[hs],NFW_r[0][hs][param],
+                            yerr=np.array([NFWr[1][hs][param]]).T,alpha=0.5,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
-        ax[1].errorbar(fq[fp][0][hs][param],qsh[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,
+        ax[1].errorbar(qh[hs],NFW_r[0][hs][param],
+                            yerr=np.array([NFWr[1][hs][param]]).T,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs])
-        ax[1].errorbar(fq[fp][0][hs][param],qrh[hs],
-                            yerr=np.array([fq[fp][1][hs][param]]).T,alpha=0.5,
+        ax[1].errorbar(qh_r[hs],NFW_r[0][hs][param],
+                            yerr=np.array([NFWr[1][hs][param]]).T,alpha=0.5,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs])
     
+    ax[0].plot([0.5,0.8],[0.5,0.8],'C7--')
+    ax[1].plot([0.5,0.8],[0.5,0.8],'C7--')
+    
+    xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
+    # FOM
     
     f,ax = plt.subplots(figsize=(14,3))
     plt.plot([0,5],[0,0],'C7--')
-    
-    
-    xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
-    
-    param = 1
     
     ax.axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
 
@@ -456,20 +364,13 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     for hs in range(len(hsamps)):
         for fp in range(4):
             if fp == 0:
-                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qshr[hs])/qshr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]/qshr[hs]]).T,
+                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs])
             else:
-                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qshr[hs])/qshr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]/qshr[hs]]).T,
+                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                             fmt=cstyle[hs],markersize=10)
-
-    # qlC = 0.6103
-    # qlsq = 0.6126
-    # eqlC = [0.01633087, 0.0162191 ]
-    # eqlsq = [0.01543122, 0.01635861]    
-    # plt.errorbar(fp+1+0.2*hs,qlC/qwh[2],yerr=np.array([eqlC]).T,fmt='C3s',markersize=10)
-    # plt.errorbar(fp+1+0.3*hs,qlsq/qwh[2],yerr=np.array([eqlsq]).T,fmt='C3o',markersize=10)
     
     plt.legend(frameon = False)
     plt.ylabel(r'$(\tilde{q}_{1h}-\langle q \rangle)/\langle q \rangle$')

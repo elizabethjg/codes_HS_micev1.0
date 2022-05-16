@@ -456,7 +456,92 @@ def plot_old_S():
     fp1.savefig(plot_path+'profile_lens_comparison_S_all.pdf',bbox_inches='tight')
     fp2.savefig(plot_path+'profile_lens_comparison_S_relax.pdf',bbox_inches='tight')
     
+def test_fitting(hsamples,
+                   RIN,
+                   ROUToq = ['2000','1000','2000','1000'],
+                   relax=True):
+    
+        
+    ROUT = ROUToq
+        
+    
+    for j in range(len(hsamples)):
 
+        samp = hsamples[j]
+        print(samp)
+
+        f, ax = plt.subplots(2,1, figsize=(12,6),sharex = True)
+        f.subplots_adjust(hspace=0)
+        ax[0].set_title(samp)
+        ax[0].axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+        ax[1].axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+
+        # alternative fit
+
+        profile = fits.open(folder+'profile_'+samp+'.fits')
+        h   = profile[0].header
+        p   = profile[1].data
+        cov = profile[2].data
+        
+        maskr   = (p.Rp > (float(RIN[j])/1000.))*(p.Rp < (float(ROUT[j])/1000.))
+        mr = np.meshgrid(maskr,maskr)[1]*np.meshgrid(maskr,maskr)[0]
+        CovDSf = (cov.COV_ST.reshape(len(p.Rp),len(p.Rp))[mr]).reshape(maskr.sum(),maskr.sum())
+
+        fitNFWDS = Delta_Sigma_fit(p.Rp[maskr],p.DSigma_T[maskr],np.diag(CovDSf),h['z_mean'])
+
+        # from individual halos
+        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
+        mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
+        mhalos = mhalos*mfit_Ein*mfit_NFW
+    
+        if relax:
+            mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+            mhalos = mhalos*mrelax
+    
+        halos_samp = halos[mhalos]
+    
+        lMNFW = np.mean(halos_samp.lgMNFW_rho)
+        cNFW  = np.mean(halos_samp.cNFW_rho)
+        lMEin = np.mean(halos_samp.lgMEin_rho)
+        cEin  = np.mean(halos_samp.cEin_rho)
+        alpha = np.mean(halos_samp.alpha_rho)
+
+        # 1 halo
+        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUT[j]+'_profile_'+samp+'.fits')[1].data
+        ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='1halo',alpha=0.5)
+        ax[1].plot(fstd.c200[1500:]/cNFW,label='1halo',alpha=0.5)
+                       
+        # Einasto
+        fstd = fits.open(folder+'fitresults_2h_2q_Ein_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
+        ax[0].plot(10**(fstd.lM200[1500:]-lMEin),label='Einasto',alpha=0.5)
+        ax[1].plot(fstd.c200[1500:]/cEin,label='Einasto',alpha=0.5)
+        
+        # NFW
+        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
+        ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='NFW',alpha=0.5)
+        ax[1].plot(fstd.c200[1500:]/cNFW,label='NFW',alpha=0.5)
+
+        # without_c
+        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN[j]+'_5000_profile_'+samp+'.fits')[1].data
+        ax[0].plot(10**(fstd.lM200[1500:]-lMNFW),label='fix c',alpha=0.5)
+        
+        ax[0].axhline(fitNFWDS.M200/10**lMNFW,color='C3',lw=2)
+        ax[1].axhline(fitNFWDS.c200/cNFW,color='C3',lw=2)
+        ax[1].axhline(cEin/cNFW,color='C1',lw=2)
+        
+        ax[0].legend(frameon=False,ncol=4,loc=3)
+        
+        ax[0].set_ylim([0.6,1.15])
+        ax[1].set_ylim([0.6,1.15])
+        
+        ax[1].set_xlabel(r'Nit $\times$ Nchains')
+        ax[1].set_ylabel(r'$c_{200}/\langle c_{200} \rangle$')
+        ax[0].set_ylabel(r'$M_{200}/\langle M_{200} \rangle$')
+        
+        # f.savefig(folder+'../final_plots/test_fit_RIN'+RIN+'_'+samp+'.png',bbox_inches='tight')
+        # f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
+        f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
 
 # '''    
 

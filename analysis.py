@@ -653,7 +653,7 @@ cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
-RIN_mix = ['350','350','400','350','450','400']
+RIN_mix = ['350','350','350','350','450','400']
 RIN_mix350 = ['350','350','350','350','350','350']
 RIN_mix400 = ['400']*6
 
@@ -671,7 +671,7 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
-##plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
 # '''
 # plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
 # plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'final',350,ROUToq_ext,False)
@@ -685,12 +685,12 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
 # test_fitting(hsamps_nr,250,ROUToq,False)
 # '''
 
-for j in range(len(lhs_ext)):
-        samp = hsamps_mix2[j]
-        RIN = float(RIN_mix[j])
-        save_fitted(samp,RIN,5000,fittype='_2h_2q')
-        save_fitted(samp,RIN,5000,fittype='_2h_2q_Ein')
-        save_fitted(samp,RIN,5000,fittype='_2h_2q_woc')
+# for j in range(len(lhs_ext)):
+        # samp = hsamps_mix2[j]
+        # RIN = float(RIN_mix[j])
+        # save_fitted(samp,RIN,5000,fittype='_2h_2q')
+        # save_fitted(samp,RIN,5000,fittype='_2h_2q_Ein')
+        # save_fitted(samp,RIN,5000,fittype='_2h_2q_woc')
 
 '''
 f, ax_all = plt.subplots(6,3, figsize=(16,14),sharex = True)

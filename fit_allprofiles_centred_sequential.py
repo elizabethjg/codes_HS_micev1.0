@@ -47,12 +47,14 @@ parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
 parser.add_argument('-nit', action='store', dest='nit', default=250)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
 parser.add_argument('-components', action='store', dest='comp', default='all')
+parser.add_argument('-qext', action='store', dest='qext', default='')
 args = parser.parse_args()
 
 
 folder    = args.folder
 file_name = args.file_name
 angle     = args.angle
+qext       = args.qext
 
 if 'True' in args.cont:
 	cont      = True
@@ -72,11 +74,17 @@ elif angle == 'reduced':
     ang = '_reduced'
 
 if components == 'all':
-    outfile     = 'fitresults_onlyq_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 else:
-    outfile     = 'fitresults_onlyq_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
 backup      = folder+'backup_'+outfile
 
+if components == 'all':
+    outfile2     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+qext+'.fits'
+else:
+    outfile2     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+qext+'.fits'
+
+infile = file_name[:-5]+qext+'.fits'
 
 print('fitting profiles')
 print(folder)
@@ -87,11 +95,12 @@ print('RIN ',RIN)
 print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
-print('outfile',outfile)
+print('reading from',infile)
+print('outfile',outfile2)
 print('fitting components ',components)
 
 # extracting data from profile
-profile = fits.open(folder+file_name)
+profile = fits.open(folder+infile)
 h       = profile[0].header
 p       = profile[1].data
 cov     = profile[2].data
@@ -112,62 +121,67 @@ t1 = time.time()
 # '''
 # First running for DS
 
-def log_likelihood_DS(data_model, R, ds, iCds):
-    
-    lM200, c200 = data_model
-    
-    DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h')
+if qext == '':
 
-    L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
+
+    def log_likelihood_DS(data_model, R, ds, iCds):
         
-    return L_DS
-    
-
-def log_probability_DS(data_model, R, profiles, iCOV):
-    
-    lM200,c200 = data_model
-    
-    if 12.5 < lM200 < 16.0 and 1 < c200 < 7:
-        return log_likelihood_DS(data_model, R, profiles, iCOV)
+        lM200, c200 = data_model
         
-    return -np.inf
+        DS   = Delta_Sigma_NFW_2h(R,zmean,M200 = 10**lM200,c200=c200,cosmo_params=params,terms='1h')
+    
+        L_DS = -np.dot((ds-DS),np.dot(iCds,(ds-DS)))/2.0
+            
+        return L_DS
+        
+    
+    def log_probability_DS(data_model, R, profiles, iCOV):
+        
+        lM200,c200 = data_model
+        
+        if 12.5 < lM200 < 16.0 and 1 < c200 < 7:
+            return log_likelihood_DS(data_model, R, profiles, iCOV)
+            
+        return -np.inf
+    
+    # initializing
+    
+    DSt = p.DSigma_T
+    CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
+    # CovDS = np.identity(CovDS.shape[0])*CovDS
+    iCds     =  np.linalg.inv(CovDS)
+    
+    
+    pos = np.array([np.random.uniform(12.5,15.5,15),
+                    np.random.uniform(1,5,15)]).T
+    
+    nwalkers, ndim = pos.shape
+    
+    
+    
+    pool = Pool(processes=(ncores))    
+    sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS, 
+                                    args=(p.Rp,DSt,iCds),pool = pool)
+    
+    sampler_DS.run_mcmc(pos, nit, progress=True)
+    pool.terminate()
+    
+    
+    mcmc_out_DS = sampler_DS.get_chain(flat=True).T
+    lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
+    c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
+    
+    
+    t2 = time.time()
+    
+    print('TIME DS')    
+    print((t2-t1)/60.)
 
-# initializing
-
-DSt = p.DSigma_T
-CovDS  = CovDS.reshape(maskr.sum(),maskr.sum())
-# CovDS = np.identity(CovDS.shape[0])*CovDS
-iCds     =  np.linalg.inv(CovDS)
-
-
-pos = np.array([np.random.uniform(12.5,15.5,15),
-                np.random.uniform(1,5,15)]).T
-
-nwalkers, ndim = pos.shape
-
-
-
-pool = Pool(processes=(ncores))    
-sampler_DS = emcee.EnsembleSampler(nwalkers, ndim, log_probability_DS, 
-                                args=(p.Rp,DSt,iCds),pool = pool)
-
-sampler_DS.run_mcmc(pos, nit, progress=True)
-pool.terminate()
-
-
-mcmc_out_DS = sampler_DS.get_chain(flat=True).T
-lM     = np.percentile(mcmc_out_DS[0][1500:], [16, 50, 84])
-c200   = np.percentile(mcmc_out_DS[1][1500:], [16, 50, 84])
-
-
-t2 = time.time()
-
-print('TIME DS')    
-print((t2-t1)/60.)
-
-# lMlsq = 14.0456
-# clsq = 3.127
-# GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lMlsq,c200=clsq,cosmo_params=params,terms='1h',pname='NFW')
+else:
+    f = fits.open(folder+outfile)[1].data
+    mcmc_out_DS = [f.lM200,f.c200]
+    lM = np.percentile(f.lM200[1500:], [16, 50, 84])
+    c200 = np.percentile(f.c200[1500:], [16, 50, 84])
 
 GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200[1],cosmo_params=params,terms='1h',pname='NFW')
 
@@ -259,4 +273,4 @@ hdul = fits.HDUList([primary_hdu, tbhdu])
 
 hdul.writeto(folder+outfile,overwrite=True)
 
-print('SAVED FILE '+outfile)
+print('SAVED FILE '+outfile2)

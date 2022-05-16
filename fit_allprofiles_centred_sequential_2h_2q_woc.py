@@ -46,7 +46,7 @@ parser.add_argument('-ROUT', action='store', dest='ROUT', default=2500)
 parser.add_argument('-nit', action='store', dest='nit', default=250)
 parser.add_argument('-continue', action='store', dest='cont', default='False')
 parser.add_argument('-components', action='store', dest='comp', default='all')
-parser.add_argument('-qext', action='store', dest='comp', default='')
+parser.add_argument('-qext', action='store', dest='qext', default='')
 args = parser.parse_args()
 
 
@@ -84,7 +84,7 @@ if components == 'all':
 else:
     outfile2     = 'fitresults_2h_2q_woc_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+qext+'.fits'
 
-
+infile = file_name[:-5]+qext+'.fits'
 
 print('fitting profiles')
 print(folder)
@@ -95,11 +95,12 @@ print('RIN ',RIN)
 print('ROUT ',ROUT)
 print('nit', nit)
 # print('continue',cont)
+print('reading from',infile)
 print('outfile',outfile2)
 print('fitting components ',components)
 
 # extracting data from profile
-profile = fits.open(folder+file_name)
+profile = fits.open(folder+infile)
 h       = profile[0].header
 p       = profile[1].data
 cov     = profile[2].data

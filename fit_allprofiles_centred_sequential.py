@@ -273,6 +273,6 @@ primary_hdu = fits.PrimaryHDU(header=h)
 
 hdul = fits.HDUList([primary_hdu, tbhdu])
 
-hdul.writeto(folder+outfile,overwrite=True)
+hdul.writeto(folder+outfile2,overwrite=True)
 
 print('SAVED FILE '+outfile2)

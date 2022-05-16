@@ -82,13 +82,16 @@ def save_fitted(samp,RIN,ROUT,fittype='_2h_2q'):
 
 def extract_params(hsamples,
                    RIN=250,
-                   ROUToq = ['2000','1000','2000','1000'],
-                   relax=True):
+                   ROUToq = ['2000','1000','2000','1000']):
     
     
     qwh   = []
     NFW_h = []
     Ein_h = []
+        
+    qwhr   = []
+    NFW_hr = []
+    Ein_hr = []
         
     NFW = []
     Ein = []
@@ -118,11 +121,9 @@ def extract_params(hsamples,
         print(mhalos.sum())
         print((mhalos*mrelax).sum())
         
-        qwh   += [np.mean(halos.q2d[mhalos*mrelax])]
-        
-        if relax:
-            mhalos = mhalos*mrelax
-        
+        qwhr   += [np.mean(halos.q2d[mhalos*mrelax])]
+        qwh    += [np.mean(halos.q2d[mhalos])]
+               
     
         mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
         mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
@@ -131,14 +132,24 @@ def extract_params(hsamples,
         halos_samp = halos[mhalos]
         
         # qwh   += [h['q2d_mean']]
-        lMNFW = np.mean(halos_samp.lgMNFW_rho)
-        cNFW  = np.mean(halos_samp.cNFW_rho)
-        lMEin = np.mean(halos_samp.lgMEin_rho)
-        cEin  = np.mean(halos_samp.cEin_rho)
-        alpha = np.mean(halos_samp.alpha_rho)
-        
+        lMNFW = np.mean(halos[mhalos].lgMNFW_rho)
+        cNFW  = np.mean(halos[mhalos].cNFW_rho)
+        lMEin = np.mean(halos[mhalos].lgMEin_rho)
+        cEin  = np.mean(halos[mhalos].cEin_rho)
+        alpha = np.mean(halos[mhalos].alpha_rho)
+
         NFW_h += [[lMNFW,cNFW]]
         Ein_h += [[lMEin,cEin,alpha]]
+
+
+        lMNFW = np.mean(halos[mhalos*mrelax].lgMNFW_rho)
+        cNFW  = np.mean(halos[mhalos*mrelax].cNFW_rho)
+        lMEin = np.mean(halos[mhalos*mrelax].lgMEin_rho)
+        cEin  = np.mean(halos[mhalos*mrelax].cEin_rho)
+        alpha = np.mean(halos[mhalos*mrelax].alpha_rho)
+        
+        NFW_hr += [[lMNFW,cNFW]]
+        Ein_hr += [[lMEin,cEin,alpha]]
 
 
         # 1 halo
@@ -193,7 +204,7 @@ def extract_params(hsamples,
                  np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
                  np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
                
-    return qwh,NFW_h,Ein_h,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc]
+    return qwh,NFW_h,Ein_h,qwhr,NFW_hr,Ein_hr,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc]
 
 def plot_q_dist():
     
@@ -362,9 +373,9 @@ def test_fitting(hsamples,
         f.savefig(folder+'../test_plots/test_fit_RIN'+RIN[j]+'_'+samp+'.png',bbox_inches='tight')
 
 
-def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
+def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     
-    qwh,NFW_h,Ein_h,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq,relax)
+    qwh,NFW_h,Ein_h,qwhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
     ###########
     #   q1h
     ###########
@@ -372,25 +383,25 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     
     
     f,ax = plt.subplots(figsize=(14,3))
-    plt.plot([0,5],[1,1],'C7--')
+    plt.plot([0,5],[0,0],'C7--')
     
     
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
     
     param = 1
     
-    ax.axhspan(0.95,1.05,0,5,color='C7',alpha=0.5)
+    ax.axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
     
     
     for hs in range(len(hsamps)):
         for fp in range(4):
             if fp == 0:
-                plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
-                            yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qwhr[hs])/qwhr[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qwhr[hs]]).T,
                             fmt=cstyle[hs],markersize=10,label=lhs[hs])
             else:
-                plt.errorbar(fp+1+0.1*hs,fq[fp][0][hs][param]/qwh[hs],
-                            yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qwhr[hs])/qwhr[hs],
+                            yerr=np.array([fq[fp][1][hs][param]/qwhr[hs]]).T,
                             fmt=cstyle[hs],markersize=10)
 
     # qlC = 0.6103
@@ -401,8 +412,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
     # plt.errorbar(fp+1+0.3*hs,qlsq/qwh[2],yerr=np.array([eqlsq]).T,fmt='C3o',markersize=10)
     
     plt.legend(frameon = False)
-    plt.ylabel(r'$\tilde{q}_{1h}/\langle q \rangle$')
-    plt.axis([0,5,0.82,1.12])
+    plt.ylabel(r'$(\tilde{q}_{1h}-\langle q \rangle)/\langle q \rangle$')
+    plt.axis([0,5,-0.12,0.12])
     ax.set_xticks(np.arange(4)+1)
     ax.set_xticklabels(xl)
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
@@ -492,12 +503,12 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,relax=True):
         for fp in range(4):
             diff = 10**(fq[fp][0][hs][0] - NFW_h[hs][0])
             if fp == 0:
-                plt.errorbar(diff,fq[fp][0][hs][param]/qwh[hs],
-                        yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                plt.errorbar(diff,fq[fp][0][hs][param]/qwhr[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qwhr[hs]]).T,
                         fmt=cstyle[hs],markersize=10,label=lhs[hs])
             else:
-                plt.errorbar(diff,fq[fp][0][hs][param]/qwh[hs],
-                        yerr=np.array([fq[fp][1][hs][param]/qwh[hs]]).T,
+                plt.errorbar(diff,fq[fp][0][hs][param]/qwhr[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qwhr[hs]]).T,
                         fmt=cstyle[hs],markersize=10)
                         
     # lMlC = 14.0544
@@ -671,7 +682,7 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
-plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
+plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext)
 # '''
 # plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
 # plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'final',350,ROUToq_ext,False)

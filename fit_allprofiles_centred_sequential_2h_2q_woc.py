@@ -74,9 +74,9 @@ elif angle == 'reduced':
     ang = '_reduced'
 
 if components == 'all':
-    outfile     = 'fitresults_2h_2q_woc_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_2q_woc_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 else:
-    outfile     = 'fitresults_2h_2q_woc_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_2h_2q_woc_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 
 if components == 'all':
@@ -118,7 +118,7 @@ p  = p[maskr]
 
 t1 = time.time()
 
-if qext == '':
+if qext == '' or angle == 'standard':
     # '''
     print('First running for DS')
     

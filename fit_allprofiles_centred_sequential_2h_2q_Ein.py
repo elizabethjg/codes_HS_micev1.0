@@ -181,6 +181,7 @@ else:
     mcmc_out_DS = [f.lM200,f.c200]
     lM = np.percentile(f.lM200[1500:], [16, 50, 84])
     c200 = np.percentile(f.c200[1500:], [16, 50, 84])
+    alpha = np.percentile(f.alpha[1500:], [16, 50, 84])
     t2 = time.time()
 
 

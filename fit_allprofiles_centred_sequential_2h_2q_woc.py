@@ -178,7 +178,7 @@ else:
     f = fits.open(folder+outfile)[1].data
     mcmc_out_DS = [f.lM200,f.c200]
     lM = np.percentile(f.lM200[1500:], [16, 50, 84])
-    c200 = np.percentile(f.c200[1500:], [16, 50, 84])
+    c200   = concentration.concentration(10**lM[1], '200c', zmean, model = cmodel)
     t2 = time.time()
 
 GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200,cosmo_params=params,terms='1h',pname='NFW')

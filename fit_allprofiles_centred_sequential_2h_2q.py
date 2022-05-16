@@ -80,12 +80,12 @@ else:
 backup      = folder+'backup_'+outfile
 
 if components == 'all':
-    outfile2     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+qext+'.fits'
+    outfile2     = 'fitresults_2h_2q_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+'_'+qext+'.fits'
 else:
-    outfile2     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+qext+'.fits'
+    outfile2     = 'fitresults_2h_2q_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name[:-5]+'_'+qext+'.fits'
 
 
-infile = file_name[:-5]+qext+'.fits'
+infile = file_name[:-5]+'_'+qext+'.fits'
 
 print('fitting profiles')
 print(folder)

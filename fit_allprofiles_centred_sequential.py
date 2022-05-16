@@ -74,9 +74,9 @@ elif angle == 'reduced':
     ang = '_reduced'
 
 if components == 'all':
-    outfile     = 'fitresults_onlyq_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_onlyq_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 else:
-    outfile     = 'fitresults_onlyq_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+ang+'_'+file_name
+    outfile     = 'fitresults_onlyq_'+components+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+file_name
 backup      = folder+'backup_'+outfile
 
 if components == 'all':
@@ -121,7 +121,7 @@ t1 = time.time()
 # '''
 # First running for DS
 
-if qext == '':
+if qext == '' or angle == 'standard':
 
     print('First running for DS')
     def log_likelihood_DS(data_model, R, ds, iCds):

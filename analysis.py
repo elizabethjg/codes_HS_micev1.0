@@ -316,7 +316,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     #   q1h
     ###########
     fq = [NFW,Ein,woc,o1h]
-    fqr = [NFW_r,Ein_r,woc_r,o1h_R]
+    fqr = [NFW_r,Ein_r,woc_r,o1h_r]
     
     param = 1
 
@@ -353,6 +353,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax[1].plot([0.5,0.8],[0.5,0.8],'C7--')
     
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
+    
     # FOM
     
     f,ax = plt.subplots(figsize=(14,3))
@@ -370,6 +371,33 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
             else:
                 plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
                             yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
+                            fmt=cstyle[hs],markersize=10)
+    
+    plt.legend(frameon = False)
+    plt.ylabel(r'$(\tilde{q}_{1h}-\langle q \rangle)/\langle q \rangle$')
+    plt.axis([0,5,-0.12,0.12])
+    ax.set_xticks(np.arange(4)+1)
+    ax.set_xticklabels(xl)
+    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
+    
+    # FOM
+    
+    f,ax = plt.subplots(figsize=(14,3))
+    plt.plot([0,5],[0,0],'C7--')
+    
+    ax.axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
+
+    
+    for hs in range(len(hsamps)):
+        for fp in range(4):
+            if fp == 0:
+                plt.errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
+                            yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
+                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+            else:
+                plt.errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
+                            yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
                             fmt=cstyle[hs],markersize=10)
     
     plt.legend(frameon = False)
@@ -471,12 +499,12 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
         for fp in range(4):
             diff = 10**(fq[fp][0][hs][0] - NFW_h[hs][0])
             if fp == 0:
-                plt.errorbar(diff,fq[fp][0][hs][param]/qshr[hs],
-                        yerr=np.array([fq[fp][1][hs][param]/qshr[hs]]).T,
+                plt.errorbar(diff,fq[fp][0][hs][param]/qhr[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                         fmt=cstyle[hs],markersize=10,label=lhs[hs])
             else:
-                plt.errorbar(diff,fq[fp][0][hs][param]/qshr[hs],
-                        yerr=np.array([fq[fp][1][hs][param]/qshr[hs]]).T,
+                plt.errorbar(diff,fq[fp][0][hs][param]/qhr[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                         fmt=cstyle[hs],markersize=10)
                         
     # lMlC = 14.0544
@@ -632,7 +660,7 @@ cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
-RIN_mix = ['350','350','350','350','450','400']
+RIN_mix = ['350','350','350','350','400','400']
 RIN_mix350 = ['350','350','350','350','350','350']
 RIN_mix400 = ['400']*6
 

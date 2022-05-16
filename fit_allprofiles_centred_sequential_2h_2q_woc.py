@@ -120,7 +120,7 @@ t1 = time.time()
 
 if qext == '':
     # '''
-    # First running for DS
+    print('First running for DS')
     
     def log_likelihood_DS(lM200, R, ds, iCds):
     
@@ -174,10 +174,12 @@ if qext == '':
     print((t2-t1)/60.)
 
 else:
+    print('Reading results from ',outfile)
     f = fits.open(folder+outfile)[1].data
     mcmc_out_DS = [f.lM200,f.c200]
     lM = np.percentile(f.lM200[1500:], [16, 50, 84])
     c200 = np.percentile(f.c200[1500:], [16, 50, 84])
+    t2 = time.time()
 
 GT0,GX0   = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200,cosmo_params=params,terms='1h',pname='NFW')
 GT2h,GX2h = GAMMA_components(p.Rp,zmean,ellip=1.,M200 = 10**lM[1],c200=c200,cosmo_params=params,terms='2h',pname='NFW')

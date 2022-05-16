@@ -176,7 +176,7 @@ if qext == '':
 else:
     print('Reading results from ',outfile)
     f = fits.open(folder+outfile)[1].data
-    mcmc_out_DS = [f.lM200,f.c200]
+    mcmc_out_DS = [f.lM200]
     lM = np.percentile(f.lM200[1500:], [16, 50, 84])
     c200   = concentration.concentration(10**lM[1], '200c', zmean, model = cmodel)
     t2 = time.time()

@@ -178,7 +178,7 @@ if qext == '':
 else:
     print('Reading results from ',outfile)
     f = fits.open(folder+outfile)[1].data
-    mcmc_out_DS = [f.lM200,f.c200]
+    mcmc_out_DS = [f.lM200,f.c200,f.alpha]
     lM = np.percentile(f.lM200[1500:], [16, 50, 84])
     c200 = np.percentile(f.c200[1500:], [16, 50, 84])
     alpha = np.percentile(f.alpha[1500:], [16, 50, 84])

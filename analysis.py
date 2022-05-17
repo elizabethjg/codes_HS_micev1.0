@@ -219,9 +219,9 @@ def extract_params(hsamples,
         halos_samp = halos[mhalos]
         
         # qwh   += [h['q2d_mean']]
-        lMNFW = np.mean(halos[mhalos].lgMNFW_rho)
+        lMNFW = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
         cNFW  = np.mean(halos[mhalos].cNFW_rho)
-        lMEin = np.mean(halos[mhalos].lgMEin_rho)
+        lMEin = np.log10(np.mean(10**(halos[mhalos].lgMEin_rho)))
         cEin  = np.mean(halos[mhalos].cEin_rho)
         alpha = np.mean(halos[mhalos].alpha_rho)
 
@@ -229,9 +229,9 @@ def extract_params(hsamples,
         Ein_h += [[lMEin,cEin,alpha]]
 
 
-        lMNFWr = np.mean(halos[mhalos*mrelax].lgMNFW_rho)
+        lMNFWr = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
         cNFWr  = np.mean(halos[mhalos*mrelax].cNFW_rho)
-        lMEinr = np.mean(halos[mhalos*mrelax].lgMEin_rho)
+        lMEinr = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
         cEinr  = np.mean(halos[mhalos*mrelax].cEin_rho)
         alphar = np.mean(halos[mhalos*mrelax].alpha_rho)
         
@@ -320,37 +320,56 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     
     param = 1
 
-    f, ax = plt.subplots(2,1, figsize=(16,14))
+    f, ax = plt.subplots(2,1, figsize=(6,8),sharex=True)
 
     for hs in range(len(hsamps)):
+        
+        ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        
         ax[0].errorbar(qhr[hs],NFW[0][hs][param],
                             yerr=np.array([NFW[1][hs][param]]).T,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
+                            fmt=cstyle[hs],markersize=10,mfc='none')
         ax[0].errorbar(qhr_r[hs],NFW[0][hs][param],
                             yerr=np.array([NFW[1][hs][param]]).T,alpha=0.5,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
+                            fmt=cstyle[hs],markersize=10,mfc='none')
         ax[0].errorbar(qh[hs],NFW[0][hs][param],
                             yerr=np.array([NFW[1][hs][param]]).T,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+                            fmt=cstyle[hs],markersize=10)
         ax[0].errorbar(qh_r[hs],NFW[0][hs][param],
                             yerr=np.array([NFW[1][hs][param]]).T,alpha=0.5,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+                            fmt=cstyle[hs],markersize=10)
+                            
 
         ax[1].errorbar(qhr[hs],NFW_r[0][hs][param],
-                            yerr=np.array([NFWr[1][hs][param]]).T,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
+                            yerr=np.array([NFW_r[1][hs][param]]).T,
+                            fmt=cstyle[hs],markersize=10,mfc='none')
         ax[1].errorbar(qhr_r[hs],NFW_r[0][hs][param],
-                            yerr=np.array([NFWr[1][hs][param]]).T,alpha=0.5,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs],mfc='none')
+                            yerr=np.array([NFW_r[1][hs][param]]).T,alpha=0.5,
+                            fmt=cstyle[hs],markersize=10,mfc='none')
         ax[1].errorbar(qh[hs],NFW_r[0][hs][param],
-                            yerr=np.array([NFWr[1][hs][param]]).T,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+                            yerr=np.array([NFW_r[1][hs][param]]).T,
+                            fmt=cstyle[hs],markersize=10)
         ax[1].errorbar(qh_r[hs],NFW_r[0][hs][param],
-                            yerr=np.array([NFWr[1][hs][param]]).T,alpha=0.5,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
+                            yerr=np.array([NFW_r[1][hs][param]]).T,alpha=0.5,
+                            fmt=cstyle[hs],markersize=10)
     
     ax[0].plot([0.5,0.8],[0.5,0.8],'C7--')
     ax[1].plot([0.5,0.8],[0.5,0.8],'C7--')
+    ax[0].set_xlim([0.5,0.82])
+    ax[0].set_ylim([0.54,0.68])
+    ax[1].set_ylim([0.5,0.65])
+    ax[1].plot([-1,-1],[-1,-1],'k^',label='standard')
+    ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced',alpha=0.5)
+    ax[1].plot([-1,-1],[-1,-1],'k^',label='relaxed',mfc='none')
+
+    ax[0].set_xlabel(r'$\tilde{q_{1h}}(\hat{\phi})$')
+    ax[1].set_xlabel(r'$\tilde{q_{1h}}(\hat{\phi}_r)$')
+    ax[0].set_ylabel(r'$\langle q \rangle$')
+    ax[1].set_ylabel(r'$\langle q \rangle$')
+
+    ax[0].legend(frameon=False,loc=4,ncol=2)
+    ax[1].legend(frameon=False,loc=2)
+    f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
     
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
     
@@ -379,7 +398,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax.set_xticks(np.arange(4)+1)
     ax.set_xticklabels(xl)
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
     
     # FOM
     
@@ -578,13 +597,13 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ##############    
 
     ax.plot(p.Rp,p.DSigma_T,'C7')
-    ax.plot(rplot,DS1h,'C0',label='1h')
-    ax.plot(rplot,DS2h,'C9',label='2h')
+    ax.plot(rplot,DS1h,'C1',label='1h')
+    ax.plot(rplot,DS2h,'C8',label='2h')
     ax.plot(rplot,DS,'C3',label='1h+2h')
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C7',alpha=0.4)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_ylabel(r'$\Delta\Sigma$',labelpad=2)
+    ax.set_ylabel(r'$\Delta\Sigma [h M_\odot/pc^2]$',labelpad=2)
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
     ax.set_ylim(0.5,200)
     ax.set_xlim(0.1,10)
@@ -601,17 +620,17 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ax1.plot(p.Rp,GTr,'C6--',label='reduced')
     ax1.plot(rplot,gt,'C3')
     ax1.plot(rplot,gtr,'C3--')
-    ax1.plot(rplot,gt1h,'C0')
-    ax1.plot(rplot,gt2h,'C9')
-    ax1.plot(rplot,gt1hr,'C0--')
-    ax1.plot(rplot,gt2hr,'C9--')
+    ax1.plot(rplot,gt1h,'C1')
+    ax1.plot(rplot,gt2h,'C8')
+    ax1.plot(rplot,gt1hr,'C1--')
+    ax1.plot(rplot,gt2hr,'C8--')
     # ax1.legend(loc=3,frameon=False)
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C7',alpha=0.4)
     ax1.fill_between(p.Rp,GTr+np.diag(CovGTr),GTr-np.diag(CovGTr),color='C7',alpha=0.4)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax1.set_ylabel(r'$\Gamma_T$',labelpad=2)
+    ax1.set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=2)
     ax1.set_ylim(0.5,100)
     ax1.set_xlim(0.1,10)
     ax1.xaxis.set_ticks([0.1,1,5,7])
@@ -626,16 +645,16 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ax2.plot(p.Rp,GXr,'C5--')
     ax2.plot(rplot,gx,'C3')
     ax2.plot(rplot,gxr,'C3--')
-    ax2.plot(rplot,gx1h,'C0')
-    ax2.plot(rplot,gx2h,'C9')
-    ax2.plot(rplot,gx1hr,'C0--')
-    ax2.plot(rplot,gx2hr,'C9--')
+    ax2.plot(rplot,gx1h,'C1')
+    ax2.plot(rplot,gx2h,'C8')
+    ax2.plot(rplot,gx1hr,'C1--')
+    ax2.plot(rplot,gx2hr,'C8--')
     ax2.axvline(RIN/1000.,color='k',ls=':')
     ax2.axvline(ROUT/1000.,color='k',ls=':')
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C7',alpha=0.4)
     ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C6',alpha=0.4)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax2.set_ylabel(r'$\Gamma_\times$',labelpad=2)
+    ax2.set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=2)
     ax2.set_xscale('log')
     ax2.set_xlim(0.1,10)
     ax2.set_ylim(-16,17)
@@ -660,7 +679,7 @@ cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
-RIN_mix = ['350','350','350','350','400','400']
+RIN_mix = ['350','350','350','350','450','400']
 RIN_mix350 = ['350','350','350','350','350','350']
 RIN_mix400 = ['400']*6
 
@@ -681,7 +700,7 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
-plot_bias(hsamps,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext)
+# plot_bias(hsamps,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext)
 # plot_bias(hsamps_mis20,lhs_ext,cstyle_ext,'mix_mis20',RIN_mix,ROUToq_ext)
 # plot_bias(hsamps_miscen,lhs_ext,cstyle_ext,'mix_miscen',RIN_mix,ROUToq_ext)
 # plot_bias(hsamps_misall,lhs_ext,cstyle_ext,'mix_misall',RIN_mix,ROUToq_ext)
@@ -699,19 +718,20 @@ plot_bias(hsamps,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext)
 # '''
 
 # for j in range(len(lhs_ext)):
-        # samp = hsamps_mix2[j]
+        # samp = hsamps[j]
         # RIN = float(RIN_mix[j])
-        # save_fitted(samp,RIN,5000,fittype='_2h_2q')
-        # save_fitted(samp,RIN,5000,fittype='_2h_2q_Ein')
-        # save_fitted(samp,RIN,5000,fittype='_2h_2q_woc')
+        # save_fitted('HM_Hz',450,5000,fittype='_2h_2q')
+        # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_Ein')
+        # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_woc')
 
-'''
-f, ax_all = plt.subplots(6,3, figsize=(16,14),sharex = True)
+
+f, ax_all = plt.subplots(6,3, figsize=(14,16),sharex = True)
 f.subplots_adjust(hspace=0)
 
 
 for j in range(len(ax_all)):
-    plt_profile_fitted_final(hsamps_ext[j],350,5000,ax_all[j],fittype='_2h_2q_Ein')
+    RIN = float(RIN_mix[j])
+    plt_profile_fitted_final(hsamps[j],RIN,5000,ax_all[j],fittype='_2h_2q')
     ax_all[j,0].text(1,100,lhs_ext[j],fontsize=14)
 
 ax_all[0,0].legend(loc=3,frameon=False)
@@ -719,9 +739,9 @@ ax_all[0,1].legend(loc=3,frameon=False)
 
 
     
-f.savefig(folder+'../test_plots/profile_relaxed_Ein.png',bbox_inches='tight')
+f.savefig(folder+'../final_plots/profile.pdf',bbox_inches='tight')
 
-
+'''
 f, ax_all = plt.subplots(1,3, figsize=(16,4),sharex = True)
 f.subplots_adjust(hspace=0)
 

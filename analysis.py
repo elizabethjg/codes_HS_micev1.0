@@ -356,8 +356,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax[0].plot([0.5,0.8],[0.5,0.8],'C7--')
     ax[1].plot([0.5,0.8],[0.5,0.8],'C7--')
     ax[0].set_xlim([0.5,0.82])
-    ax[0].set_ylim([0.54,0.68])
-    ax[1].set_ylim([0.5,0.65])
+    ax[0].set_ylim([0.57,0.67])
+    ax[1].set_ylim([0.52,0.65])
     ax[1].plot([-1,-1],[-1,-1],'k^',label='standard')
     ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced',alpha=0.5)
     ax[1].plot([-1,-1],[-1,-1],'k^',label='relaxed',mfc='none')
@@ -367,7 +367,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax[0].set_ylabel(r'$\langle q \rangle$')
     ax[1].set_ylabel(r'$\langle q \rangle$')
 
-    ax[0].legend(frameon=False,loc=4,ncol=2)
+    ax[0].legend(frameon=False,loc=4,ncol=3)
     ax[1].legend(frameon=False,loc=2)
     f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
     
@@ -630,7 +630,7 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax1.set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=2)
+    ax1.set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=1.2)
     ax1.set_ylim(0.5,100)
     ax1.set_xlim(0.1,10)
     ax1.xaxis.set_ticks([0.1,1,5,7])
@@ -654,7 +654,7 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C7',alpha=0.4)
     ax2.fill_between(p.Rp,GXr+np.diag(CovGXr),GXr-np.diag(CovGXr),color='C6',alpha=0.4)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax2.set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=2)
+    ax2.set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=1.2)
     ax2.set_xscale('log')
     ax2.set_xlim(0.1,10)
     ax2.set_ylim(-16,17)
@@ -700,7 +700,7 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
 # plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
-# plot_bias(hsamps,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext)
+plot_bias(hsamps,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext)
 # plot_bias(hsamps_mis20,lhs_ext,cstyle_ext,'mix_mis20',RIN_mix,ROUToq_ext)
 # plot_bias(hsamps_miscen,lhs_ext,cstyle_ext,'mix_miscen',RIN_mix,ROUToq_ext)
 # plot_bias(hsamps_misall,lhs_ext,cstyle_ext,'mix_misall',RIN_mix,ROUToq_ext)
@@ -725,21 +725,21 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_woc')
 
 
-f, ax_all = plt.subplots(6,3, figsize=(14,16),sharex = True)
-f.subplots_adjust(hspace=0)
+# f, ax_all = plt.subplots(6,3, figsize=(15,16),sharex = True)
+# f.subplots_adjust(hspace=0)
 
 
-for j in range(len(ax_all)):
-    RIN = float(RIN_mix[j])
-    plt_profile_fitted_final(hsamps[j],RIN,5000,ax_all[j],fittype='_2h_2q')
-    ax_all[j,0].text(1,100,lhs_ext[j],fontsize=14)
+# for j in range(len(ax_all)):
+    # RIN = float(RIN_mix[j])
+    # plt_profile_fitted_final(hsamps[j],RIN,5000,ax_all[j],fittype='_2h_2q')
+    # ax_all[j,0].text(1,100,lhs_ext[j],fontsize=14)
 
-ax_all[0,0].legend(loc=3,frameon=False)
-ax_all[0,1].legend(loc=3,frameon=False)
+# ax_all[0,0].legend(loc=3,frameon=False)
+# ax_all[0,1].legend(loc=3,frameon=False)
 
 
     
-f.savefig(folder+'../final_plots/profile.pdf',bbox_inches='tight')
+# f.savefig(folder+'../final_plots/profile.pdf',bbox_inches='tight')
 
 '''
 f, ax_all = plt.subplots(1,3, figsize=(16,4),sharex = True)

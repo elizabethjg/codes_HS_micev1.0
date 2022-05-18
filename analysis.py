@@ -358,19 +358,48 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax[0].set_xlim([0.5,0.82])
     ax[0].set_ylim([0.57,0.67])
     ax[1].set_ylim([0.52,0.65])
-    ax[1].plot([-1,-1],[-1,-1],'k^',label='standard')
-    ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced',alpha=0.5)
-    ax[1].plot([-1,-1],[-1,-1],'k^',label='relaxed',mfc='none')
+    ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - all')
+    ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - relaxed',mfc='none')
+    ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced - all',alpha=0.5)
+    ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced - relaxed',mfc='none',alpha = 0.5)
 
-    ax[0].set_xlabel(r'$\tilde{q_{1h}}(\hat{\phi})$')
-    ax[1].set_xlabel(r'$\tilde{q_{1h}}(\hat{\phi}_r)$')
-    ax[0].set_ylabel(r'$\langle q \rangle$')
-    ax[1].set_ylabel(r'$\langle q \rangle$')
+    ax[0].set_ylabel(r'$\tilde{q_{1h}}(\hat{\phi})$')
+    ax[1].set_ylabel(r'$\tilde{q_{1h}}(\hat{\phi}_r)$')
+    ax[0].set_xlabel(r'$\langle q \rangle$')
+    ax[1].set_xlabel(r'$\langle q \rangle$')
 
     ax[0].legend(frameon=False,loc=4,ncol=3)
-    ax[1].legend(frameon=False,loc=2)
+    ax[1].legend(loc=1,ncol=2)
     f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
     
+    
+    f, ax = plt.subplots(1,1, figsize=(6,4))
+
+    for hs in range(len(hsamps)):
+        
+        ax.plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        param = -1
+        ax.errorbar(NFW[0][hs][param],NFW_r[0][hs][param],
+                            xerr=np.array([NFW[1][hs][param]]).T,
+                            yerr=np.array([NFW_r[1][hs][param]]).T,
+                            fmt=cstyle[hs],markersize=10,mfc='none')
+        param = 1
+        ax.errorbar(NFW[0][hs][param],NFW_r[0][hs][param],
+                            xerr=np.array([NFW[1][hs][param]]).T,
+                            yerr=np.array([NFW_r[1][hs][param]]).T,
+                            fmt=cstyle[hs],markersize=10)
+    
+    ax.plot([0.1,0.8],[0.1,0.8],'C7--')
+    ax.set_xlim([0.25,0.7])
+    ax.set_ylim([0.25,0.72])
+    ax.plot([-1,-1],[-1,-1],'k^',label=r'$\tilde{q}_{1h}$')
+    ax.plot([-1,-1],[-1,-1],'k^',label=r'$\tilde{q}_{2h}$',mfc='none')
+    ax.legend(loc=2,ncol = 4)
+    ax.set_xlabel(r'$\tilde{q}(\hat{\phi})$')
+    ax.set_ylabel(r'$\tilde{q}(\hat{\phi}_r)$')
+    f.savefig(folder+'../final_plots/q2h.pdf',bbox_inches='tight')
+
+
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
     
     # FOM
@@ -401,7 +430,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
     
     # FOM
-    
+    param = 1
     f,ax = plt.subplots(figsize=(14,3))
     plt.plot([0,5],[0,0],'C7--')
     
@@ -679,7 +708,7 @@ cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
-RIN_mix = ['350','350','350','350','450','400']
+RIN_mix = ['350','350','350','350','400','400']
 RIN_mix350 = ['350','350','350','350','350','350']
 RIN_mix400 = ['400']*6
 

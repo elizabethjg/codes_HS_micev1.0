@@ -411,23 +411,19 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
 
     
     for hs in range(len(hsamps)):
+        plt.plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(4):
-            if fp == 0:
-                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
-            else:
-                plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
-                            yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                            fmt=cstyle[hs],markersize=10)
+            plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
+                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
+                         fmt=cstyle[hs],markersize=10)
     
-    plt.legend(frameon = False)
-    plt.ylabel(r'$(\tilde{q}_{1h}-\langle q \rangle)/\langle q \rangle$')
+    plt.legend(frameon = False,loc=3,ncol=3)
+    plt.ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
     plt.axis([0,5,-0.12,0.12])
     ax.set_xticks(np.arange(4)+1)
     ax.set_xticklabels(xl)
-    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../final_plots/model_q1hr.pdf',bbox_inches='tight')
+    # f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
     
     # FOM
     param = 1
@@ -438,23 +434,19 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
 
     
     for hs in range(len(hsamps)):
+        plt.plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(4):
-            if fp == 0:
-                plt.errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
-                            yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
-                            fmt=cstyle[hs],markersize=10,label=lhs[hs])
-            else:
-                plt.errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
-                            yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
-                            fmt=cstyle[hs],markersize=10)
+             plt.errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
+                          yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
+                          fmt=cstyle[hs],markersize=10)
     
-    plt.legend(frameon = False)
-    plt.ylabel(r'$(\tilde{q}_{1h}-\langle q \rangle)/\langle q \rangle$')
+    plt.legend(frameon = False,loc=3,ncol=3)
+    plt.ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
     plt.axis([0,5,-0.12,0.12])
     ax.set_xticks(np.arange(4)+1)
     ax.set_xticklabels(xl)
-    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+    # f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
     
     
     ###########
@@ -708,7 +700,7 @@ cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
 RIN_mix00 = ['200','200','300','300','400','400']
 RIN_mix50 = ['250','250','350','350','450','450']
-RIN_mix = ['350','350','350','350','400','400']
+RIN_mix = ['350','350','350','350','450','400']
 RIN_mix350 = ['350','350','350','350','350','350']
 RIN_mix400 = ['400']*6
 

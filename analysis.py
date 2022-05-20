@@ -532,7 +532,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     
     
     f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
-    
+    f.subplots_adjust(hspace=0)
     param = 1
     
     ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
@@ -550,8 +550,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax[0].legend(frameon = False)
     ax[0].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
     ax[0].set_ylabel(r'$\tilde{q}/\langle q \rangle$')
-    ax[0].set_xlim([-0.2,0.2])
-    ax[0].set_ylim([-0.2,0.2])
+    ax[0].set_xlim([-0.2,0.07])
+    ax[0].set_ylim([-0.1,0.1])
     
     
     ax[1].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
@@ -569,7 +569,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax[1].legend(frameon = False)
     ax[1].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
     ax[1].set_ylabel(r'$\tilde{q}/\langle q \rangle$')
-    ax[1].axis([-0.2,0.2,-0.2,0.2])
+
     
     
     f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')

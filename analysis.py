@@ -321,7 +321,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     param = 1
 
     f, ax = plt.subplots(2,1, figsize=(6,8),sharex=True)
-
+    f.subplots_adjust(hspace=0)
+    
     for hs in range(len(hsamps)):
         
         ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
@@ -403,48 +404,52 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
     
     # FOM
+    f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True)
+    f.subplots_adjust(hspace=0)
+    ax = [ax[1],ax[0]]
     
-    f,ax = plt.subplots(figsize=(14,3))
-    plt.plot([0,5],[0,0],'C7--')
+    ax[0].plot([0,5],[0,0],'C7--')
     
-    ax.axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
+    ax[0].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
 
     
     for hs in range(len(hsamps)):
-        plt.plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(4):
-            plt.errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
+            ax[0].errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
                          yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                         fmt=cstyle[hs],markersize=10)
+                         fmt=cstyle[hs],markersize=10,mfc='none')
     
-    plt.legend(frameon = False,loc=3,ncol=3)
-    plt.ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
-    plt.axis([0,5,-0.12,0.12])
-    ax.set_xticks(np.arange(4)+1)
-    ax.set_xticklabels(xl)
-    f.savefig(folder+'../final_plots/model_q1hr.pdf',bbox_inches='tight')
+    ax[0].legend(frameon = False,loc=3,ncol=3)
+    ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
+    ax[0].axis([0,5,-0.12,0.12])
+    ax[0].set_xticks(np.arange(4)+1)
+    ax[0].set_xticklabels(xl)
+    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
     # f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
     
     # FOM
     param = 1
-    f,ax = plt.subplots(figsize=(14,3))
-    plt.plot([0,5],[0,0],'C7--')
+    ax[1].plot([0,5],[0,0],'C7--')
     
-    ax.axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
+    ax[1].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
 
     
     for hs in range(len(hsamps)):
-        plt.plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        # ax[1].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(4):
-             plt.errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
+             ax[1].errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
                           yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
                           fmt=cstyle[hs],markersize=10)
+
+    ax[1].plot([-1,-1],[-1,-1],'k^',label=r'all halos')
+    ax[1].plot([-1,-1],[-1,-1],'k^',label=r'relaxed',mfc='none')
     
-    plt.legend(frameon = False,loc=3,ncol=3)
-    plt.ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
-    plt.axis([0,5,-0.12,0.12])
-    ax.set_xticks(np.arange(4)+1)
-    ax.set_xticklabels(xl)
+    ax[1].legend(frameon = False,loc=3,ncol=3)
+    ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
+    ax[1].axis([0,5,-0.12,0.12])
+    ax[1].set_xticks(np.arange(4)+1)
+    ax[1].set_xticklabels(xl)
     f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
     # f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
     
@@ -526,43 +531,47 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ##############
     
     
-    f,ax = plt.subplots(figsize=(14,3))
-    # plt.plot([0,1],[1,1],'C7--')
+    f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
     
     param = 1
     
-    ax.axhspan(0.95,1.05,0,1,color='C7',alpha=0.5)
-    ax.axvspan(0.95,1.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
-    plt.axhline(1,color='C7',ls='--')
-    plt.axvline(1,color='C7',ls='--')
+    ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
+    ax[0].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
+    ax[0].axhline(1,color='C7',ls='--')
+    ax[0].axvline(1,color='C7',ls='--')
     for hs in range(len(hsamps)):
         for fp in range(4):
-            diff = 10**(fq[fp][0][hs][0] - NFW_h[hs][0])
-            if fp == 0:
-                plt.errorbar(diff,fq[fp][0][hs][param]/qhr[hs],
-                        yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                        fmt=cstyle[hs],markersize=10,label=lhs[hs])
-            else:
-                plt.errorbar(diff,fq[fp][0][hs][param]/qhr[hs],
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[0].errorbar(diff,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                         fmt=cstyle[hs],markersize=10)
                         
-    # lMlC = 14.0544
-    # elMlC = [0.00343227, 0.00317295]
+    
+    ax[0].legend(frameon = False)
+    ax[0].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
+    ax[0].set_ylabel(r'$\tilde{q}/\langle q \rangle$')
+    ax[0].set_xlim([-0.2,0.2])
+    ax[0].set_ylim([-0.2,0.2])
+    
+    
+    ax[1].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
+    ax[1].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
+    ax[1].axhline(1,color='C7',ls='--')
+    ax[1].axvline(1,color='C7',ls='--')
+    for hs in range(len(hsamps)):
+        for fp in range(4):
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[1].errorbar(diff,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
+                        yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
+                        fmt=cstyle[hs],markersize=10)
                         
-    # lMlsq = 14.0456
-    # diffCl = 10**(lMlC - NFW_h[2][0])
-    # difflsq = 10**(lMlsq - NFW_h[2][0])
     
-    # plt.errorbar(diffCl,qlC/qwh[2],yerr=np.array([eqlC]).T,fmt='C3s',markersize=10)
-    # plt.errorbar(difflsq,qlsq/qwh[2],yerr=np.array([eqlsq]).T,fmt='C3o',markersize=10)
-
+    ax[1].legend(frameon = False)
+    ax[1].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
+    ax[1].set_ylabel(r'$\tilde{q}/\langle q \rangle$')
+    ax[1].axis([-0.2,0.2,-0.2,0.2])
     
-    plt.legend(frameon = False)
-    plt.xlabel(r'$\tilde{M_{200}}/M_{200}$')
-    plt.ylabel(r'$\tilde{q}/\langle q \rangle$')
-    plt.axis([0.8,1.2,0.8,1.12])
-    # f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
+    
     f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):

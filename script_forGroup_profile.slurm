@@ -25,7 +25,7 @@ conda activate myenv
 
 
 
-srun python -u forGroup_qprofile.py -sample 'HM_Lz' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2  -ncores 56 -miscen True -soff 0.14 
+srun python -u forGroup_qprofile.py -sample 'HM_Lz_Nmis' -lM_min 14.0 -lM_max 14.5 -z_min 0.1 -z_max 0.2  -ncores 56 -miscen True -soff 0.14 
 ##srun python -u forGroup_qprofile.py -sample 'LM_Lz' -lM_min 13.5 -lM_max 14.0 -z_min 0.1 -z_max 0.2  -ncores 56 -miscen True -soff 0.10 -misalign 20
 ##srun python -u forGroup_qprofile.py -sample 'HM_Mz' -lM_min 14.0 -lM_max 14.5 -z_min 0.2 -z_max 0.3  -ncores 56 -miscen True -soff 0.14 -misalign 20
 ##srun python -u forGroup_qprofile.py -sample 'LM_Mz' -lM_min 13.5 -lM_max 14.0 -z_min 0.2 -z_max 0.3  -ncores 56 -miscen True -soff 0.10 -misalign 20

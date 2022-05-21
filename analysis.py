@@ -468,6 +468,12 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ax2.set_xticklabels([0.1,1,5,7])
 
 def misal():
+    
+    def g(x,disp): 
+        return (1./(np.sqrt(2*np.pi)*disp))*np.exp(-0.5*(x/disp)**2)
+
+
+    from scipy import integrate
 
     lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
     hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
@@ -494,7 +500,7 @@ def misal():
 
     for j in range(3):
         
-        argumento = lambda x: g(x,j*10.)*np.cos(2*np.deg2rad(x))
+        argumento = lambda x: g(x,(j+1)*10.)*np.cos(2*np.deg2rad(x))
         D         = integrate.quad(argumento, -90., 90.)[0]
         print('EXPECTED DILUTION ',D)
 

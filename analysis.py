@@ -1,14 +1,15 @@
 import sys
 import pylab
 from astropy.io import fits
-sys.path.append('/home/elizabeth/lens_codes_v3.7')
 from basic_extract import extract_params
-
 import corner
-# folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
+
 folder = '../profiles3/'
 
 def plot_q_dist():
+
+    halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
+    Eratio = (2.*halos.K/abs(halos.U))
     
     import seaborn as sns
     
@@ -466,18 +467,72 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ax2.xaxis.set_ticks([0.1,1,5,7])
     ax2.set_xticklabels([0.1,1,5,7])
 
+def misal():
 
+    lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
+    hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
+    ROUToq = ['2000','1000']*3
+    RIN = ['350','350','350','350','450','400']
+
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+
+    e1h = (1. - np.array(NFW[0]).T[1])/(1. + np.array(NFW[0]).T[1])
+    e2h = (1. - np.array(NFW[0]).T[-1])/(1. + np.array(NFW[0]).T[-1])
+    e1h_r = (1. - np.array(NFW_r[0]).T[1])/(1. + np.array(NFW_r[0]).T[1])
+    e2h_r = (1. - np.array(NFW_r[0]).T[-1])/(1. + np.array(NFW_r[0]).T[-1])
+    
+    edm    = (1. - np.array(qh))/(1. + np.array(qh))
+    edm_rel = (1. - np.array(qhr))/(1. + np.array(qhr))
+
+
+    hsamps_mis10 = ['HM_Lz_mis10','LM_Lz_mis10','HM_Mz_mis10','LM_Mz_mis10','HM_Hz_mis10','LM_Hz_mis10']
+    hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']
+    hsamps_mis30 = ['HM_Lz_mis30','LM_Lz_mis30','HM_Mz_mis30','LM_Mz_mis30','HM_Hz_mis30','LM_Hz_mis30']
+
+    sampall = [hsamps_mis10,hsamps_mis20,hsamps_mis30]
+
+    for j in range(3):
+        
+        argumento = lambda x: g(x,j*10.)*np.cos(2*np.deg2rad(x))
+        D         = integrate.quad(argumento, -90., 90.)[0]
+        print('EXPECTED DILUTION ',D)
+
+
+        qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFWmis,Einmis,o1hmis,wocmis = extract_params(sampall[j],RIN,ROUToq)
+        qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFWmis_r,Einmis_r,o1hmis_r,wocmis_r = extract_params(sampall[j],RIN,ROUToq,reduced=True)
+        
+        fm   = [NFWmis,Einmis,wocmis]
+        fm_r = [NFWmis_r,Einmis_r,wocmis_r]
+        
+        mod  = ['NFW','Ein','NFW_fixc']
+        
+        for m in range(len(mod)):
+        
+            e1hmis   = (1. - np.array(fm[m][0]).T[1])/(1. + np.array(fm[m][0]).T[1])
+            e2hmis   = (1. - np.array(fm[m][0]).T[-1])/(1. + np.array(fm[m][0]).T[-1])
+            e1hmis_r = (1. - np.array(fm_r[m][0]).T[1])/(1. + np.array(fm_r[m][0]).T[1])
+            e2hmis_r = (1. - np.array(fm_r[m][0]).T[-1])/(1. + np.array(fm_r[m][0]).T[-1])
+            
+            print(mod[m])
+            print('dm ratio')
+            print(e1hmis/edm_rel)
+            print(e1hmis_r/edm)
+    
+            f=open(folder+'../misal_res_'+mod[m]+'.tab','a')
+            
+            for i in range(len(lhs)):
+                f.write(lhs[i]+' & ')
+                f.write('$'+str('%.2f' % (e1hmis/e1h)[i])+'$ & ')
+                f.write('$'+str('%.2f' % (e2hmis/e2h)[i])+'$ & ')
+                f.write('$'+str('%.2f' % (e1hmis/edm_rel)[i])+'$ & ')
+                f.write('$'+str('%.2f' % (e1hmis_r/e1h_r)[i])+'$ & ')
+                f.write('$'+str('%.2f' % (e2hmis_r/e2h_r)[i])+'$ & ')
+                f.write('$'+str('%.2f' % (e1hmis_r/edm)[i])+r'$ \\ '+'\n') 
+
+        
 
 # '''
-lhs = ['HM-Lz','LM-Lz','HM-Hz','LM-Hz']
-cstyle = ['C0^','C0v','C3^','C3v']
-hsamps = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
-hsamps_nr = ['HM_Lz','LM_Lz','HM_Hz','LM_Hz']
-ROUToq = ['2000','1000','2000','1000']
-
-lhs_ext_rel = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz','HM-HHz','LM-HHz']
-cstyle_ext_rel = ['C0^','C0v','C1^','C1v','C3^','C3v','C4^','C4v']
-ROUToq_ext_rel = ['2000','1000','2000','1000','2000','1000','2000','1000']
 
 lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
 cstyle = ['C1^','C1v','C3^','C3v','C5^','C5v']
@@ -488,11 +543,6 @@ hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
-
-hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
-                  'HM_Mz_relaxed','LM_Mz_relaxed',
-                  'HM_Hz_relaxed','LM_Hz_relaxed',
-                  'HM_HHz_relaxed','LM_HHz_relaxed']
 
 plot_bias(hsamps,lhs,cstyle,'mix',RIN,ROUToq)
 # '''

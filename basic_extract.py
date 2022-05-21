@@ -1,12 +1,84 @@
 import sys
 import pylab
 from astropy.io import fits
+from astropy.cosmology import LambdaCDM
+sys.path.append('/home/eli/lens_codes_v3.7')
 sys.path.append('/home/elizabeth/lens_codes_v3.7')
-from basic_extract import extract_params
+from models_profiles import *
+from fit_profiles_curvefit import *
+from astropy.constants import G,c,M_sun, pc
+from fit_models_colossus import Delta_Sigma_fit
 
+cvel = c.value;   # Speed of light (m.s-1)
+G    = G.value;   # Gravitational constant (m3.kg-1.s-2)
+pc   = pc.value # 1 pc (m)
+Msun = M_sun.value # Solar mass (kg)
 import corner
 # folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
 folder = '../profiles3/'
+halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
+Eratio = (2.*halos.K/abs(halos.U))
+
+
+def save_fitted(samp,RIN,ROUT,fittype='_2h_2q'):
+
+    
+    component=''
+    terms='1h+2h'
+    pname='NFW'
+    
+    p_name = 'profile_'+samp+'.fits'  
+    profile = fits.open(folder+p_name)
+    
+    print(p_name)
+      
+    p   = profile[1].data
+    h   = profile[0].header
+    
+    zmean = h['z_mean']
+    
+    rplot = p.Rp
+
+        
+    # MCMC results
+
+    
+    fitpar = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[0].header
+    fitd = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_'+p_name)[1].data
+
+    efit     = (1. - fitpar['q']) / (1. + fitpar['q'])
+    efit2h     = (1. - fitpar['q2h']) / (1. + fitpar['q2h'])
+    
+    DS1h  = Delta_Sigma_NFW_2h(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='1h')
+    DS2h  = Delta_Sigma_NFW_2h(rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h')
+
+    gt1h,gx1h   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='1h',pname=pname)
+    gt2h,gx2h   = GAMMA_components(rplot,zmean,ellip=efit2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h',pname=pname)
+    
+    
+    try:
+        
+        fitpar_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[0].header
+        fitd_red = fits.open(folder+'fitresults'+fittype+component+'_'+str(int(RIN))+'_'+str(int(ROUT))+'_reduced_'+p_name)[1].data
+  
+        efit_red = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
+        efit_red2h = (1. - fitpar_red['q']) / (1. + fitpar_red['q'])
+
+        gt1hr,gx1hr = GAMMA_components(rplot,zmean,ellip=efit_red,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params,terms='1h',pname=pname)
+        gt2hr,gx2hr = GAMMA_components(rplot,zmean,ellip=efit_red2h,M200 = 10**fitpar_red['lM200'],c200=fitpar_red['c200'],cosmo_params=params,terms='2h',pname=pname)
+        
+    except:
+        
+        print('NON reduced')
+        efit_red = efit
+        efit_red2h = efit2h
+
+        gt1hr,gx1hr = gt1h,gx1h
+        gt2hr,gx2hr = gt2h,gx2h
+    
+    fitout = np.array([p.Rp,DS1h,DS2h,gt1h,gx1h,gt1hr,gx1hr,gt2h,gx2h,gt2hr,gx2hr])
+
+    np.savetxt(folder+'fitprofile'+fittype+'_'+samp+'_'+str(int(RIN))+'_'+str(int(ROUT))+'.cat',fitout,fmt='%10.2f')
 
 def plot_q_dist():
     
@@ -84,7 +156,157 @@ def plot_q_dist():
     ax[0,1].legend(loc=2,frameon=False)
     ax[1,1].set_xlabel('q')
     ax[1,0].set_xlabel('q')
-    f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')   
+    f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')
+
+def extract_params(hsamples,
+                   RIN=250,
+                   ROUToq = ['2000','1000','2000','1000'],
+                   reduced=False,
+                   cornplot=False):
+    
+    
+    qh   = []
+    qhr   = []
+    NFW_h = []
+    Ein_h = []
+    NFW_hr = []
+    Ein_hr = []
+        
+        
+    NFW = []
+    Ein = []
+    o1h = []
+    woc = []
+
+    eNFW = []
+    eNFWr = []
+    eEin = []
+    eo1h = []
+    ewoc = []
+    
+    if reduced:
+        ang = '_reduced'
+        q2d = 'q2dr'
+    else:
+        ang = ''
+        q2d = 'q2d'
+    
+    for j in range(len(hsamples)):
+        
+        samp = hsamples[j]
+        # from individual halos
+
+        h = fits.open(folder+'profile_'+samp+'.fits')[0].header
+        
+        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+
+        print(samp)
+        print(h['LM_MIN'],h['LM_MAX'])
+        print(h['z_min'],h['z_max'],h['z_mean'])
+        print(h['N_LENSES'])
+        print(mhalos.sum())
+        print((mhalos*mrelax).sum())
+        
+        qhr   += [np.mean(halos[q2d][mhalos*mrelax])]
+        qh    += [np.mean(halos[q2d][mhalos])]
+               
+    
+        mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_rho < 10.)*(halos.cNFW_S < 10.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)
+        mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
+        mhalos = mhalos*mfit_Ein*mfit_NFW
+    
+        halos_samp = halos[mhalos]
+        
+        # qwh   += [h['q2d_mean']]
+        lMNFW = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
+        cNFW  = np.mean(halos[mhalos].cNFW_rho)
+        lMEin = np.log10(np.mean(10**(halos[mhalos].lgMEin_rho)))
+        cEin  = np.mean(halos[mhalos].cEin_rho)
+        alpha = np.mean(halos[mhalos].alpha_rho)
+
+        NFW_h += [[lMNFW,cNFW]]
+        Ein_h += [[lMEin,cEin,alpha]]
+
+
+        lMNFWr = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
+        cNFWr  = np.mean(halos[mhalos*mrelax].cNFW_rho)
+        lMEinr = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
+        cEinr  = np.mean(halos[mhalos*mrelax].cEin_rho)
+        alphar = np.mean(halos[mhalos*mrelax].alpha_rho)
+        
+        NFW_hr += [[lMNFWr,cNFWr]]
+        Ein_hr += [[lMEinr,cEinr,alphar]]
+
+
+        # 1 halo
+        
+        fstd = fits.open(folder+'fitresults_onlyq_'+RIN[j]+'_'+ROUToq[j]+ang+'_profile_'+samp+'.fits')[1].data
+        
+        o1h  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.c200[1500:])]]
+                 
+        eo1h += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84]))]]
+                 
+        if cornplot:
+            
+            lM200 = np.median(fstd.lM200[1500:])
+            labels_DS   = ['$\log M_{200}$','$c_{200}$']
+        
+            mcmc_DS  = np.array([fstd.lM200[1500:],fstd.c200[1500:]]).T
+        
+            fds = corner.corner(mcmc_DS,labels=labels_DS,smooth=1.,range=[(lM200-0.07,lM200+0.07),(2.,4.5)],truths=[lMNFWr,cNFWr],label_kwargs=({'fontsize':16}),truth_color='C2',quantiles=(0.16, 0.84))
+            
+
+
+        # without_c
+
+        fstd = fits.open(folder+'fitresults_2h_2q_woc_'+RIN[j]+'_5000'+ang+'_profile_'+samp+'.fits')[1].data
+
+        woc  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.q2h[1500:])]]
+                 
+        ewoc += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
+               
+        # Einasto
+        fstd = fits.open(folder+'fitresults_2h_2q_Ein_'+RIN[j]+'_5000'+ang+'_profile_'+samp+'.fits')[1].data
+
+        Ein  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.c200[1500:]),
+                 np.median(fstd.alpha[1500:]),
+                 np.median(fstd.q2h[1500:])]]
+                 
+        eEin += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.alpha[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
+        
+        # NFW
+        fstd = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000'+ang+'_profile_'+samp+'.fits')[1].data
+
+        NFW  += [[np.median(fstd.lM200[1500:]),
+                 np.median(fstd.q[1500:]),
+                 np.median(fstd.c200[1500:]),
+                 np.median(fstd.q2h[1500:])]]
+                 
+        eNFW += [[np.diff(np.percentile(fstd.lM200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.c200[1500:], [16,50,84])),
+                 np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
+
+               
+    return qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc]
+
+      
+        
 
 def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     
@@ -313,40 +535,44 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     f.subplots_adjust(hspace=0)
     param = 1
     
-    ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
-    ax[0].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
-    ax[0].axhline(1,color='C7',ls='--')
-    ax[0].axvline(1,color='C7',ls='--')
+    ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.3)
+    ax[0].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.3)
+    ax[0].axhline(0,color='C7',ls='--')
+    ax[0].axvline(0,color='C7',ls='--')
+    border = [['k']*6,['C2']*6,['C7']*6,['C8']*6]
     for hs in range(len(hsamps)):
         for fp in range(4):
             diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
             ax[0].errorbar(diff,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                        fmt=cstyle[hs],markersize=10)
+                        fmt=cstyle[hs],markersize=10,mec=border[fp][hs])
                         
     
     ax[0].legend(frameon = False)
-    ax[0].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
-    ax[0].set_ylabel(r'$\tilde{q}/\langle q \rangle$')
+    ax[0].set_xlabel(r'$(\tilde{M_{200}} - \langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
     ax[0].set_xlim([-0.2,0.07])
     ax[0].set_ylim([-0.1,0.1])
     
     
-    ax[1].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
-    ax[1].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
-    ax[1].axhline(1,color='C7',ls='--')
-    ax[1].axvline(1,color='C7',ls='--')
+    ax[1].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.3)
+    ax[1].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.3)
+    ax[1].axhline(0,color='C7',ls='--')
+    ax[1].axvline(0,color='C7',ls='--')
     for hs in range(len(hsamps)):
         for fp in range(4):
             diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
             ax[1].errorbar(diff,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
                         yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
-                        fmt=cstyle[hs],markersize=10)
+                        fmt=cstyle[hs],markersize=10,mec=border[fp][hs])
                         
     
     ax[1].legend(frameon = False)
-    ax[1].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
-    ax[1].set_ylabel(r'$\tilde{q}/\langle q \rangle$')    
+    ax[1].set_xlabel(r'$(\tilde{M_{200}} - \langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
+
+    
+    
     f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
@@ -479,11 +705,18 @@ lhs_ext_rel = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz','HM-HHz','LM-HHz'
 cstyle_ext_rel = ['C0^','C0v','C1^','C1v','C3^','C3v','C4^','C4v']
 ROUToq_ext_rel = ['2000','1000','2000','1000','2000','1000','2000','1000']
 
-lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
-cstyle = ['C1^','C1v','C3^','C3v','C5^','C5v']
-ROUToq = ['2000','1000']*3
-RIN = ['350','350','350','350','450','400']
+lhs_ext = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
+cstyle_ext = ['C1^','C1v','C3^','C3v','C5^','C5v']
+ROUToq_ext = ['2000','1000','2000','1000','2000','1000']
+RIN_mix00 = ['200','200','300','300','400','400']
+RIN_mix50 = ['250','250','350','350','450','450']
+RIN_mix = ['350','350','350','350','450','400']
+RIN_mix350 = ['350','350','350','350','350','350']
+RIN_mix400 = ['400']*6
 
+
+hsamps_mix = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz_relaxed','LM_HHz_relaxed']
+hsamps_ext = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_HHz','LM_HHz']
 hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
@@ -494,9 +727,26 @@ hsamps_ext_rel = ['HM_Lz_relaxed','LM_Lz_relaxed',
                   'HM_Hz_relaxed','LM_Hz_relaxed',
                   'HM_HHz_relaxed','LM_HHz_relaxed']
 
-plot_bias(hsamps,lhs,cstyle,'mix',RIN,ROUToq)
+# plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix00',RIN_mix00,ROUToq_ext,False)
+# plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix50',RIN_mix50,ROUToq_ext,False)
+# plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix350',RIN_mix350,ROUToq_ext,False)
+# plot_bias(hsamps_mix2,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext,False)
+plot_bias(hsamps,lhs_ext,cstyle_ext,'mix',RIN_mix,ROUToq_ext)
+# plot_bias(hsamps_mis20,lhs_ext,cstyle_ext,'mix_mis20',RIN_mix,ROUToq_ext)
+# plot_bias(hsamps_miscen,lhs_ext,cstyle_ext,'mix_miscen',RIN_mix,ROUToq_ext)
+# plot_bias(hsamps_misall,lhs_ext,cstyle_ext,'mix_misall',RIN_mix,ROUToq_ext)
 # '''
-# from basic_extract import save_fitted
+# plot_bias(hsamps_nr,lhs,cstyle,'nonrex_comprel_samps',250,ROUToq,True)
+# plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'final',350,ROUToq_ext,False)
+# test_fitting(hsamps_mix2,RIN_mix2,ROUToq_ext,False)
+
+# plot_bias(hsamps,lhs,cstyle,'relax_samps',250,ROUToq,True)
+# plot_bias(hsamps_ext,lhs_ext,cstyle_ext,'extend_relax_samps',400,ROUToq_ext,True)
+
+# test_fitting(hsamps_ext,400,ROUToq_ext,True)
+# test_fitting(hsamps,250,ROUToq,True)
+# test_fitting(hsamps_nr,250,ROUToq,False)
+# '''
 
 # for j in range(len(lhs_ext)):
         # samp = hsamps[j]
@@ -522,3 +772,15 @@ plot_bias(hsamps,lhs,cstyle,'mix',RIN,ROUToq)
     
 # f.savefig(folder+'../final_plots/profile.pdf',bbox_inches='tight')
 
+'''
+f, ax_all = plt.subplots(1,3, figsize=(16,4),sharex = True)
+f.subplots_adjust(hspace=0)
+
+plt_profile_fitted_final('HM_Lz',250,5000,ax_all,fittype='_2h_2q')
+
+
+ax_all[0].legend(loc=3,frameon=False)
+
+    
+f.savefig(folder+'../test_plots/final/profile_HM_Lz.png',bbox_inches='tight')
+'''

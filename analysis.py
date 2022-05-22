@@ -498,6 +498,8 @@ def misal():
 
     sampall = [hsamps_mis10,hsamps_mis20,hsamps_mis30]
 
+    mod  = ['NFW','Ein','NFW_fixc','NFW_1h']
+
     for j in range(3):
         
         argumento = lambda x: g(x,(j+1)*10.)*np.cos(2*np.deg2rad(x))
@@ -508,24 +510,25 @@ def misal():
         qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFWmis,Einmis,o1hmis,wocmis = extract_params(sampall[j],RIN,ROUToq)
         qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFWmis_r,Einmis_r,o1hmis_r,wocmis_r = extract_params(sampall[j],RIN,ROUToq,reduced=True)
         
-        fm   = [NFWmis,Einmis,wocmis]
-        fm_r = [NFWmis_r,Einmis_r,wocmis_r]
+        fm   = [NFWmis,Einmis,wocmis,o1hmis]
+        fm_r = [NFWmis_r,Einmis_r,wocmis_r,o1hmis_r]
         
-        mod  = ['NFW','Ein','NFW_fixc']
         
-        for m in range(len(mod)):
+        for m in range(len(mod)-1):
         
             e1hmis   = (1. - np.array(fm[m][0]).T[1])/(1. + np.array(fm[m][0]).T[1])
             e2hmis   = (1. - np.array(fm[m][0]).T[-1])/(1. + np.array(fm[m][0]).T[-1])
             e1hmis_r = (1. - np.array(fm_r[m][0]).T[1])/(1. + np.array(fm_r[m][0]).T[1])
             e2hmis_r = (1. - np.array(fm_r[m][0]).T[-1])/(1. + np.array(fm_r[m][0]).T[-1])
             
+            print('EXPECTED DILUTION ',D)
             print(mod[m])
             print('dm ratio')
             print(e1hmis/edm_rel)
             print(e1hmis_r/edm)
     
             f=open(folder+'../misal_res_'+mod[m]+'.tab','a')
+            f.write(' ----- mis '+str((j+1)*10)+'\n') 
             
             for i in range(len(lhs)):
                 f.write(lhs[i]+' & ')
@@ -536,6 +539,30 @@ def misal():
                 f.write('$'+str('%.2f' % (e2hmis_r/e2h_r)[i])+'$ & ')
                 f.write('$'+str('%.2f' % (e1hmis_r/edm)[i])+r'$ \\ '+'\n') 
 
+            f.close()
+            
+        m = m + 1
+        
+        e1hmis   = (1. - np.array(fm[m][0]).T[1])/(1. + np.array(fm[m][0]).T[1])
+        e1hmis_r = (1. - np.array(fm_r[m][0]).T[1])/(1. + np.array(fm_r[m][0]).T[1])
+        
+        print('EXPECTED DILUTION ',D)
+        print('dm ratio')
+        print(e1hmis/edm_rel)
+        print(e1hmis_r/edm)
+        
+        f=open(folder+'../misal_res_'+mod[m]+'.tab','a')
+        
+        for i in range(len(lhs)):
+            f.write(lhs[i]+' & ')
+            f.write('$'+str('%.2f' % (e1hmis/e1h)[i])+'$ & ')
+            f.write(' -  & ')
+            f.write('$'+str('%.2f' % (e1hmis/edm_rel)[i])+'$ & ')
+            f.write('$'+str('%.2f' % (e1hmis_r/e1h_r)[i])+'$ & ')
+            f.write(' - ')
+            f.write('$'+str('%.2f' % (e1hmis_r/edm)[i])+r'$ \\ '+'\n') 
+            
+        f.close()
         
 
 # '''

@@ -1108,7 +1108,7 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 def plt_profile_bias():
     
 
-    samp = 'HM_Lz_relaxed'
+    samp = 'HM_Lz'
 
     matplotlib.rcParams.update({'font.size': 12})    
     
@@ -1152,7 +1152,7 @@ def plt_profile_bias():
     # miscen
     ##############    
     
-    p_name = 'profile_HM_Lz_soff_relaxed_miscen.fits'
+    p_name = 'profile_HM_Lz_Nmis_miscen.fits'
     profile = fits.open(folder+p_name)
     
     p   = profile[1].data

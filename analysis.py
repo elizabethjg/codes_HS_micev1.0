@@ -550,7 +550,7 @@ hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_m
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
 
-plot_bias(hsamps,lhs,cstyle,'mix',RIN,ROUToq)
+# plot_bias(hsamps,lhs,cstyle,'mix',RIN,ROUToq)
 # '''
 # from basic_extract import save_fitted
 

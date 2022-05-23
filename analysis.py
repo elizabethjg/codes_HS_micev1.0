@@ -87,7 +87,7 @@ def plot_q_dist():
     ax[1,0].set_xlabel('q')
     f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')   
 
-def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
+def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
     qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
@@ -212,7 +212,6 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ax[1].plot([0,5],[0,0],'C7--')
     
     ax[1].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
-
     
     for hs in range(len(hsamps)):
         # ax[1].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
@@ -308,47 +307,57 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq):
     ##############
     #   lM200/q
     ##############
-    
+    mec = ['k','C2','C6','C9']
     
     f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
     f.subplots_adjust(hspace=0)
     param = 1
     
-    ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
-    ax[0].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
-    ax[0].axhline(1,color='C7',ls='--')
-    ax[0].axvline(1,color='C7',ls='--')
+    ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.3)
+    ax[0].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.3)
+    ax[0].axhline(0,color='C7',ls='--')
+    ax[0].axvline(0,color='C7',ls='--')
     for hs in range(len(hsamps)):
+        ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(4):
+            ql = fq[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
             diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
-            ax[0].errorbar(diff,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
+            ax[0].errorbar(diff,(ql-qhr[hs])/qhr[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                        fmt=cstyle[hs],markersize=10)
+                        fmt=cstyle[hs],markersize=13,mec=mec[fp])
                         
     
-    ax[0].legend(frameon = False)
-    ax[0].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
-    ax[0].set_ylabel(r'$\tilde{q}/\langle q \rangle$')
+    ax[0].legend(frameon = False,ncol = 3,loc=3)
+    
+    ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
     ax[0].set_xlim([-0.2,0.07])
-    ax[0].set_ylim([-0.1,0.1])
+    ax[0].set_ylim([-0.2,0.2])
     
     
-    ax[1].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.5)
-    ax[1].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.5)
-    ax[1].axhline(1,color='C7',ls='--')
-    ax[1].axvline(1,color='C7',ls='--')
+    ax[1].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.3)
+    ax[1].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.3)
+    ax[1].axhline(0,color='C7',ls='--')
+    ax[1].axvline(0,color='C7',ls='--')
     for hs in range(len(hsamps)):
         for fp in range(4):
+            ql = fqr[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
+
             diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
-            ax[1].errorbar(diff,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
+            ax[1].errorbar(diff,(ql-qh[hs])/qh[hs],
                         yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
-                        fmt=cstyle[hs],markersize=10)
-                        
+                        fmt=cstyle[hs],markersize=13,mec=mec[fp])
+            if hs == 0:
+                ax[1].plot([-1,-1],[-1,-1],'^',label=xl[fp],mfc='none',mec=mec[fp])
+
     
-    ax[1].legend(frameon = False)
-    ax[1].set_xlabel(r'$\tilde{M_{200}}/M_{200}$')
-    ax[1].set_ylabel(r'$\tilde{q}/\langle q \rangle$')    
-    f.savefig(folder+'../test_plots/model_ratioq_M200_'+nplot+'.png',bbox_inches='tight')
+    ax[1].legend(frameon = False,ncol=2,loc=3)
+    ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
+    ax[1].set_xlabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    f.savefig(folder+'../final_plots/model_ratioq_M200_'+nplot+'.pdf',bbox_inches='tight')
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 
@@ -493,17 +502,35 @@ def misal():
     edm_rel = (1. - np.array(qhr))/(1. + np.array(qhr))
 
 
-    hsamps_mis10 = ['HM_Lz_mis10','LM_Lz_mis10','HM_Mz_mis10','LM_Mz_mis10','HM_Hz_mis10','LM_Hz_mis10']
-    hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']
-    hsamps_mis30 = ['HM_Lz_mis30','LM_Lz_mis30','HM_Mz_mis30','LM_Mz_mis30','HM_Hz_mis30','LM_Hz_mis30']
+    hsamps_mis10  = ['HM_Lz_mis10','LM_Lz_mis10','HM_Mz_mis10','LM_Mz_mis10','HM_Hz_mis10','LM_Hz_mis10']
+    hsamps_mis20  = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']
+    hsamps_mis30  = ['HM_Lz_mis30','LM_Lz_mis30','HM_Mz_mis30','LM_Mz_mis30','HM_Hz_mis30','LM_Hz_mis30']
+    
+    hsamps_miscen = ['HM_Lz_miscen',
+                     'LM_Lz_miscen',
+                     'HM_Mz_miscen',
+                     'LM_Mz_miscen',
+                     'HM_Hz_miscen',
+                     'LM_Hz_miscen']
+    
+    hsamps_misall  = ['HM_Lz_mis20_miscen',
+                      'LM_Lz_mis20_miscen',
+                      'HM_Mz_mis20_miscen',
+                      'LM_Mz_mis20_miscen',
+                      'HM_Hz_mis20_miscen',
+                      'LM_Hz_mis20_miscen']
 
-    sampall = [hsamps_mis10,hsamps_mis20,hsamps_mis30]
+    sampall = [hsamps_mis10,
+               hsamps_mis20,
+               hsamps_mis30,
+               hsamps_miscen,
+               hsamps_misall]
 
     mod  = ['NFW','Ein','NFW_fixc','NFW_1h']
     sav  = [[],[],[],[]]
     Dil  = []
 
-    for j in range(3):
+    for j in range(5):
         
         argumento = lambda x: g(x,(j+1)*10.)*np.cos(2*np.deg2rad(x))
         D         = integrate.quad(argumento, -90., 90.)[0]
@@ -573,12 +600,18 @@ def misal():
         sav[m] += [e1hmis/e1h,np.ones(len(e1h))*-1.,e1hmis/edm_rel,
                       e1hmis_r/e1h_r,np.ones(len(e1h))*-1.,e1hmis_r/edm]
 
+    Dil[-1] = Dil[1]
+    Dil[-2] = 1.
+
     for m in range(len(mod)):
         print(mod[m])
-        for j in range(3):
+        for j in range(5):
             print((j+1)*10)
             for i in range(6):
-                print(mean(Dil[j]/sav[m][i+j*6][:-1]))
+                # ratio = Dil[j]/sav[m][i+j*6]
+                ratio = sav[m][i+j*6][:-1]/Dil[j]
+                print(mean(ratio),np.std(ratio))
+            
         
 
 # '''
@@ -593,7 +626,8 @@ hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_m
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
 
-# plot_bias(hsamps,lhs,cstyle,'mix',RIN,ROUToq)
+plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
+plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
 # '''
 # from basic_extract import save_fitted
 

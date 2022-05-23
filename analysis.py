@@ -473,6 +473,7 @@ def misal():
         return (1./(np.sqrt(2*np.pi)*disp))*np.exp(-0.5*(x/disp)**2)
 
 
+
     from scipy import integrate
 
     lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
@@ -499,13 +500,15 @@ def misal():
     sampall = [hsamps_mis10,hsamps_mis20,hsamps_mis30]
 
     mod  = ['NFW','Ein','NFW_fixc','NFW_1h']
+    sav  = [[],[],[],[]]
+    Dil  = []
 
     for j in range(3):
         
         argumento = lambda x: g(x,(j+1)*10.)*np.cos(2*np.deg2rad(x))
         D         = integrate.quad(argumento, -90., 90.)[0]
         print('EXPECTED DILUTION ',D)
-
+        Dil += [D]
 
         qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFWmis,Einmis,o1hmis,wocmis = extract_params(sampall[j],RIN,ROUToq)
         qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFWmis_r,Einmis_r,o1hmis_r,wocmis_r = extract_params(sampall[j],RIN,ROUToq,reduced=True)
@@ -520,6 +523,9 @@ def misal():
             e2hmis   = (1. - np.array(fm[m][0]).T[-1])/(1. + np.array(fm[m][0]).T[-1])
             e1hmis_r = (1. - np.array(fm_r[m][0]).T[1])/(1. + np.array(fm_r[m][0]).T[1])
             e2hmis_r = (1. - np.array(fm_r[m][0]).T[-1])/(1. + np.array(fm_r[m][0]).T[-1])
+            
+            sav[m] += [e1hmis/e1h,e2hmis/e2h,e1hmis/edm_rel,
+                      e1hmis_r/e1h_r,e2hmis_r/e2h_r,e1hmis_r/edm]
             
             print('EXPECTED DILUTION ',D)
             print(mod[m])
@@ -563,6 +569,16 @@ def misal():
             f.write('$'+str('%.2f' % (e1hmis_r/edm)[i])+r'$ \\ '+'\n') 
             
         f.close()
+        
+        sav[m] += [e1hmis/e1h,np.ones(len(e1h))*-1.,e1hmis/edm_rel,
+                      e1hmis_r/e1h_r,np.ones(len(e1h))*-1.,e1hmis_r/edm]
+
+    for m in range(len(mod)):
+        print(mod[m])
+        for j in range(3):
+            print((j+1)*10)
+            for i in range(6):
+                print(mean(Dil[j]/sav[m][i+j*6][:-1]))
         
 
 # '''

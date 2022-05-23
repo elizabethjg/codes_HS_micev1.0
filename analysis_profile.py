@@ -1201,33 +1201,38 @@ def plt_profile_bias():
     y2  = [y_al,y_c,y_cal]
     Cy2 = [Cy_al,Cy_c,Cy_cal]
     
-    labels = [r'$\sigma(\Delta \theta) = 30^{\circ}$',r'$p_{cc} = 0.0$',r'$\sigma(\Delta \theta) = 20^{\circ}, p_{cc} = 0.75$']
+    labels = [r'$\sigma(\Delta \phi) = 30^{\circ}, p_{cc} = 1.0$',r'$\sigma(\Delta \phi) = 0^{\circ}, p_{cc} = 0.0$',r'$\sigma(\Delta \phi) = 20^{\circ}, p_{cc} = 0.75$']
     
-    f, ax = plt.subplots(6,3, gridspec_kw={'height_ratios': [3, 1]*3},figsize=(14,10),sharex = True)
+    # f, ax = plt.subplots(6,3, gridspec_kw={'height_ratios': [3, 1]*3},figsize=(14,10),sharex = True)
+    f, ax = plt.subplots(3,3,figsize=(14,8),sharex = True)
     f.subplots_adjust(hspace=0)
     
     for j in range(3):
         
         for i in range(3):
-            ax[j*2,i].plot(p.Rp,y[i],'C7')        
-            ax[j*2,i].fill_between(p.Rp,y[i]+Cy[i],y[i]-Cy[i],color='C7',alpha=0.4)
-            ax[j*2,i].plot(p.Rp,y2[j][i],'C3',label = labels[j])        
-            ax[j*2,i].fill_between(p.Rp,y2[j][i]+Cy2[j][i],y2[j][i]-Cy2[j][i],color='C3',alpha=0.4)
-            ax[j*2+1,i].plot(p.Rp,(y[i]-y2[j][i])/y[i],'C7')        
-            ax[j*2+1,i].plot([0,10],[0,0],'k')        
-            ax[j*2+1,i].set_ylim(-0.5,1.)
+            ax[j,i].plot(p.Rp,y[i],'C7')        
+            ax[j,i].fill_between(p.Rp,y[i]+Cy[i],y[i]-Cy[i],color='C7',alpha=0.4)
+            ax[j,i].plot(p.Rp,y2[j][i],'C3',label = labels[j])        
+            ax[j,i].fill_between(p.Rp,y2[j][i]+Cy2[j][i],y2[j][i]-Cy2[j][i],color='C3',alpha=0.4)
+            # ax[j*2,i].plot(p.Rp,y[i],'C7')        
+            # ax[j*2,i].fill_between(p.Rp,y[i]+Cy[i],y[i]-Cy[i],color='C7',alpha=0.4)
+            # ax[j*2,i].plot(p.Rp,y2[j][i],'C3',label = labels[j])        
+            # ax[j*2,i].fill_between(p.Rp,y2[j][i]+Cy2[j][i],y2[j][i]-Cy2[j][i],color='C3',alpha=0.4)
+            # ax[j*2+1,i].plot(p.Rp,(y[i]-y2[j][i]),'C7')        
+            # ax[j*2+1,i].plot([0,10],[0,0],'k')        
+            # ax[j*2+1,i].set_ylim(-0.5,1.)
 
-        ax[j*2+1,i].set_ylim(-5,5)
+
         ax[-1,j].set_xlabel('r [$h^{-1}$ Mpc]')
         
         
-        j *= 2
+        # j *= 2
         
         ax[j,0].legend(frameon=False,loc=4)
         
         ax[j,0].set_xscale('log')
         ax[j,0].set_yscale('log')
-        ax[j,0].set_ylabel(r'$\Delta\Sigma$',labelpad=2)
+        ax[j,0].set_ylabel(r'$\Delta\Sigma$',labelpad=0.5)
         ax[j,0].set_ylim(0.5,200)
         ax[j,0].set_xlim(0.1,10)
         ax[j,0].xaxis.set_ticks([0.1,1,5,7])
@@ -1237,7 +1242,7 @@ def plt_profile_bias():
         
         ax[j,1].set_xscale('log')
         ax[j,1].set_yscale('log')
-        ax[j,1].set_ylabel(r'$\Gamma_T$',labelpad=2)
+        ax[j,1].set_ylabel(r'$\Gamma_T$',labelpad=0.5)
         ax[j,1].set_ylim(0.5,100)
         ax[j,1].set_xlim(0.1,10)
         ax[j,1].xaxis.set_ticks([0.1,1,5,7])
@@ -1246,7 +1251,7 @@ def plt_profile_bias():
         ax[j,1].set_yticklabels([1,10,100])
             
         ax[j,2].plot([0,10],[0,0],'k')
-        ax[j,2].set_ylabel(r'$\Gamma_\times$',labelpad=2)
+        ax[j,2].set_ylabel(r'$\Gamma_\times$',labelpad=0.5)
         ax[j,2].set_xscale('log')
         ax[j,2].set_xlim(0.1,10)
         ax[j,2].set_ylim(-16,17)

@@ -214,9 +214,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     ax[1].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
     
     for hs in range(len(hsamps)):
-        # ax[1].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(4):
-             ax[1].errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
+            ax[1].errorbar(fp+1+0.1*hs,(fqr[fp][0][hs][param]-qh[hs])/qh[hs],
                           yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
                           fmt=cstyle[hs],markersize=10)
 
@@ -358,6 +357,113 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
     ax[1].set_xlabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
     f.savefig(folder+'../final_plots/model_ratioq_M200_'+nplot+'.pdf',bbox_inches='tight')
+
+def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
+    
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+    ###########
+    #   q1h
+    ###########
+    fq = [NFW,Ein,woc,o1h]
+    fqr = [NFW_r,Ein_r,woc_r,o1h_r]
+    
+    param = 1
+    D = 1.
+    
+    ##############
+    #   lM200/q
+    ##############
+    mec = ['k','C2','C6','C9']
+    xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
+    
+    f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
+    f.subplots_adjust(hspace=0)
+    param = 1
+    
+    ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.3)
+    ax[0].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.2)
+    ax[0].axhline(0,color='C7',ls='--')
+    ax[0].axvline(0,color='C7',ls='--')
+    ax[1].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.3)
+    ax[1].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.2)
+    ax[1].axhline(0,color='C7',ls='--')
+    ax[1].axvline(0,color='C7',ls='--')
+    
+    for hs in range(len(hsamps)):
+        for fp in range(4):
+            ql = fq[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[0].errorbar(diff,(ql-qhr[hs])/qhr[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
+                        fmt=cstyle[hs],markersize=15,mec=mec[fp])
+                        
+    
+    for hs in range(len(hsamps)):
+        for fp in range(4):
+            ql = fqr[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[1].errorbar(diff,(ql-qh[hs])/qh[hs],
+                        yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
+                        fmt=cstyle[hs],markersize=15,mec=mec[fp])
+
+    
+
+    # ---------------------------------
+    D = 0.78
+    hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps_misall,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
+    
+    fq = [NFW,Ein,woc,o1h]
+    fqr = [NFW_r,Ein_r,woc_r,o1h_r]
+
+    for hs in range(len(hsamps)):
+        ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        for fp in range(4):
+            ql = fq[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[0].errorbar(diff,(ql-qhr[hs])/qhr[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
+                        fmt=cstyle[hs],markersize=10,mec=mec[fp],alpha = 0.5)
+                        
+    
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='$p_{cc} = 1, \Delta \phi = 0$',markersize=15)
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='$p_{cc} = 0.75, \Delta \phi = 20^\circ$',markersize=10,alpha=0.5)
+    
+    ax[0].legend(frameon = False,ncol = 4,loc=3)
+    
+    ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
+    ax[0].set_xlim([-0.2,0.07])
+    ax[0].set_ylim([-0.2,0.2])
+    
+    for hs in range(len(hsamps)):
+        for fp in range(4):
+            ql = fqr[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
+
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[1].errorbar(diff,(ql-qh[hs])/qh[hs],
+                        yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
+                        fmt=cstyle[hs],markersize=10,mec=mec[fp],alpha = 0.5)
+            if hs == 0:
+                ax[1].plot([-1,-1],[-1,-1],'^',label=xl[fp],mfc='none',mec=mec[fp])
+
+    
+    ax[1].legend(frameon = False,ncol=2,loc=3)
+    ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
+    ax[1].set_xlabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    
+    
+    f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
+
 
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 
@@ -626,8 +732,9 @@ hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_m
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
 
-plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
-plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
+# plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
+# plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
+plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
 # '''
 # from basic_extract import save_fitted
 

@@ -1232,7 +1232,7 @@ def plt_profile_bias():
         
         ax[j,0].set_xscale('log')
         ax[j,0].set_yscale('log')
-        ax[j,0].set_ylabel(r'$\Delta\Sigma$',labelpad=0.5)
+        ax[j,0].set_ylabel(r'$\Delta\Sigma [h M_\odot/pc^2]$',labelpad=0.5)
         ax[j,0].set_ylim(0.5,200)
         ax[j,0].set_xlim(0.1,10)
         ax[j,0].xaxis.set_ticks([0.1,1,5,7])
@@ -1242,7 +1242,7 @@ def plt_profile_bias():
         
         ax[j,1].set_xscale('log')
         ax[j,1].set_yscale('log')
-        ax[j,1].set_ylabel(r'$\Gamma_T$',labelpad=0.5)
+        ax[j,1].set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=0.5)
         ax[j,1].set_ylim(0.5,100)
         ax[j,1].set_xlim(0.1,10)
         ax[j,1].xaxis.set_ticks([0.1,1,5,7])
@@ -1251,7 +1251,7 @@ def plt_profile_bias():
         ax[j,1].set_yticklabels([1,10,100])
             
         ax[j,2].plot([0,10],[0,0],'k')
-        ax[j,2].set_ylabel(r'$\Gamma_\times$',labelpad=0.5)
+        ax[j,2].set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=0.5)
         ax[j,2].set_xscale('log')
         ax[j,2].set_xlim(0.1,10)
         ax[j,2].set_ylim(-16,17)

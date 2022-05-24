@@ -406,7 +406,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
             ql = fqr[fp][0][hs][param]
             el = ((1. - ql)/(1. + ql))/D
             ql = ((1. - el)/(1. + el))
-            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_hr[hs][0])/10**NFW_hr[hs][0]
             ax[1].errorbar(diff,(ql-qh[hs])/qh[hs],
                         yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
                         fmt=cstyle[hs],markersize=15,mec=mec[fp])
@@ -440,7 +440,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
     ax[0].legend(frameon = False,ncol = 4,loc=3)
     
     ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
-    ax[0].set_xlim([-0.2,0.07])
+    ax[0].set_xlim([-0.22,0.04])
     ax[0].set_ylim([-0.2,0.2])
     
     for hs in range(len(hsamps)):
@@ -449,7 +449,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
             el = ((1. - ql)/(1. + ql))/D
             ql = ((1. - el)/(1. + el))
 
-            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            diff = (10**fq[fp][0][hs][0] - 10**NFW_hr[hs][0])/10**NFW_hr[hs][0]
             ax[1].errorbar(diff,(ql-qh[hs])/qh[hs],
                         yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
                         fmt=cstyle[hs],markersize=10,mec=mec[fp],alpha = 0.5)

@@ -152,9 +152,9 @@ def extract_params(hsamples,
         Ein_h += [[lMEin,cEin,alpha]]
 
 
-        lMNFWr = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
+        lMNFWr = np.log10(np.mean(10**(halos[mhalos*mrelax].lgMNFW_rho)))
         cNFWr  = np.mean(halos[mhalos*mrelax].cNFW_rho)
-        lMEinr = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
+        lMEinr = np.log10(np.mean(10**(halos[mhalos*mrelax].lgMNFW_rho)))
         cEinr  = np.mean(halos[mhalos*mrelax].cEin_rho)
         alphar = np.mean(halos[mhalos*mrelax].alpha_rho)
         

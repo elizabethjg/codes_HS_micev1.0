@@ -908,7 +908,7 @@ f.subplots_adjust(hspace=0)
 for j in range(len(ax_all)):
     rin = float(RIN[j])
     plt_profile_fitted_final(hsamps[j],rin,5000,ax_all[j],fittype='_2h_2q')
-    ax_all[j,0].text(1,100,lhs_ext[j],fontsize=14)
+    ax_all[j,0].text(1,100,lhs[j],fontsize=14)
 
 ax_all[0,0].legend(loc=3,frameon=False)
 ax_all[0,1].legend(loc=3,frameon=False)

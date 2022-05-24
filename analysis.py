@@ -719,6 +719,161 @@ def misal():
                 print(mean(ratio),np.std(ratio))
             
         
+def plt_profile_bias():
+    
+
+    samp = 'HM_Lz'
+
+    matplotlib.rcParams.update({'font.size': 12})    
+    
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS  = p.DSigma_T
+    GT  = p.GAMMA_Tcos    
+    GX  = p.GAMMA_Xsin
+    
+    # '''
+    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))    
+    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
+        
+    ##############    
+    # misal
+    ##############    
+    
+    p_name = 'profile_'+samp+'_mis30.fits'
+    profile = fits.open(folder+p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS_al  = p.DSigma_T
+    GT_al  = p.GAMMA_Tcos
+    GX_al  = p.GAMMA_Xsin
+    
+    # '''
+    CovDS_al  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT_al  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGX_al  = cov.COV_GX.reshape(len(GT),len(GT))
+
+    ##############    
+    # miscen
+    ##############    
+    
+    p_name = 'profile_HM_Lz_Nmis_miscen.fits'
+    profile = fits.open(folder+p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS_c  = p.DSigma_T
+    GT_c  = p.GAMMA_Tcos
+    GX_c  = p.GAMMA_Xsin
+    
+    # '''
+    CovDS_c  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT_c  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGX_c  = cov.COV_GX.reshape(len(GT),len(GT))
+
+    ##############    
+    # miscen + misal
+    ##############    
+    
+    p_name = 'profile_'+samp+'_mis20_miscen.fits'
+    profile = fits.open(folder+p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS_cal  = p.DSigma_T
+    GT_cal  = p.GAMMA_Tcos
+    GX_cal  = p.GAMMA_Xsin
+    # '''
+    CovDS_cal  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT_cal  = cov.COV_GT.reshape(len(GT),len(GT))
+    CovGX_cal  = cov.COV_GX.reshape(len(GT),len(GT))
+    
+    # '''    
+    y  = [DS,GT,GX]
+    Cy = [np.diag(CovDS),np.diag(CovGT),np.diag(CovGX)]
+
+    y_c  = [DS_c,GT_c,GX_c]
+    Cy_c = [np.diag(CovDS_c),np.diag(CovGT_c),np.diag(CovGX_c)]
+
+    y_al  = [DS_al,GT_al,GX_al]
+    Cy_al = [np.diag(CovDS_al),np.diag(CovGT_al),np.diag(CovGX_al)]
+
+    y_cal  = [DS_cal,GT_cal,GX_cal]
+    Cy_cal = [np.diag(CovDS_cal),np.diag(CovGT_cal),np.diag(CovGX_cal)]
+    
+    y2  = [y_al,y_c,y_cal]
+    Cy2 = [Cy_al,Cy_c,Cy_cal]
+    
+    labels = [r'$\sigma(\Delta \phi) = 30^{\circ}, p_{cc} = 1.0$',r'$\sigma(\Delta \phi) = 0^{\circ}, p_{cc} = 0.0$',r'$\sigma(\Delta \phi) = 20^{\circ}, p_{cc} = 0.75$']
+    
+    # f, ax = plt.subplots(6,3, gridspec_kw={'height_ratios': [3, 1]*3},figsize=(14,10),sharex = True)
+    f, ax = plt.subplots(3,3,figsize=(14,8),sharex = True)
+    f.subplots_adjust(hspace=0)
+    
+    for j in range(3):
+        
+        for i in range(3):
+            ax[j,i].plot(p.Rp,y[i],'C7')        
+            ax[j,i].fill_between(p.Rp,y[i]+Cy[i],y[i]-Cy[i],color='C7',alpha=0.4)
+            ax[j,i].plot(p.Rp,y2[j][i],'C3',label = labels[j])        
+            ax[j,i].fill_between(p.Rp,y2[j][i]+Cy2[j][i],y2[j][i]-Cy2[j][i],color='C3',alpha=0.4)
+            # ax[j*2,i].plot(p.Rp,y[i],'C7')        
+            # ax[j*2,i].fill_between(p.Rp,y[i]+Cy[i],y[i]-Cy[i],color='C7',alpha=0.4)
+            # ax[j*2,i].plot(p.Rp,y2[j][i],'C3',label = labels[j])        
+            # ax[j*2,i].fill_between(p.Rp,y2[j][i]+Cy2[j][i],y2[j][i]-Cy2[j][i],color='C3',alpha=0.4)
+            # ax[j*2+1,i].plot(p.Rp,(y[i]-y2[j][i]),'C7')        
+            # ax[j*2+1,i].plot([0,10],[0,0],'k')        
+            # ax[j*2+1,i].set_ylim(-0.5,1.)
+
+
+        ax[-1,j].set_xlabel('r [$h^{-1}$ Mpc]')
+        
+        
+        # j *= 2
+        
+        ax[j,0].legend(frameon=False,loc=4)
+        
+        ax[j,0].set_xscale('log')
+        ax[j,0].set_yscale('log')
+        ax[j,0].set_ylabel(r'$\Delta\Sigma [h M_\odot/pc^2]$',labelpad=0.5)
+        ax[j,0].set_ylim(0.5,200)
+        ax[j,0].set_xlim(0.1,10)
+        ax[j,0].xaxis.set_ticks([0.1,1,5,7])
+        ax[j,0].set_xticklabels([0.1,1,5,7])
+        ax[j,0].yaxis.set_ticks([1,10,100])
+        ax[j,0].set_yticklabels([1,10,100])
+        
+        ax[j,1].set_xscale('log')
+        ax[j,1].set_yscale('log')
+        ax[j,1].set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=0.5)
+        ax[j,1].set_ylim(0.5,100)
+        ax[j,1].set_xlim(0.1,10)
+        ax[j,1].xaxis.set_ticks([0.1,1,5,7])
+        ax[j,1].set_xticklabels([0.1,1,5,7])
+        ax[j,1].yaxis.set_ticks([1,10,100])
+        ax[j,1].set_yticklabels([1,10,100])
+            
+        ax[j,2].plot([0,10],[0,0],'k')
+        ax[j,2].set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=0.5)
+        ax[j,2].set_xscale('log')
+        ax[j,2].set_xlim(0.1,10)
+        ax[j,2].set_ylim(-16,17)
+        ax[j,2].xaxis.set_ticks([0.1,1,5,7])
+        ax[j,2].set_xticklabels([0.1,1,5,7])
+        
+        f.savefig(folder+'../final_plots/profile_test_bias.pdf',bbox_inches='tight')
+
 
 # '''
 
@@ -734,7 +889,7 @@ hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen',
 
 # plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
-plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
+# plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
 # '''
 # from basic_extract import save_fitted
 

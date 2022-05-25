@@ -899,7 +899,7 @@ hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen',
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q')
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_Ein')
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_woc')
-
+'''
 
 f, ax_all = plt.subplots(6,3, figsize=(15,16),sharex = True)
 f.subplots_adjust(hspace=0)
@@ -917,3 +917,4 @@ ax_all[0,1].legend(loc=3,frameon=False)
     
 f.savefig(folder+'../final_plots/profile.pdf',bbox_inches='tight')
 
+'''

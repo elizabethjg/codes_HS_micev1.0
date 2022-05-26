@@ -142,21 +142,21 @@ def extract_params(hsamples,
         halos_samp = halos[mhalos]
         
         # qwh   += [h['q2d_mean']]
-        lMNFW = np.log10(np.mean(10**(halos[mhalos].lgMNFW_rho)))
-        cNFW  = np.mean(halos[mhalos].cNFW_rho)
-        lMEin = np.log10(np.mean(10**(halos[mhalos].lgMEin_rho)))
-        cEin  = np.mean(halos[mhalos].cEin_rho)
-        alpha = np.mean(halos[mhalos].alpha_rho)
+        lMNFW = np.log10(np.mean(10**(halos[mhalos].lgMNFW_S)))
+        cNFW  = np.mean(halos[mhalos].cNFW_S)
+        lMEin = np.log10(np.mean(10**(halos[mhalos].lgMEin_S)))
+        cEin  = np.mean(halos[mhalos].cEin_S)
+        alpha = np.mean(halos[mhalos].alpha_S)
 
         NFW_h += [[lMNFW,cNFW]]
         Ein_h += [[lMEin,cEin,alpha]]
 
 
-        lMNFWr = np.log10(np.mean(10**(halos[mhalos*mrelax].lgMNFW_rho)))
-        cNFWr  = np.mean(halos[mhalos*mrelax].cNFW_rho)
-        lMEinr = np.log10(np.mean(10**(halos[mhalos*mrelax].lgMNFW_rho)))
-        cEinr  = np.mean(halos[mhalos*mrelax].cEin_rho)
-        alphar = np.mean(halos[mhalos*mrelax].alpha_rho)
+        lMNFWr = np.log10(np.mean(10**(halos[mhalos*mrelax].lgMNFW_S)))
+        cNFWr  = np.mean(halos[mhalos*mrelax].cNFW_S)
+        lMEinr = np.log10(np.mean(10**(halos[mhalos*mrelax].lgMNFW_S)))
+        cEinr  = np.mean(halos[mhalos*mrelax].cEin_S)
+        alphar = np.mean(halos[mhalos*mrelax].alpha_S)
         
         NFW_hr += [[lMNFWr,cNFWr]]
         Ein_hr += [[lMEinr,cEinr,alphar]]

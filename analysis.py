@@ -428,7 +428,10 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
             ql = fq[fp][0][hs][param]
             el = ((1. - ql)/(1. + ql))/D
             ql = ((1. - el)/(1. + el))
-            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            if fp == 1:
+                diff = (10**fq[fp][0][hs][0] - 10**Ein_h[hs][0])/10**Ein_h[hs][0]
+            else:
+                diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
             ax[0].errorbar(diff,(ql-qhr[hs])/qhr[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                         fmt=cstyle[hs],markersize=10,mec=mec[fp],alpha = 0.5)
@@ -440,7 +443,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
     ax[0].legend(frameon = False,ncol = 4,loc=3)
     
     ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
-    ax[0].set_xlim([-0.22,0.04])
+    ax[0].set_xlim([-0.15,0.1])
     ax[0].set_ylim([-0.2,0.2])
     
     for hs in range(len(hsamps)):
@@ -448,8 +451,10 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
             ql = fqr[fp][0][hs][param]
             el = ((1. - ql)/(1. + ql))/D
             ql = ((1. - el)/(1. + el))
-
-            diff = (10**fq[fp][0][hs][0] - 10**NFW_hr[hs][0])/10**NFW_hr[hs][0]
+            if fp == 1:
+                diff = (10**fq[fp][0][hs][0] - 10**Ein_hr[hs][0])/10**Ein_hr[hs][0]
+            else:
+                diff = (10**fq[fp][0][hs][0] - 10**NFW_hr[hs][0])/10**NFW_hr[hs][0]
             ax[1].errorbar(diff,(ql-qh[hs])/qh[hs],
                         yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
                         fmt=cstyle[hs],markersize=10,mec=mec[fp],alpha = 0.5)
@@ -468,7 +473,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
 def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
 
 
-    matplotlib.rcParams.update({'font.size': 12})    
+    matplotlib.rcParams.update({'font.size': 11})    
     ax,ax1,ax2 = axx3
     
     p_name = 'profile_'+samp+'.fits'
@@ -899,9 +904,9 @@ hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen',
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q')
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_Ein')
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_woc')
-'''
+# '''
 
-f, ax_all = plt.subplots(6,3, figsize=(15,16),sharex = True)
+f, ax_all = plt.subplots(6,3, figsize=(14,16),sharex = True)
 f.subplots_adjust(hspace=0)
 
 
@@ -917,4 +922,4 @@ ax_all[0,1].legend(loc=3,frameon=False)
     
 f.savefig(folder+'../final_plots/profile.pdf',bbox_inches='tight')
 
-'''
+# '''

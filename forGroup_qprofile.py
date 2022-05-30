@@ -132,7 +132,7 @@ R5s_min = 0
 R5s_max = 100.
 resNFW_max = 100.
 misalign = False
-miscen = True
+miscen = False
 '''
 
 

@@ -888,13 +888,15 @@ ROUToq = ['2000','1000']*3
 RIN = ['350','350','350','350','450','400']
 
 hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
+hsamps_rel = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Mz_relaxed','LM_Mz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
 hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
 
 # plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
-# plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
+plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
+plot_M200q(hsamps_rel,lhs,cstyle,RIN,ROUToq)
 # '''
 # from basic_extract import save_fitted
 
@@ -904,7 +906,7 @@ hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen',
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q')
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_Ein')
         # save_fitted('HM_Hz',450,5000,fittype='_2h_2q_woc')
-# '''
+'''
 
 f, ax_all = plt.subplots(6,3, figsize=(14,16),sharex = True)
 f.subplots_adjust(hspace=0)
@@ -922,4 +924,4 @@ ax_all[0,1].legend(loc=3,frameon=False)
     
 f.savefig(folder+'../final_plots/profile.pdf',bbox_inches='tight')
 
-# '''
+'''

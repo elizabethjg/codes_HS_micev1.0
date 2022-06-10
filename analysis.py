@@ -310,7 +310,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
     mec = ['k','C2','C6','C9']
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
     
-    f, ax = plt.subplots(1,1, figsize=(14,3),sharex=True,sharey=True)
+    f, ax = plt.subplots(1,1, figsize=(10,6),sharex=True,sharey=True)
     f.subplots_adjust(hspace=0)
     param = 1
     ax = [ax]
@@ -379,12 +379,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
             ax[0].errorbar(diff,(ql-qhr[hs])/qhr[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                         fmt=cstyle[hs],markersize=10,mec=mec[fp],alpha = 0.5)
-                        
-    
-    ax[0].plot([-1,-1],[-1,-1],'k^',label='$p_{cc} = 1, \Delta \phi = 0$',markersize=15)
-    ax[0].plot([-1,-1],[-1,-1],'k^',label='$p_{cc} = 0.75, \Delta \phi = 20^\circ$',markersize=10,alpha=0.5)
-    
-    
+                            
     
     ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
     ax[0].set_xlim([-0.2,0.2])
@@ -404,11 +399,15 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
                         # fmt=cstyle[hs],markersize=10,mec=mec[fp],alpha = 0.5)
             if hs == 0:
                 ax[0].plot([-1,-1],[-1,-1],'^',label=xl[fp],mfc='none',mec=mec[fp])
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='$p_{cc} = 1, \Delta \phi = 0$',markersize=15)
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='$p_{cc} = 0.75, \Delta \phi = 20^\circ$',markersize=10,alpha=0.5)
 
-    ax[0].legend(frameon = False,ncol = 6,loc=3)
+
+    ax[0].legend(frameon = False,ncol = 2,loc=3)
     # ax[1].legend(frameon = False,ncol=2,loc=3)
     # ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
     ax[0].set_xlabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    
     
     
     f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
@@ -838,10 +837,10 @@ hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_m
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
 
-plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
+# plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_rel,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
-# plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
+plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
 # plot_M200q(hsamps_rel,lhs,cstyle,RIN,ROUToq)
 # '''
 # from basic_extract import save_fitted

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fit1
+#SBATCH --job-name=fit2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00
@@ -18,5 +18,5 @@ source $HOME/.bashrc
 
 conda activate myenv
 
-srun ./run_fit_forz_400.sh
+srun ./run_fit_forz.sh
 ##srun ./run_fit_forz.sh

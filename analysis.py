@@ -150,8 +150,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
 
     ax[0].legend(frameon=False,loc=4,ncol=3)
     ax[1].legend(loc=1,ncol=2)
-    f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
-    # f.savefig(folder+'../final_plots/qcomparison.png',bbox_inches='tight')
+    # f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/qcomparison_'+nplot+'.png',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/qcomparison_rel.png',bbox_inches='tight')
     
     
@@ -181,7 +181,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     ax.set_ylabel(r'$\tilde{q}(\hat{\phi}_r)$')
     # f.savefig(folder+'../final_plots/q2h_rel.png',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/q2h.png',bbox_inches='tight')
-    f.savefig(folder+'../final_plots/q2h.pdf',bbox_inches='tight')
+    # f.savefig(folder+'../final_plots/q2h.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/q2h_'+nplot+'.png',bbox_inches='tight')
 
 
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
@@ -233,7 +234,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     ax[1].axis([0,5,-0.12,0.12])
     ax[1].set_xticks(np.arange(4)+1)
     ax[1].set_xticklabels(xl)
-    f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
     
     # FOM - mass
     f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
@@ -285,7 +287,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     ax[1].set_xticklabels(xl)
     
     # f.savefig(folder+'../final_plots/model_M200.png',bbox_inches='tight')
-    f.savefig(folder+'../final_plots/model_M200.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_M200_'+nplot+'.png',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/model_q1h_rel.png',bbox_inches='tight')
     # f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
     
@@ -831,16 +833,24 @@ cstyle = ['C1^','C1v','C3^','C3v','C5^','C5v']
 ROUToq = ['2000','1000']*3
 RIN = ['350','350','350','350','450','400']
 
+lhsq = ['all','q < 0.5','0.5 < q < 0.7','q > 0.7']
+cstyleq = ['ko','C1v','C3o','C5^']
+ROUToqq = ['1500']*4
+RINq = ['350']*4
+hsampsq = ['all','all_qmin','all_qmed','all_qmax']
+
 hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 hsamps_rel = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Mz_relaxed','LM_Mz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
 hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
 
+plot_bias(hsampsq,lhsq,cstyleq,'all_q',RINq,ROUToqq)
 # plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_rel,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
-plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
+# plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq)
+
 # plot_M200q(hsamps_rel,lhs,cstyle,RIN,ROUToq)
 # '''
 # from basic_extract import save_fitted

@@ -121,12 +121,13 @@ def extract_params(hsamples,
 
         h = fits.open(folder+'profile_'+samp+'.fits')[0].header
         
-        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])*(halos.q2d >= h['q_min'])*(halos.q2d < h['q_max'])
         mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
 
         print(samp)
         print(h['LM_MIN'],h['LM_MAX'])
         print(h['z_min'],h['z_max'],h['z_mean'])
+        print(h['q_min'],h['q_max'])
         print(h['N_LENSES'])
         print(mhalos.sum())
         print((mhalos*mrelax).sum())

@@ -15,10 +15,7 @@ def plot_q_dist():
     
     hsamples = ['Lz','Mz','Hz']
     colors = ['C1','C3','C5']
-    # hsamples = ['HM_Lz','HM_Mz','HM_Hz']
-    # colors = ['C1','C3','C5']
-    # hsamples = ['LM_Lz','LM_Mz','LM_Hz']
-    # colors = ['C1','C3','C5']
+
     f, ax = plt.subplots(2,2, figsize=(6,5),sharex = True,sharey=True)
     f.subplots_adjust(hspace=0,wspace=0)
     
@@ -86,6 +83,69 @@ def plot_q_dist():
     ax[1,1].set_xlabel('q')
     ax[1,0].set_xlabel('q')
     f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')   
+
+
+def plot_q_dist_testq():
+
+    halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
+    Eratio = (2.*halos.K/abs(halos.U))
+    
+    hsamps = ['all', 'all_qmin', 'all_qmed', 'all_qmax']
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,['350']*4,['1500']*4)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,['350']*4,['1500']*4,reduced=True)
+
+    
+    import seaborn as sns
+    
+    hsamples = ['all']
+    colors = ['k']
+
+    f, ax = plt.subplots(2,1, figsize=(6,5),sharex = True,sharey=True)
+    f.subplots_adjust(hspace=0,wspace=0)
+    
+    ax[0].set_xlim([0,1.15])
+    ax[0].set_ylim([0,4.53])
+    ax[0].text(0.1,4,'all halos')
+    ax[1].text(0.1,4,'only relaxed')
+    
+    for j in range(len(hsamples)):
+
+        ax[0].plot([-1]*2,[-1]*2,colors[j],label=hsamples[j])        
+        samp = hsamples[j]
+        # from individual halos
+
+        # FIRST HM
+
+        h = fits.open(folder+'profile_'+samp+'.fits')[0].header
+        print(h['N_LENSES'])
+        mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
+        mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+
+        print(samp)
+        print(h['LM_MIN'],h['LM_MAX'])
+        print(h['z_min'],h['z_max'])
+        
+        sns.kdeplot(halos.q2d[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1])
+        ax[1].plot([np.mean(halos.q2d[mhalos*mrelax])]*2,[4.0,4.4],colors[j])
+        sns.kdeplot(halos.q2dr[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1],ls='--')
+        ax[1].plot([np.mean(halos.q2dr[mhalos*mrelax])]*2,[4.0,4.4],colors[j]+'--')
+        sns.kdeplot(halos.q2d[mhalos].byteswap().newbyteorder(),color=colors[j],ax=ax[0])
+        ax[0].plot([np.mean(halos.q2d[mhalos])]*2,[4.0,4.4],colors[j])
+        sns.kdeplot(halos.q2dr[mhalos].byteswap().newbyteorder(),color=colors[j],ax=ax[0],ls='--')
+        ax[0].plot([np.mean(halos.q2dr[mhalos])]*2,[4.0,4.4],colors[j]+'--')
+
+        # for i in range(len(hsamps)):
+            
+
+    ax[0].plot([-1]*2,[-1]*2,'k--',label='standard')
+    ax[0].plot([-1]*2,[-1]*2,'k-',label='reduced')
+    
+    ax[0].legend(loc=2,frameon=False)
+    ax[1].set_xlabel('q')
+    ax[1].set_xlabel('q')
+    f.savefig(folder+'../test_plots/qdist_all_q.png',bbox_inches='tight')   
+
+
 
 def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
@@ -845,7 +905,7 @@ hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_m
 hsamps_miscen = ['HM_Lz_miscen','LM_Lz_miscen','HM_Mz_miscen','LM_Mz_miscen','HM_Hz_miscen','LM_Hz_miscen']
 hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
 
-plot_bias(hsampsq,lhsq,cstyleq,'all_q',RINq,ROUToqq)
+# plot_bias(hsampsq,lhsq,cstyleq,'all_q',RINq,ROUToq)
 # plot_bias(hsamps,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_rel,lhs,cstyle,'all',RIN,ROUToq)
 # plot_bias(hsamps_misall,lhs,cstyle,'bias',RIN,ROUToq,0.78)
@@ -880,4 +940,20 @@ ax_all[0,1].legend(loc=3,frameon=False)
     
 f.savefig(folder+'../final_plots/profile_rel.png',bbox_inches='tight')
 
+
+
+f, ax_all = plt.subplots(4,3, figsize=(14,16),sharex = True)
+f.subplots_adjust(hspace=0)
+
+
+for j in range(len(ax_all)):
+    plt_profile_fitted_final(hsampsq[j],350,5000,ax_all[j],fittype='_2h_2q_Ein')
+    ax_all[j,0].text(1,100,lhsq[j],fontsize=14)
+
+ax_all[0,0].legend(loc=3,frameon=False)
+ax_all[0,1].legend(loc=3,frameon=False)
+
+
+    
+f.savefig(folder+'../test_plots/profile_all_q_Ein.png',bbox_inches='tight')
 '''

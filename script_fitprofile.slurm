@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=fit2
+#SBATCH --job-name=fitq
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --time=3-00:00:00

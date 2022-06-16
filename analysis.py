@@ -231,7 +231,9 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
                             yerr=np.array([NFW_r[1][hs][param]]).T,
                             fmt=cstyle[hs],markersize=10)
     
-    ax.plot([0.1,0.8],[0.1,0.8],'C7--')
+    ax.plot([0.1,1.2],[0.1,1.2],'C7--')
+    # ax.set_xlim([0.15,1.1])
+    # ax.set_ylim([0.15,1.1])
     ax.set_xlim([0.25,0.7])
     ax.set_ylim([0.25,0.72])
     ax.plot([-1,-1],[-1,-1],'k^',label=r'$\tilde{q}_{1h}$')
@@ -248,7 +250,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
     
     # FOM
-    f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True)
+    f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
     f.subplots_adjust(hspace=0)
     ax = [ax[1],ax[0]]
     
@@ -291,7 +293,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     ax[1].legend(frameon = False,loc=3,ncol=3)
     ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
-    ax[1].axis([0,5,-0.12,0.12])
+    ax[1].axis([0,5,-0.25,0.45])
     ax[1].set_xticks(np.arange(4)+1)
     ax[1].set_xticklabels(xl)
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
@@ -898,6 +900,7 @@ cstyleq = ['ko','C1v','C3o','C5^']
 ROUToqq = ['1500']*4
 RINq = ['350']*4
 hsampsq = ['all','all_qmin','all_qmed','all_qmax']
+hsampsq_rel = ['all_relaxed','all_qmin_relaxed','all_qmed_relaxed','all_qmax_relaxed']
 
 hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 hsamps_rel = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Mz_relaxed','LM_Mz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']

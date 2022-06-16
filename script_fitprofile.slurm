@@ -19,4 +19,4 @@ source $HOME/.bashrc
 conda activate myenv
 
 srun ./run_fit_forz.sh
-##srun ./run_fit_forz.sh
+srun ./run_fit.sh

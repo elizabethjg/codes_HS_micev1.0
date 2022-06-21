@@ -3,6 +3,7 @@ import pylab
 from astropy.io import fits
 from basic_extract import extract_params
 import corner
+from matplotlib import cm
 
 folder = '../profiles3/'
 
@@ -195,9 +196,12 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     ax[0].plot([0.5,0.8],[0.5,0.8],'C7--')
     ax[1].plot([0.5,0.8],[0.5,0.8],'C7--')
-    ax[0].set_xlim([0.5,0.82])
-    ax[0].set_ylim([0.57,0.67])
-    ax[1].set_ylim([0.52,0.65])
+    # ax[0].set_xlim([0.5,0.82])
+    # ax[0].set_ylim([0.57,0.67])
+    # ax[1].set_ylim([0.52,0.65])
+    ax[0].set_xlim([0.1,0.9])
+    ax[0].set_ylim([0.1,0.9])
+    ax[1].set_ylim([0.1,0.9])
     ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - all')
     ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - relaxed',mfc='none')
     ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced - all',alpha=0.5)
@@ -232,10 +236,10 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
                             fmt=cstyle[hs],markersize=10)
     
     ax.plot([0.1,1.2],[0.1,1.2],'C7--')
-    # ax.set_xlim([0.15,1.1])
-    # ax.set_ylim([0.15,1.1])
-    ax.set_xlim([0.25,0.7])
-    ax.set_ylim([0.25,0.72])
+    ax.set_xlim([0.15,1.1])
+    ax.set_ylim([0.15,1.1])
+    # ax.set_xlim([0.25,0.7])
+    # ax.set_ylim([0.25,0.72])
     ax.plot([-1,-1],[-1,-1],'k^',label=r'$\tilde{q}_{1h}$')
     ax.plot([-1,-1],[-1,-1],'k^',label=r'$\tilde{q}_{2h}$',mfc='none')
     ax.legend(loc=2,ncol = 4)
@@ -267,7 +271,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
                          yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                          fmt=cstyle[hs],markersize=10,mfc='none')
     
-    ax[0].legend(frameon = False,loc=3,ncol=3)
+    ax[0].legend(frameon = False,loc=2,ncol=7)
     ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
     ax[0].axis([0,5,-0.12,0.12])
     ax[0].set_xticks(np.arange(4)+1)
@@ -291,9 +295,9 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     ax[1].plot([-1,-1],[-1,-1],'k^',label=r'all halos')
     ax[1].plot([-1,-1],[-1,-1],'k^',label=r'relaxed',mfc='none')
     
-    ax[1].legend(frameon = False,loc=3,ncol=3)
+    ax[1].legend(frameon = False,loc=1,ncol=3)
     ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
-    ax[1].axis([0,5,-0.25,0.45])
+    ax[1].axis([0,5,-0.25,1.4])
     ax[1].set_xticks(np.arange(4)+1)
     ax[1].set_xticklabels(xl)
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
@@ -889,6 +893,9 @@ def plt_profile_bias():
 
 
 # '''
+
+cstyle = ['C9v','C8v','C2v','ko','C1^','C3^','C5^']
+hsamps = ['all_q1','all_q2','all_q3','all','all_q4','all_q5','all_q6']
 
 lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
 cstyle = ['C1^','C1v','C3^','C3v','C5^','C5v']

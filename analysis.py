@@ -896,6 +896,7 @@ def plt_profile_bias():
 
 cstyle = ['C9v','C8v','C2v','ko','C1^','C3^','C5^']
 hsamps = ['all_q1','all_q2','all_q3','all','all_q4','all_q5','all_q6']
+hsamps = ['all_q1_relaxed','all_q2_relaxed','all_q3_relaxed','all_relaxed','all_q4_relaxed','all_q5_relaxed','all_q6_relaxed']
 
 lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
 cstyle = ['C1^','C1v','C3^','C3v','C5^','C5v']

@@ -196,12 +196,12 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     ax[0].plot([0.5,0.8],[0.5,0.8],'C7--')
     ax[1].plot([0.5,0.8],[0.5,0.8],'C7--')
-    ax[0].set_xlim([0.5,0.82])
-    ax[0].set_ylim([0.57,0.67])
-    ax[1].set_ylim([0.52,0.65])
-    # ax[0].set_xlim([0.1,0.9])
-    # ax[0].set_ylim([0.1,0.9])
-    # ax[1].set_ylim([0.1,0.9])
+    # ax[0].set_xlim([0.5,0.82])
+    # ax[0].set_ylim([0.57,0.67])
+    # ax[1].set_ylim([0.52,0.65])
+    ax[0].set_xlim([0.1,0.9])
+    ax[0].set_ylim([0.1,0.9])
+    ax[1].set_ylim([0.1,0.9])
     ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - all')
     ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - relaxed',mfc='none')
     ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced - all',alpha=0.5)
@@ -897,8 +897,6 @@ def plt_profile_bias():
 cstyle = ['C9v','C8v','C2v','ko','C1^','C3^','C5^']
 hsamps = ['all_q1','all_q2','all_q3','all','all_q4','all_q5','all_q6']
 hsamps = ['all_q1_relaxed','all_q2_relaxed','all_q3_relaxed','all_relaxed','all_q4_relaxed','all_q5_relaxed','all_q6_relaxed']
-hsamps = ['HM_Lz_qcut','LM_Lz_qcut','HM_Mz_qcut','LM_Mz_qcut','HM_Hz_qcut','LM_Hz_qcut']
-
 
 lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
 cstyle = ['C1^','C1v','C3^','C3v','C5^','C5v']

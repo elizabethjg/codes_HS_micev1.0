@@ -196,12 +196,12 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     ax[0].plot([0.5,0.8],[0.5,0.8],'C7--')
     ax[1].plot([0.5,0.8],[0.5,0.8],'C7--')
-    # ax[0].set_xlim([0.5,0.82])
-    # ax[0].set_ylim([0.57,0.67])
-    # ax[1].set_ylim([0.52,0.65])
-    ax[0].set_xlim([0.1,0.9])
-    ax[0].set_ylim([0.1,0.9])
-    ax[1].set_ylim([0.1,0.9])
+    ax[0].set_xlim([0.5,0.82])
+    ax[0].set_ylim([0.57,0.67])
+    ax[1].set_ylim([0.52,0.65])
+    # ax[0].set_xlim([0.1,0.9])
+    # ax[0].set_ylim([0.1,0.9])
+    # ax[1].set_ylim([0.1,0.9])
     ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - all')
     ax[1].plot([-1,-1],[-1,-1],'k^',label='standard - relaxed',mfc='none')
     ax[1].plot([-1,-1],[-1,-1],'k^',label='reduced - all',alpha=0.5)
@@ -270,6 +270,9 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
             ax[0].errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
                          yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                          fmt=cstyle[hs],markersize=10,mfc='none')
+            ax[0].errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qh[hs])/qh[hs],
+                         yerr=np.array([fq[fp][1][hs][param]/qh[hs]]).T,
+                         fmt=cstyle[hs],markersize=10)
     
     ax[0].legend(frameon = False,loc=2,ncol=7)
     ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
@@ -297,7 +300,7 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     ax[1].legend(frameon = False,loc=1,ncol=3)
     ax[1].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi}_r)-\langle q \rangle)/\langle q \rangle$')
-    ax[1].axis([0,5,-0.25,1.4])
+    ax[1].axis([0,5,-0.14,0.14])
     ax[1].set_xticks(np.arange(4)+1)
     ax[1].set_xticklabels(xl)
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
@@ -453,6 +456,103 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
     
     f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/model_ratioq_M200.png',bbox_inches='tight')
+
+def plot_M200q_qcut(hsamps,lhs,cstyle,RIN,ROUToq):
+
+    hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
+
+    
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+    ###########
+    #   q1h
+    ###########
+    fq = [NFW,Ein,woc,o1h]
+    fqr = [NFW_r,Ein_r,woc_r,o1h_r]
+    
+    param = 1
+    D = 1.
+    
+    ##############
+    #   lM200/q
+    ##############
+    mec = ['k','C2','C6','C9']
+    xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
+    
+    f, ax = plt.subplots(1,1, figsize=(10,6),sharex=True,sharey=True)
+    f.subplots_adjust(hspace=0)
+    param = 1
+    ax = [ax]
+    
+    ax[0].axhspan(-0.05,0.05,0,1,color='C7',alpha=0.3)
+    ax[0].axvspan(-0.05,0.05,ymin=0.0,ymax=1.,color='C7',alpha=0.2)
+    ax[0].axhline(0,color='C7',ls='--')
+    ax[0].axvline(0,color='C7',ls='--')
+    
+    for hs in range(len(hsamps)):
+        for fp in range(4):
+            ql = fq[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
+            if fp == 1:
+                diff = (10**fq[fp][0][hs][0] - 10**Ein_h[hs][0])/10**Ein_h[hs][0]
+            else:
+                diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[0].errorbar(diff,(ql-qh[hs])/qh[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
+                        fmt=cstyle[hs],markersize=10,mec=mec[fp])
+                        
+    
+    
+
+    # ---------------------------------
+    
+    hsamps_misall = ['HM_Lz_qcut',
+                     'LM_Lz_qcut',
+                     'HM_Mz_qcut',
+                     'LM_Mz_qcut',
+                     'HM_Hz_qcut',
+                     'LM_Hz_qcut']
+                     
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps_misall,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
+    
+    fq = [NFW,Ein,woc,o1h]
+    fqr = [NFW_r,Ein_r,woc_r,o1h_r]
+
+    for hs in range(len(hsamps)):
+        ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        for fp in range(4):
+            ql = fq[fp][0][hs][param]
+            el = ((1. - ql)/(1. + ql))/D
+            ql = ((1. - el)/(1. + el))
+            if fp == 1:
+                diff = (10**fqr[fp][0][hs][0] - 10**Ein_h[hs][0])/10**Ein_h[hs][0]
+            else:
+                diff = (10**fqr[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[0].errorbar(diff,(ql-qh[hs])/qh[hs],
+                        yerr=np.array([fq[fp][1][hs][param]/qh[hs]]).T,
+                        fmt=cstyle[hs],markersize=15,mec=mec[fp])
+            if hs == len(hsamps)-1:
+                ax[0].plot([-1,-1],[-1,-1],'^',label=xl[fp],mfc='none',mec=mec[fp])
+        
+                            
+    
+    ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
+    ax[0].set_xlim([-0.2,0.2])
+    ax[0].set_ylim([-0.2,0.2])
+                    
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='$q > 0.5$',markersize=15)
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='all halos',markersize=10,alpha=0.5)
+
+
+    ax[0].legend(frameon = False,ncol = 2,loc=3)
+    ax[0].set_xlabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    
+    
+    
+    f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
+
 
 def plot_M200q_prev(hsamps,lhs,cstyle,RIN,ROUToq):
     
@@ -999,6 +1099,7 @@ RINq = ['350']*4
 hsampsq = ['all','all_qmin','all_qmed','all_qmax']
 hsampsq_rel = ['all_relaxed','all_qmin_relaxed','all_qmed_relaxed','all_qmax_relaxed']
 
+hsamps = ['HM_Lz_qcut','LM_Lz_qcut','HM_Mz_qcut','LM_Mz_qcut','HM_Hz_qcut','LM_Hz_qcut']
 hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 hsamps_rel = ['HM_Lz_relaxed','LM_Lz_relaxed','HM_Mz_relaxed','LM_Mz_relaxed','HM_Hz_relaxed','LM_Hz_relaxed']
 hsamps_mis20 = ['HM_Lz_mis20','LM_Lz_mis20','HM_Mz_mis20','LM_Mz_mis20','HM_Hz_mis20','LM_Hz_mis20']

@@ -87,14 +87,15 @@ def plot_q_dist():
     
     plt.figure()
     mhalos = (halos.lgM >= 13.5)*(halos.lgM < 14.5)*(halos.z > 0.1)*(halos.z < 0.4)
-    plt.scatter(halos.q2d[mhalos],halos.q2dr[mhalos],c=halos.offset[mhalos],vmax=0.3)
+    plt.scatter(halos.q2d[mhalos],halos.q2dr[mhalos],c=halos.offset[mhalos],vmax=0.3,s=1,cmap='inferno')
     cbar = plt.colorbar()
     plt.plot([0.1,1],[0.1,1],'C7--')
     plt.xlabel('$q$')
     plt.ylabel('$q_r$')
     cbar.set_label(r'$r_c/r_{max}$')
     
-    plt.savefig(folder+'../final_plots/qrelax.pdf',bbox_inches='tight')
+    plt.savefig(folder+'../final_plots/qrelax.png',bbox_inches='tight')
+    # plt.savefig(folder+'../final_plots/qrelax.pdf',bbox_inches='tight')
  
 
 

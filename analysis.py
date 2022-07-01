@@ -83,7 +83,19 @@ def plot_q_dist():
     ax[0,1].legend(loc=2,frameon=False)
     ax[1,1].set_xlabel('q')
     ax[1,0].set_xlabel('q')
-    f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')   
+    f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')  
+    
+    plt.figure()
+    mhalos = (halos.lgM >= 13.5)*(halos.lgM < 14.5)*(halos.z > 0.1)*(halos.z < 0.4)
+    plt.scatter(halos.q2d[mhalos],halos.q2dr[mhalos],c=halos.offset[mhalos],vmax=0.3)
+    cbar = plt.colorbar()
+    plt.plot([0.1,1],[0.1,1],'C7--')
+    plt.xlabel('$q$')
+    plt.ylabel('$q_r$')
+    cbar.set_label(r'$r_c/r_{max}$')
+    
+    plt.savefig(folder+'../final_plots/qrelax.pdf',bbox_inches='tight')
+ 
 
 
 def plot_q_dist_testq():

@@ -470,7 +470,7 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
     f.savefig(folder+'../final_plots/model_ratioq_M200.pdf',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/model_ratioq_M200.png',bbox_inches='tight')
 
-def plot_M200q_qcut(hsamps,lhs,cstyle,RIN,ROUToq):
+def plot_M200q_qcut():
 
     hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 

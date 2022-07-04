@@ -1,9 +1,11 @@
 import sys
+sys.path.append('/home/elizabeth/lens_codes_v3.7')
 import pylab
 from astropy.io import fits
 from basic_extract import extract_params
 import corner
 from matplotlib import cm
+from binned_plots import make_plot2
 
 folder = '../profiles3/'
 
@@ -95,7 +97,16 @@ def plot_q_dist():
     cbar.set_label(r'$r_c/r_{max}$')
     
     plt.savefig(folder+'../final_plots/qrelax.png',bbox_inches='tight')
-    # plt.savefig(folder+'../final_plots/qrelax.pdf',bbox_inches='tight')
+    
+    plt.figure(figsize=(6,2))
+    
+    make_plot2(halos.q2d[mhalos],halos.offset[mhalos],color='C5',nbins=10,plt=plt,label='standard',error = False,lw=1,lt='-')
+    make_plot2(halos.q2dr[mhalos],halos.offset[mhalos],color='C1',nbins=10,plt=plt,label='reduced',error = False,lw=1,lt='--')
+    plt.xlabel('$q$')
+    plt.ylabel(r'$r_c/r_{max}$')
+    plt.legend()
+    
+    plt.savefig(folder+'../final_plots/qrelax2.pdf',bbox_inches='tight')
  
 
 

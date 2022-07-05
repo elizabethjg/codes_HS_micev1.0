@@ -524,7 +524,7 @@ def plot_M200q_qcut():
                 diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
             ax[0].errorbar(diff,(ql-qh[hs])/qh[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                        fmt=cstyle[hs],markersize=10,mec=mec[fp])
+                        fmt=cstyle[hs],markersize=15,mec=mec[fp],alpha=0.7)
                         
     
     
@@ -556,7 +556,7 @@ def plot_M200q_qcut():
                 diff = (10**fqr[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
             ax[0].errorbar(diff,(ql-qh[hs])/qh[hs],
                         yerr=np.array([fq[fp][1][hs][param]/qh[hs]]).T,
-                        fmt=cstyle[hs],markersize=15,mec=mec[fp])
+                        fmt=cstyle[hs],markersize=10,mec=mec[fp])
             if hs == len(hsamps)-1:
                 ax[0].plot([-1,-1],[-1,-1],'^',label=xl[fp],mfc='none',mec=mec[fp])
         
@@ -566,8 +566,8 @@ def plot_M200q_qcut():
     ax[0].set_xlim([-0.2,0.2])
     ax[0].set_ylim([-0.2,0.2])
                     
-    ax[0].plot([-1,-1],[-1,-1],'k^',label='$q > 0.5$',markersize=15)
-    ax[0].plot([-1,-1],[-1,-1],'k^',label='all halos',markersize=10,alpha=0.5)
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='$q > 0.5$',markersize=10)
+    ax[0].plot([-1,-1],[-1,-1],'k^',label='all halos',markersize=15,alpha=0.7)
 
 
     ax[0].legend(frameon = False,ncol = 2,loc=3)

@@ -75,18 +75,24 @@ def make_plot2(X,Y,color='C0',nbins=20,plt=plt,label='',error = False,lw=1,lt='-
 
 # folder = '/home/eli/Documentos/Astronomia/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles2/'
 folder = '/home/elizabeth/Documentos/proyectos/HALO-SHAPE/MICE/HS-lensing/profiles3/'
-halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        
-Eratio = (2.*halos.K/abs(halos.U))
+halos = fits.open('../HALO_Props_MICE.fits')[1].data        
+mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_S > 1.)*(halos.cNFW_S_E > 1.)*(halos.cNFW_rho_E > 1.)*(halos.lgMNFW_rho > 12)*(halos.lgMNFW_S > 12)*(halos.lgMNFW_S_E > 12)*(halos.lgMNFW_rho_E > 12)*(halos.cNFW_rho < 15)*(halos.cNFW_S < 15)*(halos.cNFW_S_E < 15)*(halos.cNFW_rho_E < 15)
+mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_S_E > 1.)*(halos.cEin_rho_E > 1.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.lgMEin_S_E > 12)*(halos.lgMEin_rho_E > 12)*(halos.cEin_rho < 15)*(halos.cEin_S < 15)*(halos.cEin_S_E < 15)*(halos.cEin_rho_E < 15)*(halos.alpha_rho > 0.)*(halos.alpha_rho_E > 0.)
 
-mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
-mfit_NFW = (halos.cNFW_rho > 1.)*(halos.cNFW_rho < 10.)*(halos.lgMNFW_rho > 13.3)*(halos.lgMNFW_rho_E > 13.3)
-mfit_Ein = (halos.cEin_rho > 1.)*(halos.cEin_S > 1.)*(halos.cEin_rho < 10.)*(halos.cEin_S < 10.)*(halos.lgMEin_rho > 12)*(halos.lgMEin_S > 12)*(halos.alpha_rho > 0.)*(halos.alpha_S > 0.)*(halos.alpha_rho < 0.7)*(halos.alpha_S < 0.7)
-mhalos = mrelax*mfit_NFW*(halos.z <= 0.5)
+mfit = mfit_NFW*mfit_Ein#*(~mraro)
+mhalos = mfit#*(halos.z <= 0.5)
 
 halos = halos[mhalos]
 
+Eratio = (2.*halos.K/abs(halos.U))
+
+mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
+
+
 nu200 = peaks.peakHeight(10**halos.lgMNFW_rho, halos.z)
 nu200_E = peaks.peakHeight(10**halos.lgMNFW_rho_E, halos.z)
+nu200e = peaks.peakHeight(10**halos.lgMEin_rho, halos.z)
+nu200e_E = peaks.peakHeight(10**halos.lgMEin_rho_E, halos.z)
 nufof = peaks.peakHeight(10**halos.lgM, halos.z)
 
 nu = nufof
@@ -99,17 +105,39 @@ mzH = (halos.z > 0.2)*(halos.z < 0.4)
 a = -0.257
 b = -0.219
 
+f, ax = plt.subplots(2,1, figsize=(5,7),sharey=True,sharex=True)
+f.subplots_adjust(hspace=0,wspace=0)
 
-plt.figure()
-plt.plot(np.log10(nu200),a*np.log10(nu200)+b,'C4',lw=3,label='Bonamigo et al. 2015')
-make_plot2(np.log10(nufof),np.log10(halos.s),'C3',15,label=r'$M_{FOF}$')
-make_plot2(np.log10(nu200),np.log10(halos.s),'C2',15,label=r'$M^S_{200}$')
-make_plot2(np.log10(nu200_E),np.log10(halos.s),'C1',15,label=r'$M^E_{200}$')
-plt.xlabel(r'$\log \nu(M,z)$')
-plt.ylabel(r'$\log(s = c/a)$')
-plt.axis([0.15,0.65,-0.55,-0.2])
-plt.legend(loc=3)
+ax[1].plot([0,0],[0,0],'gold',lw=3,label='Bonamigo et al. (2015)')
+ax[1].plot([0,0],[0,0],'orangered',lw=3,label='NFW')
+ax[1].plot([0,0],[0,0],'seagreen',lw=3,label='Einasto')
+ax[1].plot([0,0],[0,0],'C9',lw=3,label='FOF')
+ax[1].plot([0,0],[0,0],'k',lw=3,label='spherical')
+ax[1].plot([0,0],[0,0],'k--',lw=3,label='ellipsoidal')
+ax[1].legend(loc=3,frameon=False,ncol=2)
 
+make_plot2(np.log10(nufof),np.log10(halos.s),'C9',15,label=r'$M_{FOF}$',lw=3,error=True,plt=ax[0])
+make_plot2(np.log10(nu200),np.log10(halos.s),'orangered',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[0])
+make_plot2(np.log10(nu200_E),np.log10(halos.s),'orangered',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[0])
+make_plot2(np.log10(nu200e),np.log10(halos.s),'seagreen',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[0])
+make_plot2(np.log10(nu200e_E),np.log10(halos.s),'seagreen',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[0])
+
+make_plot2(np.log10(nufof[mrelax]),np.log10(halos.s[mrelax]),'C9',15,label=r'$M_{FOF}$',lw=3,error=True,plt=ax[1])
+make_plot2(np.log10(nu200[mrelax]),np.log10(halos.s[mrelax]),'orangered',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[1])
+make_plot2(np.log10(nu200_E[mrelax]),np.log10(halos.s[mrelax]),'orangered',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[1])
+make_plot2(np.log10(nu200e[mrelax]),np.log10(halos.s[mrelax]),'seagreen',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[1])
+make_plot2(np.log10(nu200e_E[mrelax]),np.log10(halos.s[mrelax]),'seagreen',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[1])
+
+ax[0].plot(np.log10(nu200),a*np.log10(nu200)+b,'gold',lw=3,label='Bonamigo et al. (2015)')
+ax[1].plot(np.log10(nu200),a*np.log10(nu200)+b,'gold',lw=3,label='Bonamigo et al. (2015)')
+ax[1].set_xlabel(r'$\log \nu(M,z)$')
+ax[0].set_ylabel(r'$\log(S)$')
+ax[1].set_ylabel(r'$\log(S)$')
+
+ax[0].text(0.45,-0.25,'all halos')
+ax[1].text(0.45,-0.25,'only relaxed halos')
+plt.axis([0.15,0.7,-0.55,-0.22])
+f.savefig('../nu_shape.pdf',bbox_inches='tight')
 
 plt.figure()
 make_plot2(np.log10(nufof),np.log10(halos.q2d),'C3',15,label=r'$M_{FOF}$')

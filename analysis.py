@@ -83,8 +83,10 @@ def plot_q_dist():
     ax[0,1].plot([-1]*2,[-1]*2,'k-',label='reduced')
     
     ax[0,1].legend(loc=2,frameon=False)
-    ax[1,1].set_xlabel('q')
-    ax[1,0].set_xlabel('q')
+    ax[1,1].set_xlabel('$q$')
+    ax[1,0].set_xlabel('$q$')
+    ax[0,0].set_ylabel('$P(q)$')
+    ax[1,0].set_ylabel('$P(q)$')
     f.savefig(folder+'../final_plots/qdist.pdf',bbox_inches='tight')  
     
     plt.figure()

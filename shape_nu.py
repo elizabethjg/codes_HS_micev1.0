@@ -63,11 +63,19 @@ def make_plot(X,Y,Z,zlim=0.3,nbins=20,plt=plt,error = False):
         plt.plot(x,q75,'C3--')
     plt.colorbar()
 
-def make_plot2(X,Y,color='C0',nbins=20,plt=plt,label='',error = False,lw=1,lt='-'):
+def make_plot2(X,Y,color='C0',nbins=20,plt=plt,label='',error = False,lw=1,lt='-',log=False):
+    if log:
+        Y = 10**Y
+    
     x,q50,q25,q75,nada,ymean,ers = binned(X,Y,nbins)
     if error:
-        plt.plot(x,ymean,lt,color=color,label=label,lw=lw)
-        plt.fill_between(x,ymean+ers,ymean-ers,color=color,alpha=0.2)
+        if log:
+            ers = ers*np.log10(np.exp(1))/ymean
+            plt.plot(x,np.log10(ymean),lt,color=color,label=label,lw=lw)
+            plt.fill_between(np.log10(x),np.log10(ymean)+ers,ymean-ers,color=color,alpha=0.2)
+        else:
+            plt.plot(x,ymean,lt,color=color,label=label,lw=lw)
+            plt.fill_between(x,ymean+ers,ymean-ers,color=color,alpha=0.2)
     else:
         plt.plot(x,q50,lt,color=color,label=label,lw=lw)
         plt.fill_between(x,q75,q25,color=color,alpha=0.2)
@@ -116,17 +124,17 @@ ax[1].plot([0,0],[0,0],'k',lw=3,label='spherical')
 ax[1].plot([0,0],[0,0],'k--',lw=3,label='ellipsoidal')
 ax[1].legend(loc=3,frameon=False,ncol=2)
 
-make_plot2(np.log10(nufof),np.log10(halos.s),'C9',15,label=r'$M_{FOF}$',lw=3,error=True,plt=ax[0])
-make_plot2(np.log10(nu200),np.log10(halos.s),'orangered',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[0])
-make_plot2(np.log10(nu200_E),np.log10(halos.s),'orangered',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[0])
-make_plot2(np.log10(nu200e),np.log10(halos.s),'seagreen',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[0])
-make_plot2(np.log10(nu200e_E),np.log10(halos.s),'seagreen',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[0])
+make_plot2(np.log10(nufof),np.log10(halos.s),'C9',15,label=r'$M_{FOF}$',lw=3,error=True,plt=ax[0],log=True)
+make_plot2(np.log10(nu200),np.log10(halos.s),'orangered',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[0],log=True)
+make_plot2(np.log10(nu200_E),np.log10(halos.s),'orangered',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[0],log=True)
+make_plot2(np.log10(nu200e),np.log10(halos.s),'seagreen',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[0],log=True)
+make_plot2(np.log10(nu200e_E),np.log10(halos.s),'seagreen',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[0],log=True)
 
-make_plot2(np.log10(nufof[mrelax]),np.log10(halos.s[mrelax]),'C9',15,label=r'$M_{FOF}$',lw=3,error=True,plt=ax[1])
-make_plot2(np.log10(nu200[mrelax]),np.log10(halos.s[mrelax]),'orangered',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[1])
-make_plot2(np.log10(nu200_E[mrelax]),np.log10(halos.s[mrelax]),'orangered',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[1])
-make_plot2(np.log10(nu200e[mrelax]),np.log10(halos.s[mrelax]),'seagreen',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[1])
-make_plot2(np.log10(nu200e_E[mrelax]),np.log10(halos.s[mrelax]),'seagreen',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[1])
+make_plot2(np.log10(nufof[mrelax]),np.log10(halos.s[mrelax]),'C9',15,label=r'$M_{FOF}$',lw=3,error=True,plt=ax[1],log=True)
+make_plot2(np.log10(nu200[mrelax]),np.log10(halos.s[mrelax]),'orangered',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[1],log=True)
+make_plot2(np.log10(nu200_E[mrelax]),np.log10(halos.s[mrelax]),'orangered',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[1],log=True)
+make_plot2(np.log10(nu200e[mrelax]),np.log10(halos.s[mrelax]),'seagreen',15,label=r'$M^S_{200}$',lw=3,error=True,plt=ax[1],log=True)
+make_plot2(np.log10(nu200e_E[mrelax]),np.log10(halos.s[mrelax]),'seagreen',15,label=r'$M^E_{200}$',lw=3,lt='--',error=True,plt=ax[1],log=True)
 
 ax[0].plot(np.log10(nu200),a*np.log10(nu200)+b,'gold',lw=3,label='Bonamigo et al. (2015)')
 ax[1].plot(np.log10(nu200),a*np.log10(nu200)+b,'gold',lw=3,label='Bonamigo et al. (2015)')

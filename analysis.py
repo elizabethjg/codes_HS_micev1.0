@@ -118,8 +118,8 @@ def plot_q_dist_testq():
     Eratio = (2.*halos.K/abs(halos.U))
     
     hsamps = ['all', 'all_qmin', 'all_qmed', 'all_qmax']
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,['350']*4,['1500']*4)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,['350']*4,['1500']*4,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,['350']*4,['1500']*4)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps,['350']*4,['1500']*4,reduced=True)
 
     
     import seaborn as sns
@@ -176,8 +176,8 @@ def plot_q_dist_testq():
 
 def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps,RIN,ROUToq,reduced=True)
     ###########
     #   q1h
     ###########
@@ -390,8 +390,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
 
 def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
     
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps,RIN,ROUToq,reduced=True)
     ###########
     #   q1h
     ###########
@@ -443,8 +443,8 @@ def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
                      'HM_Hz_mis20_miscen',
                      'LM_Hz_mis20_miscen']
                      
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps_misall,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps_misall,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
     
     fq = [NFW,Ein,woc,o1h]
     fqr = [NFW_r,Ein_r,woc_r,o1h_r]
@@ -488,8 +488,8 @@ def plot_M200q_qcut():
     hsamps = ['HM_Lz','LM_Lz','HM_Mz','LM_Mz','HM_Hz','LM_Hz']
 
     
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps,RIN,ROUToq,reduced=True)
     ###########
     #   q1h
     ###########
@@ -540,8 +540,8 @@ def plot_M200q_qcut():
                      'HM_Hz_qcut',
                      'LM_Hz_qcut']
                      
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps_misall,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps_misall,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
     
     fq = [NFW,Ein,woc,o1h]
     fqr = [NFW_r,Ein_r,woc_r,o1h_r]
@@ -582,8 +582,8 @@ def plot_M200q_qcut():
 
 def plot_M200q_prev(hsamps,lhs,cstyle,RIN,ROUToq):
     
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps,RIN,ROUToq,reduced=True)
     ###########
     #   q1h
     ###########
@@ -644,8 +644,8 @@ def plot_M200q_prev(hsamps,lhs,cstyle,RIN,ROUToq):
     # ---------------------------------
     D = 0.78
     hsamps_misall = ['HM_Lz_mis20_miscen','LM_Lz_mis20_miscen','HM_Mz_mis20_miscen','LM_Mz_mis20_miscen','HM_Hz_mis20_miscen','LM_Hz_mis20_miscen']
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps_misall,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps_misall,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps_misall,RIN,ROUToq,reduced=True)
     
     fq = [NFW,Ein,woc,o1h]
     fqr = [NFW_r,Ein_r,woc_r,o1h_r]
@@ -828,8 +828,8 @@ def misal():
     ROUToq = ['2000','1000']*3
     RIN = ['350','350','350','350','450','400']
 
-    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc = extract_params(hsamps,RIN,ROUToq)
-    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r = extract_params(hsamps,RIN,ROUToq,reduced=True)
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,RIN,ROUToq)
+    qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFW_r,Ein_r,o1h_r,woc_r,zh = extract_params(hsamps,RIN,ROUToq,reduced=True)
 
     e1h = (1. - np.array(NFW[0]).T[1])/(1. + np.array(NFW[0]).T[1])
     e2h = (1. - np.array(NFW[0]).T[-1])/(1. + np.array(NFW[0]).T[-1])
@@ -875,8 +875,8 @@ def misal():
         print('EXPECTED DILUTION ',D)
         Dil += [D]
 
-        qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFWmis,Einmis,o1hmis,wocmis = extract_params(sampall[j],RIN,ROUToq)
-        qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFWmis_r,Einmis_r,o1hmis_r,wocmis_r = extract_params(sampall[j],RIN,ROUToq,reduced=True)
+        qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFWmis,Einmis,o1hmis,wocmis,zh = extract_params(sampall[j],RIN,ROUToq)
+        qh_r,NFW_h,Ein_h,qhr_r,NFW_hr,Ein_hr,NFWmis_r,Einmis_r,o1hmis_r,wocmis_r,zh = extract_params(sampall[j],RIN,ROUToq,reduced=True)
         
         fm   = [NFWmis,Einmis,wocmis,o1hmis]
         fm_r = [NFWmis_r,Einmis_r,wocmis_r,o1hmis_r]

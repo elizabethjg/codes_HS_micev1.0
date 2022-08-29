@@ -100,6 +100,7 @@ def extract_params(hsamples,
     Ein = []
     o1h = []
     woc = []
+    zh  = []
 
     eNFW = []
     eNFWr = []
@@ -141,6 +142,8 @@ def extract_params(hsamples,
         mhalos = mhalos*mfit_Ein*mfit_NFW
     
         halos_samp = halos[mhalos]
+        
+        zh   += [np.mean(halos[mhalos].z)]
         
         # qwh   += [h['q2d_mean']]
         lMNFW = np.log10(np.mean(10**(halos[mhalos].lgMNFW_S)))
@@ -227,5 +230,5 @@ def extract_params(hsamples,
                  np.diff(np.percentile(fstd.q2h[1500:], [16,50,84]))]]
 
                
-    return qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc]
+    return qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,[NFW,eNFW],[Ein,eEin],[o1h,eo1h],[woc,ewoc],zh
 

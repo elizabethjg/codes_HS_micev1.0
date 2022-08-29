@@ -49,6 +49,7 @@ parser.add_argument('-misalign', action='store', dest='misalign', default='False
 parser.add_argument('-miscen', action='store', dest='miscen', default='False')
 parser.add_argument('-relax', action='store', dest='relax', default='False')
 parser.add_argument('-domap', action='store', dest='domap', default='False')
+parser.add_argument('-snoise', action='store', dest='snoise', default=0.)
 parser.add_argument('-RIN', action='store', dest='RIN', default=100.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=10000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
@@ -84,6 +85,7 @@ resNFW_max = float(args.resNFW_max)
 R5s_max = float(args.R5s_max)
 R5s_min = float(args.R5s_min)
 soff = float(args.soff)
+snoise = float(args.snoise)
 
 if args.relax == 'True':
     relax = True
@@ -140,7 +142,8 @@ folder = '/home/elizabeth/MICE/HS-lensing/'
 S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
 
 def partial_map(RA0,DEC0,Z,angles,
-                RIN,ROUT,ndots,h,roff,phi_off):
+                RIN,ROUT,ndots,h,
+                snoise,roff,phi_off):
 
         
         lsize = int(np.sqrt(ndots))
@@ -186,6 +189,13 @@ def partial_map(RA0,DEC0,Z,angles,
         e1     = catdata.gamma1
         e2     = -1.*catdata.gamma2
         
+        # Add shape noise due to intrisic galaxy shapes
+        es = np.random.normal(0., snoise, len(e1))
+        ts = np.random.uniform(0., np.pi, len(e1))
+        es1 = np.abs(es)*np.cos(2.*ts)
+        es2 = np.abs(es)*np.sin(2.*ts)
+        e1 += es1
+        e2 += es2
        
         #get tangential ellipticities 
         et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c
@@ -251,7 +261,8 @@ def partial_map_unpack(minput):
 	return partial_map(*minput)
 
 def partial_profile(RA0,DEC0,Z,angles,
-                    RIN,ROUT,ndots,h,roff,phi_off):
+                    RIN,ROUT,ndots,h,
+                    snoise,roff,phi_off):
 
         ndots = int(ndots)
 
@@ -290,6 +301,15 @@ def partial_profile(RA0,DEC0,Z,angles,
                        
         e1     = catdata.gamma1
         e2     = -1.*catdata.gamma2
+
+
+        # Add shape noise due to intrisic galaxy shapes
+        es = np.random.normal(0., snoise, len(e1))
+        ts = np.random.uniform(0., np.pi, len(e1))
+        es1 = np.abs(es)*np.cos(2.*ts)
+        es2 = np.abs(es)*np.sin(2.*ts)
+        e1 += es1
+        e2 += es2
         
        
         #get tangential ellipticities 
@@ -383,7 +403,8 @@ def main(lcat, sample='pru',
          domap = False, RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
          idlist= None, hcosmo=1.0, vmice = '2',
-         misalign = False, miscen = False, soff = 0.3):
+         snoise = 0., misalign = False, 
+         miscen = False, soff = 0.3):
 
         '''
         
@@ -413,6 +434,7 @@ def main(lcat, sample='pru',
         h              (float) H0 = 100.*h
                (bool) add misalignment with a normal distribution of 30deg
         miscen         (bool) add a miscentring for the 25percent of the halos
+        addnoise       (bool) add shape noise
         soff         (float) dispersion of Rayleigh distribution for miscenter
         '''
 
@@ -633,17 +655,20 @@ def main(lcat, sample='pru',
                 rout = ROUT*np.ones(num)
                 nd   = ndots*np.ones(num)
                 h_array   = hcosmo*np.ones(num)
+                snoise_array   = snoise*np.ones(num)
                 
                 if num == 1:
                         entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
                                    Lsplit[l].z[0],Tsplit[l][0],
-                                   RIN,ROUT,ndots,hcosmo,Rsplit[l][0],PHIsplit[l][0]]
+                                   RIN,ROUT,ndots,hcosmo,
+                                   snoise,Rsplit[l][0],PHIsplit[l][0]]
                         
                         salida = [partial(entrada)]
                 else:          
                         entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
                                         Lsplit[l].z,Tsplit[l].tolist(),
-                                        rin,rout,nd,h_array,Rsplit[l],PHIsplit[l]]).T
+                                        rin,rout,nd,h_array,
+                                        snoise_array,Rsplit[l],PHIsplit[l]]).T
                         
                         pool = Pool(processes=(num))
                         salida = np.array(pool.map(partial, entrada))

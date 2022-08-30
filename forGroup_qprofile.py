@@ -139,7 +139,7 @@ miscen = False
 
 
 folder = '/home/elizabeth/MICE/HS-lensing/'
-S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
+S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
 
 def partial_map(RA0,DEC0,Z,angles,
                 RIN,ROUT,ndots,h,

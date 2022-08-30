@@ -157,6 +157,7 @@ def partial_map(RA0,DEC0,Z,angles,
         rarray = [[-1.*(ROUT*1.e-3),(ROUT*1.e-3)],[-1.*(ROUT*1.e-3),(ROUT*1.e-3)]]
         
         t0 = time.time()
+        # mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
         mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
                        
         catdata = S[mask]
@@ -192,8 +193,8 @@ def partial_map(RA0,DEC0,Z,angles,
         # Add shape noise due to intrisic galaxy shapes
         es = np.random.normal(0., snoise, len(e1))
         ts = np.random.uniform(0., np.pi, len(e1))
-        es1 = np.abs(es)*np.cos(2.*ts)
-        es2 = np.abs(es)*np.sin(2.*ts)
+        es1 = -1.*catdata.eps1_gal#np.abs(es)*np.cos(2.*ts)
+        es2 = catdata.eps2_gal#np.abs(es)*np.sin(2.*ts)
         e1 += es1
         e2 += es2
        

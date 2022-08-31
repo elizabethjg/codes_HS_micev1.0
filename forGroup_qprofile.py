@@ -141,6 +141,10 @@ miscen = False
 folder = '/home/elizabeth/MICE/HS-lensing/'
 S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
 
+j      = np.random.choice(np.array(len(S)),111391200)
+
+S = S[j]
+
 def partial_map(RA0,DEC0,Z,angles,
                 RIN,ROUT,ndots,h,
                 snoise,roff,phi_off):

@@ -19,6 +19,11 @@ def plot_q_dist():
     hsamples = ['Lz','Mz','Hz']
     colors = ['C1','C3','C5']
 
+    fi  = np.arctan(halos.a2Dy/halos.a2Dx)
+    fir = np.arctan(halos.a2Dry/halos.a2Drx)
+
+    Dfi = np.rad2deg(fi - fir)
+
     f, ax = plt.subplots(2,2, figsize=(6,5),sharex = True,sharey=True)
     f.subplots_adjust(hspace=0,wspace=0)
     
@@ -37,15 +42,19 @@ def plot_q_dist():
         # from individual halos
 
         # FIRST HM
+        
+        print('HM_'+samp)
 
         h = fits.open(folder+'profile_HM_'+samp+'.fits')[0].header
         print(h['N_LENSES'])
         mhalos = (halos.lgM >= h['LM_MIN'])*(halos.lgM < h['LM_MAX'])*(halos.z >= h['z_min'])*(halos.z < h['z_max'])
         mrelax = (halos.offset < 0.1)*(Eratio < 1.35)
 
-        print(samp)
+        
         print(h['LM_MIN'],h['LM_MAX'])
         print(h['z_min'],h['z_max'])
+        print(np.mean(Dfi[mhalos]),np.std(Dfi[mhalos]))
+        print(np.mean(Dfi[mhalos*mrelax]),np.std(Dfi[mhalos*mrelax]))
         
         sns.kdeplot(halos.q2d[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1,0])
         ax[1,0].plot([np.mean(halos.q2d[mhalos*mrelax])]*2,[4.0,4.4],colors[j])
@@ -60,6 +69,8 @@ def plot_q_dist():
         # from individual halos
 
         # NOW LM
+        
+        print('LM_'+samp)
 
         h = fits.open(folder+'profile_LM_'+samp+'.fits')[0].header
         print(h['N_LENSES'])
@@ -69,6 +80,8 @@ def plot_q_dist():
         print(samp)
         print(h['LM_MIN'],h['LM_MAX'])
         print(h['z_min'],h['z_max'])
+        print(np.mean(Dfi[mhalos]),np.std(Dfi[mhalos]))
+        print(np.mean(Dfi[mhalos*mrelax]),np.std(Dfi[mhalos*mrelax]))
         
         sns.kdeplot(halos.q2d[mhalos*mrelax].byteswap().newbyteorder(),color=colors[j],ax=ax[1,1])
         ax[1,1].plot([np.mean(halos.q2d[mhalos*mrelax])]*2,[4.0,4.4],colors[j])

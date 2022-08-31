@@ -4,21 +4,10 @@ source /home/elizabeth/.bashrc
 
 conda activate myenv
 
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 &
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 &
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 -ang reduced &
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 -ang reduced &
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Hz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 &
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Hz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 &
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Hz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 -ang reduced &
-python fit_allprofiles_centred_2h_2q.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Hz_relaxed.fits -RIN 250 -ROUT 5000  -ncores 10 -nit 250 -ang reduced &
+python fit_allprofiles_centred_sequential.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Lz_qcut.fits -RIN 350 -ROUT 5000 -ncores 5 -nit 250 -qext '_des' &
+python fit_allprofiles_centred_sequential.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Mz_qcut.fits -RIN 350 -ROUT 5000 -ncores 5 -nit 250 -qext '_des' &
+python fit_allprofiles_centred_sequential.py -folder ~/MICE/HS-lensing/profiles/ -file profile_HM_Hz_qcut.fits -RIN 450 -ROUT 5000 -ncores 5 -nit 250 -qext '_des' &
+python fit_allprofiles_centred_sequential.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Lz_qcut.fits -RIN 350 -ROUT 5000 -ncores 5 -nit 250 -qext '_des' &
+python fit_allprofiles_centred_sequential.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Mz_qcut.fits -RIN 350 -ROUT 5000 -ncores 5 -nit 250 -qext '_des' &
+python fit_allprofiles_centred_sequential.py -folder ~/MICE/HS-lensing/profiles/ -file profile_LM_Hz_qcut.fits -RIN 400 -ROUT 5000 -ncores 5 -nit 250 -qext '_des' &
 wait
-
-##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz.fits -RIN 250 -ROUT 2000 -ncores 7 &
-##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 &
-##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
-##python fit_allprofiles_centred_withoutc200.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
-##python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz.fits -RIN 250 -ROUT 2000 -ncores 7 &
-##python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 &
-##python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced' &
-##python fit_allprofiles_centred.py -folder '/home/elizabeth/MICE/HS-lensing/profiles/' -file profile_$1_Hz_relaxed.fits -RIN 250 -ROUT 2000 -ncores 7 -ang 'reduced'

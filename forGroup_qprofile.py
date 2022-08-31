@@ -139,10 +139,10 @@ miscen = False
 
 
 folder = '/home/elizabeth/MICE/HS-lensing/'
-# S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
-S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
-j      = np.random.choice(np.array(len(S)),116960760)
-S  = S[j]
+S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
+# S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
+# j      = np.random.choice(np.array(len(S)),116960760)
+# S  = S[j]
 
 print('BACKGROUND GALAXY DENSINTY',len(S)/(5157*3600))
 
@@ -312,10 +312,10 @@ def partial_profile(RA0,DEC0,Z,angles,
         # Add shape noise due to intrisic galaxy shapes
         es = np.random.normal(0., snoise, len(e1))
         ts = np.random.uniform(0., np.pi, len(e1))
-        es1 = -1.*catdata.eps1_gal
-        es2 = catdata.eps2_gal#
-        # es1 = np.abs(es)*np.cos(2.*ts)
-        # es2 = np.abs(es)*np.sin(2.*ts)
+        # es1 = -1.*catdata.eps1_gal
+        # es2 = catdata.eps2_gal#
+        es1 = np.abs(es)*np.cos(2.*ts)
+        es2 = np.abs(es)*np.sin(2.*ts)
         e1 += es1
         e2 += es2
         

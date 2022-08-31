@@ -309,9 +309,9 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
             ax[0].errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qhr[hs])/qhr[hs],
                          yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
                          fmt=cstyle[hs],markersize=10,mfc='none')
-            ax[0].errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qh[hs])/qh[hs],
-                         yerr=np.array([fq[fp][1][hs][param]/qh[hs]]).T,
-                         fmt=cstyle[hs],markersize=10)
+            # ax[0].errorbar(fp+1+0.1*hs,(fq[fp][0][hs][param]-qh[hs])/qh[hs],
+                         # yerr=np.array([fq[fp][1][hs][param]/qh[hs]]).T,
+                         # fmt=cstyle[hs],markersize=10)
     
     ax[0].legend(frameon = False,loc=2,ncol=7)
     ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
@@ -737,16 +737,16 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     GXc = p.GAMMA_Xsin_control
     
     # '''
-    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
-    CovS   = cov.COV_S.reshape(len(GT),len(GT))
-    
-    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))
-    CovGTr = cov.COV_GT_reduced.reshape(len(GT),len(GT))
-    CovGTc = cov.COV_GT_control.reshape(len(GT),len(GT))
-    
-    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
-    CovGXr = cov.COV_GX_reduced.reshape(len(GT),len(GT))
-    CovGXc = cov.COV_GX_control.reshape(len(GT),len(GT))
+    CovDS  = np.sqrt(cov.COV_ST.reshape(len(GT),len(GT)))
+    CovS   = np.sqrt(cov.COV_S.reshape(len(GT),len(GT)))
+             
+    CovGT  = np.sqrt(cov.COV_GT.reshape(len(GT),len(GT)))
+    CovGTr = np.sqrt(cov.COV_GT_reduced.reshape(len(GT),len(GT)))
+    CovGTc = np.sqrt(cov.COV_GT_control.reshape(len(GT),len(GT)))
+             
+    CovGX  = np.sqrt(cov.COV_GX.reshape(len(GT),len(GT)))
+    CovGXr = np.sqrt(cov.COV_GX_reduced.reshape(len(GT),len(GT)))
+    CovGXc = np.sqrt(cov.COV_GX_control.reshape(len(GT),len(GT)))
 
     rplot = np.round(p.Rp,2)
         
@@ -826,6 +826,106 @@ def plt_profile_fitted_final(samp,RIN,ROUT,axx3,fittype='_2h_2q'):
     ax2.set_ylim(-16,17)
     ax2.xaxis.set_ticks([0.1,1,5,7])
     ax2.set_xticklabels([0.1,1,5,7])
+
+
+def plt_profile_fitted_withnoise(samp,RIN,ROUT,axx3):
+
+
+    matplotlib.rcParams.update({'font.size': 11})    
+    ax,ax1,ax2 = axx3
+    
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    # '''
+    h   = profile[0].header
+    p   = profile[1].data
+    cov = profile[2].data
+        
+    ndots = p.shape[0]
+    
+    GT  = p.GAMMA_Tcos    
+    GX  = p.GAMMA_Xsin
+    
+    # '''
+    CovDS  = np.sqrt(cov.COV_ST.reshape(len(GT),len(GT)))
+    CovGT  = np.sqrt(cov.COV_GT.reshape(len(GT),len(GT)))             
+    CovGX  = np.sqrt(cov.COV_GX.reshape(len(GT),len(GT)))
+
+
+    p_name = 'profile_'+samp+'_des.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    # '''
+    h   = profile[0].header
+    pn   = profile[1].data
+    cov = profile[2].data
+        
+    ndots = pn.shape[0]
+    
+    GTn  = pn.GAMMA_Tcos    
+    GXn  = pn.GAMMA_Xsin
+    
+    # '''
+    CovDSn  = np.sqrt(cov.COV_ST.reshape(len(GTn),len(GTn)))
+    CovGTn  = np.sqrt(cov.COV_GT.reshape(len(GTn),len(GTn)))             
+    CovGXn  = np.sqrt(cov.COV_GX.reshape(len(GTn),len(GTn)))
+
+                
+    ##############    
+
+    ax.plot(p.Rp,p.DSigma_T,'C7')
+    ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C7',alpha=0.4)
+    ax.errorbar(pn.Rp,pn.DSigma_T,yerr=np.diag(CovDSn),fmt='C7o',markersize=2)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_ylabel(r'$\Delta\Sigma [h M_\odot/pc^2]$',labelpad=2)
+    ax.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax.set_ylim(0.5,200)
+    ax.set_xlim(0.1,10)
+    ax.xaxis.set_ticks([0.1,1,5,7])
+    ax.set_xticklabels([0.1,1,5,7])
+    ax.yaxis.set_ticks([1,10,100])
+    ax.set_yticklabels([1,10,100])
+    ax.axvline(RIN/1000.,color='k',ls=':')
+    ax.axvline(ROUT/1000.,color='k',ls=':')
+    # ax.legend(loc=3,frameon=False,ncol=2)
+    
+    
+    ax1.plot(p.Rp,GT,'C7',label='standard')
+    ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C7',alpha=0.4)
+    ax1.errorbar(pn.Rp,GTn,yerr=np.diag(CovGTn),fmt='C7o',markersize=2)
+    ax1.set_xscale('log')
+    ax1.set_yscale('log')
+    ax1.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax1.set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=1.2)
+    ax1.set_ylim(0.5,100)
+    ax1.set_xlim(0.1,10)
+    ax1.xaxis.set_ticks([0.1,1,5,7])
+    ax1.set_xticklabels([0.1,1,5,7])
+    ax1.yaxis.set_ticks([1,10,100])
+    ax1.set_yticklabels([1,10,100])
+    ax1.axvline(RIN/1000.,color='k',ls=':')
+    ax1.axvline(ROUT/1000.,color='k',ls=':')
+        
+    ax2.plot([0,10],[0,0],'k')
+    ax2.plot(p.Rp,GX,'C7')
+    ax2.errorbar(pn.Rp,GXn,yerr=np.diag(CovGXn),fmt='C7o',markersize=2)
+    ax2.axvline(RIN/1000.,color='k',ls=':')
+    ax2.axvline(ROUT/1000.,color='k',ls=':')
+    ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C7',alpha=0.4)
+    ax2.set_xlabel('r [$h^{-1}$ Mpc]')
+    ax2.set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=1.2)
+    ax2.set_xscale('log')
+    ax2.set_xlim(0.1,10)
+    ax2.set_ylim(-16,17)
+    ax2.xaxis.set_ticks([0.1,1,5,7])
+    ax2.set_xticklabels([0.1,1,5,7])
+
 
 def misal():
     
@@ -1120,6 +1220,79 @@ def plt_profile_bias():
         f.savefig(folder+'../final_plots/profile_test_bias.pdf',bbox_inches='tight')
 
 
+def plot_withnoise():
+
+
+    hsamps  = ['HM_Lz_qcut',
+               'LM_Lz_qcut',
+               'HM_Mz_qcut',
+               'LM_Mz_qcut',
+               'HM_Hz_qcut',
+               'LM_Hz_qcut']
+
+    RIN = ['350','350','350','350','450','400']
+    ROUToq = ['2000','1000']*3
+    
+    qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,RIN,ROUToq)
+    
+    qfit_des = []
+    qm_des   = []
+    eq_des   = []
+
+    qfit_sn = []
+    qm_sn   = []
+    eq_sn   = []
+
+    for j in range(len(hsamps)):
+        
+        qs_sn = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+hsamps[j]+'.fits')[1].data.q
+        qfit_sn += [qs_sn]
+        qm_sn += [np.median(qs_sn)]
+        eq_sn += [np.diff(np.percentile(qs_sn, [16,50,84]))]
+
+        qs_des = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+hsamps[j]+'_des.fits')[1].data.q
+        qfit_des += [qs_des]
+        qm_des += [np.median(qs_des)]
+        eq_des += [np.diff(np.percentile(qs_des, [16,50,84]))]
+        
+    qfit = [qfit_sn,qfit_des,qfit_des]
+    qm   = [qm_sn,qm_des,qm_des]
+    eq   = [eq_sn,eq_des,eq_des]
+
+
+    xl = ['without shape noise', '6.3 gal/arcmin2','27 gal/arcmin2']
+
+    
+    # FOM
+    f, ax = plt.subplots(1,1, figsize=(14,6),sharex=True,sharey=True)
+    f.subplots_adjust(hspace=0)
+    
+    ax = [ax]
+    
+    ax[0].plot([0,5],[0,0],'C7--')
+    
+    ax[0].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
+    ax[0].axhspan(-0.025,0.025,0,5,color='C7',alpha=0.5)
+
+    
+    for hs in range(len(hsamps)):
+        ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        for fp in range(3):
+            ax[0].errorbar(fp+1+0.1*hs,(qm[fp][hs]-qh[hs])/qh[hs],
+                         yerr=np.array([eq[fp][hs]/qh[hs]]).T,
+                         fmt=cstyle[hs],markersize=15)
+                         
+            ax[0].violinplot((qfit[fp][hs]-qh[hs])/qh[hs],positions=[fp+1+0.1*hs],showextrema=False, showmedians=True)
+    
+    ax[0].legend(frameon = False,loc=2,ncol=7)
+    ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
+    ax[0].axis([0.5,4,-0.6,0.6])
+    ax[0].set_xticks(np.arange(3)+1)
+    ax[0].set_xticklabels(xl)
+    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+    # f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
+
+
 # '''
 
 cstyle = ['C9v','C8v','C2v','ko','C1^','C3^','C5^']
@@ -1197,3 +1370,27 @@ ax_all[0,1].legend(loc=3,frameon=False)
     
 f.savefig(folder+'../test_plots/profile_all_q_Ein.png',bbox_inches='tight')
 '''
+
+
+hsampsq  = ['HM_Lz_qcut',
+               'LM_Lz_qcut',
+               'HM_Mz_qcut',
+               'LM_Mz_qcut',
+               'HM_Hz_qcut',
+               'LM_Hz_qcut']
+
+
+f, ax_all = plt.subplots(4,3, figsize=(14,16),sharex = True)
+f.subplots_adjust(hspace=0)
+
+
+for j in range(len(ax_all)):
+    plt_profile_fitted_withnoise(hsampsq[j],350,5000,ax_all[j])
+    ax_all[j,0].text(1,100,lhsq[j],fontsize=14)
+
+ax_all[0,0].legend(loc=3,frameon=False)
+ax_all[0,1].legend(loc=3,frameon=False)
+
+
+    
+f.savefig(folder+'../test_plots/profile_all_q_Ein.png',bbox_inches='tight')

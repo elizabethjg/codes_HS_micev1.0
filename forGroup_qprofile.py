@@ -143,7 +143,9 @@ S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
 
 j      = np.random.choice(np.array(len(S)),111391200)
 
-S  = S[j]
+# S  = S[j]
+
+print('BACKGROUND GALAXY DENSINTY',len(S)/(5157*3600))
 
 def partial_map(RA0,DEC0,Z,angles,
                 RIN,ROUT,ndots,h,
@@ -311,8 +313,8 @@ def partial_profile(RA0,DEC0,Z,angles,
         # Add shape noise due to intrisic galaxy shapes
         es = np.random.normal(0., snoise, len(e1))
         ts = np.random.uniform(0., np.pi, len(e1))
-        es1 = np.abs(es)*np.cos(2.*ts)
-        es2 = np.abs(es)*np.sin(2.*ts)
+        es1 = -1.*catdata.eps1_gal#np.abs(es)*np.cos(2.*ts)
+        es2 = catdata.eps2_gal#np.abs(es)*np.sin(2.*ts)
         e1 += es1
         e2 += es2
         
@@ -328,7 +330,6 @@ def partial_profile(RA0,DEC0,Z,angles,
         del(e2)
         
         r = np.rad2deg(rads)*3600*KPCSCALE
-        # r = np.sqrt(roff**2 + r**2 + 2.*roff*r*np.cos(phi_off))
         del(rads)
         
         

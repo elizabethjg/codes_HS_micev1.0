@@ -139,10 +139,10 @@ miscen = False
 
 
 folder = '/home/elizabeth/MICE/HS-lensing/'
-S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
-# S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
-# j      = np.random.choice(np.array(len(S)),116960760)
-# S  = S[j]
+# S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
+S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
+j      = np.random.choice(np.array(len(S)),116960760)
+S  = S[j]
 
 print('BACKGROUND GALAXY DENSINTY',len(S)/(5157*3600))
 

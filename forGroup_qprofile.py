@@ -197,10 +197,10 @@ def partial_map(RA0,DEC0,Z,angles,
         # Add shape noise due to intrisic galaxy shapes
         es = np.random.normal(0., snoise, len(e1))
         ts = np.random.uniform(0., np.pi, len(e1))
-        es1 = -1.*catdata.eps1_gal#np.abs(es)*np.cos(2.*ts)
-        es2 = catdata.eps2_gal#np.abs(es)*np.sin(2.*ts)
-        e1 += es1
-        e2 += es2
+        # es1 = -1.*catdata.eps1_gal#np.abs(es)*np.cos(2.*ts)
+        # es2 = catdata.eps2_gal#np.abs(es)*np.sin(2.*ts)
+        # e1 += es1
+        # e2 += es2
        
         #get tangential ellipticities 
         et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c

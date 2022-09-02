@@ -172,12 +172,12 @@ def partial_map(RA0,DEC0,Z,angles,
         
         t0 = time.time()
         # mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
-        mask = (S.ra_gal < (RA0+delta))&(S.ra_gal > (RA0-delta))&(S.dec_gal > (DEC0-delta))&(S.dec_gal < (DEC0+delta))&(S.z_gal_v > (Z+0.1))
+        mask = (S.ra_gal < (RA0+delta))&(S.ra_gal > (RA0-delta))&(S.dec_gal > (DEC0-delta))&(S.dec_gal < (DEC0+delta))&(S.z_cgal_v > (Z+0.1))
                        
         catdata = S[mask]
 
-        ds  = cosmo.angular_diameter_distance(catdata.z_gal_v).value
-        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_gal_v).value
+        ds  = cosmo.angular_diameter_distance(catdata.z_cgal_v).value
+        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_cgal_v).value
                 
         
         BETA_array = dls/ds
@@ -286,11 +286,11 @@ def partial_profile(RA0,DEC0,Z,angles,
         
         delta = ROUT/(3600*KPCSCALE)
         
-        mask = (S.ra_gal < (RA0+delta))&(S.ra_gal > (RA0-delta))&(S.dec_gal > (DEC0-delta))&(S.dec_gal < (DEC0+delta))&(S.z_gal_v > (Z+0.1))
+        mask = (S.ra_gal < (RA0+delta))&(S.ra_gal > (RA0-delta))&(S.dec_gal > (DEC0-delta))&(S.dec_gal < (DEC0+delta))&(S.z_cgal_v > (Z+0.1))
         catdata = S[mask]
 
-        ds  = cosmo.angular_diameter_distance(catdata.z_gal_v).value
-        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_gal_v).value
+        ds  = cosmo.angular_diameter_distance(catdata.z_cgal_v).value
+        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_cgal_v).value
                 
         
         BETA_array = dls/ds

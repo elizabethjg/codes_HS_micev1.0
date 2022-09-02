@@ -49,7 +49,7 @@ parser.add_argument('-misalign', action='store', dest='misalign', default='False
 parser.add_argument('-miscen', action='store', dest='miscen', default='False')
 parser.add_argument('-relax', action='store', dest='relax', default='False')
 parser.add_argument('-domap', action='store', dest='domap', default='False')
-parser.add_argument('-snoise', action='store', dest='snoise', default=0.)
+parser.add_argument('-addnoise', action='store', dest='addnoise', default='False')
 parser.add_argument('-RIN', action='store', dest='RIN', default=100.)
 parser.add_argument('-ROUT', action='store', dest='ROUT', default=10000.)
 parser.add_argument('-nbins', action='store', dest='nbins', default=40)
@@ -60,6 +60,7 @@ parser.add_argument('-resNFW_max', action='store', dest='resNFW_max', default=10
 parser.add_argument('-R5s_max', action='store', dest='R5s_max', default=100.)
 parser.add_argument('-R5s_min', action='store', dest='R5s_min', default=0.)
 parser.add_argument('-soff', action='store', dest='soff', default=0.3)
+parser.add_argument('-nback', action='store', dest='nback', default=30)
 args = parser.parse_args()
 
 sample     = args.sample
@@ -85,7 +86,7 @@ resNFW_max = float(args.resNFW_max)
 R5s_max = float(args.R5s_max)
 R5s_min = float(args.R5s_min)
 soff = float(args.soff)
-snoise = float(args.snoise)
+nback = float(args.nback)
 
 if args.relax == 'True':
     relax = True
@@ -106,6 +107,11 @@ if args.miscen == 'True':
     miscen = True
 elif args.miscen == 'False':
     miscen = False
+
+if args.addnoise == 'True':
+    addnoise = True
+elif args.addnoise == 'False':
+    addnoise = False
 
 
 '''
@@ -140,15 +146,18 @@ miscen = False
 
 folder = '/home/elizabeth/MICE/HS-lensing/'
 S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
-# S      = fits.open(folder+'MICE_sources_HSN_withIA.fits')[1].data
-# j      = np.random.choice(np.array(len(S)),116960760)
-# S  = S[j]
+
+if nback < 30.:
+    nselec = nback*5157*3600.
+    S      = fits.open(folder+'MICE_sources_HSN_withIA_withextra.fits')[1].data
+    j      = np.random.choice(np.array(len(S)),nselec)
+    S  = S[j]
 
 print('BACKGROUND GALAXY DENSINTY',len(S)/(5157*3600))
 
 def partial_map(RA0,DEC0,Z,angles,
                 RIN,ROUT,ndots,h,
-                snoise,roff,phi_off):
+                addnoise,roff,phi_off):
 
         
         lsize = int(np.sqrt(ndots))
@@ -163,12 +172,12 @@ def partial_map(RA0,DEC0,Z,angles,
         
         t0 = time.time()
         # mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
-        mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
+        mask = (S.ra_gal < (RA0+delta))&(S.ra_gal > (RA0-delta))&(S.dec_gal > (DEC0-delta))&(S.dec_gal < (DEC0+delta))&(S.z_gal_v > (Z+0.1))
                        
         catdata = S[mask]
 
-        ds  = cosmo.angular_diameter_distance(catdata.z_v).value
-        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_v).value
+        ds  = cosmo.angular_diameter_distance(catdata.z_gal_v).value
+        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_gal_v).value
                 
         
         BETA_array = dls/ds
@@ -182,8 +191,8 @@ def partial_map(RA0,DEC0,Z,angles,
         c2 = c1.directional_offset_by(phi_off*u.degree,roff_deg*u.degree)
 
 
-        rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
-                                        np.deg2rad(catdata.dec),
+        rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra_gal),
+                                        np.deg2rad(catdata.dec_gal),
                                         np.deg2rad(c2.ra.value),
                                         np.deg2rad(c2.dec.value))
 
@@ -195,13 +204,12 @@ def partial_map(RA0,DEC0,Z,angles,
         e1     = catdata.gamma1
         e2     = -1.*catdata.gamma2
         
-        # Add shape noise due to intrisic galaxy shapes
-        es = np.random.normal(0., snoise, len(e1))
-        ts = np.random.uniform(0., np.pi, len(e1))
-        # es1 = -1.*catdata.eps1_gal#np.abs(es)*np.cos(2.*ts)
-        # es2 = catdata.eps2_gal#np.abs(es)*np.sin(2.*ts)
-        # e1 += es1
-        # e2 += es2
+        # Add shape noise due to intrisic galaxy shapes        
+        if addnoise:
+            es1 = -1.*catdata.eps1
+            es2 = catdata.eps2
+            e1 += es1
+            e2 += es2
        
         #get tangential ellipticities 
         et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c
@@ -268,7 +276,7 @@ def partial_map_unpack(minput):
 
 def partial_profile(RA0,DEC0,Z,angles,
                     RIN,ROUT,ndots,h,
-                    snoise,roff,phi_off):
+                    addnoise,roff,phi_off):
 
         ndots = int(ndots)
 
@@ -278,11 +286,11 @@ def partial_profile(RA0,DEC0,Z,angles,
         
         delta = ROUT/(3600*KPCSCALE)
         
-        mask = (S.ra < (RA0+delta))&(S.ra > (RA0-delta))&(S.dec > (DEC0-delta))&(S.dec < (DEC0+delta))&(S.z_v > (Z+0.1))
+        mask = (S.ra_gal < (RA0+delta))&(S.ra_gal > (RA0-delta))&(S.dec_gal > (DEC0-delta))&(S.dec_gal < (DEC0+delta))&(S.z_gal_v > (Z+0.1))
         catdata = S[mask]
 
-        ds  = cosmo.angular_diameter_distance(catdata.z_v).value
-        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_v).value
+        ds  = cosmo.angular_diameter_distance(catdata.z_gal_v).value
+        dls = cosmo.angular_diameter_distance_z1z2(Z, catdata.z_gal_v).value
                 
         
         BETA_array = dls/ds
@@ -296,8 +304,8 @@ def partial_profile(RA0,DEC0,Z,angles,
         c2 = c1.directional_offset_by(phi_off*u.degree,roff_deg*u.degree)
 
 
-        rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra),
-                                        np.deg2rad(catdata.dec),
+        rads, theta, test1,test2 = eq2p2(np.deg2rad(catdata.ra_gal),
+                                        np.deg2rad(catdata.dec_gal),
                                         np.deg2rad(c2.ra.value),
                                         np.deg2rad(c2.dec.value))
         
@@ -308,18 +316,13 @@ def partial_profile(RA0,DEC0,Z,angles,
         e1     = catdata.gamma1
         e2     = -1.*catdata.gamma2
 
-
-        # Add shape noise due to intrisic galaxy shapes
-        es = np.random.normal(0., snoise, len(e1))
-        ts = np.random.uniform(0., np.pi, len(e1))
-        # es1 = -1.*catdata.eps1_gal
-        # es2 = catdata.eps2_gal#
-        es1 = np.abs(es)*np.cos(2.*ts)
-        es2 = np.abs(es)*np.sin(2.*ts)
-        e1 += es1
-        e2 += es2
+        # Add shape noise due to intrisic galaxy shapes        
+        if addnoise:
+            es1 = -1.*catdata.eps1
+            es2 = catdata.eps2
+            e1 += es1
+            e2 += es2
         
-       
         #get tangential ellipticities 
         et = (-e1*np.cos(2*theta)-e2*np.sin(2*theta))*sigma_c
         #get cross ellipticities
@@ -410,7 +413,7 @@ def main(lcat, sample='pru',
          domap = False, RIN = 400., ROUT =5000.,
          ndots= 40, ncores=10, 
          idlist= None, hcosmo=1.0, vmice = '2',
-         snoise = 0., misalign = False, 
+         addnoise = False, misalign = False, 
          miscen = False, soff = 0.3):
 
         '''
@@ -662,20 +665,20 @@ def main(lcat, sample='pru',
                 rout = ROUT*np.ones(num)
                 nd   = ndots*np.ones(num)
                 h_array   = hcosmo*np.ones(num)
-                snoise_array   = snoise*np.ones(num)
+                addnoise_array   = np.array([addnoise]*np.ones(num))
                 
                 if num == 1:
                         entrada = [Lsplit[l].ra_rc[0], Lsplit[l].dec_rc[0],
                                    Lsplit[l].z[0],Tsplit[l][0],
                                    RIN,ROUT,ndots,hcosmo,
-                                   snoise,Rsplit[l][0],PHIsplit[l][0]]
+                                   addnoise,Rsplit[l][0],PHIsplit[l][0]]
                         
                         salida = [partial(entrada)]
                 else:          
                         entrada = np.array([Lsplit[l].ra_rc,Lsplit[l].dec_rc,
                                         Lsplit[l].z,Tsplit[l].tolist(),
                                         rin,rout,nd,h_array,
-                                        snoise_array,Rsplit[l],PHIsplit[l]]).T
+                                        addnoise_array,Rsplit[l],PHIsplit[l]]).T
                         
                         pool = Pool(processes=(num))
                         salida = np.array(pool.map(partial, entrada))
@@ -892,4 +895,4 @@ def main(lcat, sample='pru',
         
 
 
-main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,T_min,T_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,snoise,misalign,miscen,soff)
+main(lcat,sample,lM_min,lM_max,z_min,z_max,q_min,q_max,T_min,T_max,rs_min,rs_max,resNFW_max,relax,R5s_min,R5s_max,domap,RIN,ROUT,ndots,ncores,idlist,hcosmo,vmice,addnoise,misalign,miscen,soff)

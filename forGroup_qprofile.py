@@ -467,7 +467,10 @@ def main(lcat, sample='pru',
                 print('resNFW_S < ',resNFW_max)
                 print('h ',hcosmo)
                 print(' '+str(misalign))
-                        
+        
+        if addnoise:
+            print('ADDING SHAPE NOISE')
+        
         #reading cats
                 
         L = fits.open(folder+lcat)[1].data               

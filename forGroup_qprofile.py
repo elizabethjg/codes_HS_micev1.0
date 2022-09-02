@@ -145,11 +145,10 @@ miscen = False
 
 
 folder = '/home/elizabeth/MICE/HS-lensing/'
-S      = fits.open(folder+'MICE_sources_HSN.fits')[1].data
+S      = fits.open(folder+'MICE_sources_HSN_withextra.fits')[1].data
 
 if nback < 30.:
     nselec = int(nback*5157*3600.)
-    S      = fits.open(folder+'MICE_sources_HSN_withextra.fits')[1].data
     j      = np.random.choice(np.array(len(S)),nselec)
     S  = S[j]
 

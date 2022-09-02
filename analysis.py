@@ -9,6 +9,21 @@ from binned_plots import make_plot2
 
 folder = '../profiles3/'
 
+def plot_zdist():
+    
+    S = fits.open('../MICE_sources_HSN_withextra.fits')[1].data
+    
+    
+    f, ax = plt.subplots(1,1, figsize=(5,4),sharex = True,sharey=True)
+    plt.hist(S.z_cgal_v,100,histtype='step',color='C3',lw=2.5)
+    plt.xlabel('$z$')
+    plt.ylabel('N [millions]')
+    current_values = plt.gca().get_yticks()
+    plt.gca().set_yticklabels([x/1.e6 for x in current_values])
+    f.savefig('../zdist.pdf',bbox_inches='tight')
+
+
+
 def plot_q_dist():
 
     halos = fits.open(folder+'../HALO_Props_MICE.fits')[1].data        

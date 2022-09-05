@@ -119,8 +119,8 @@ lcat = 'HALO_Props_MICE.fits'
 sample='pru'
 lM_min=14.0
 lM_max=14.5
-z_min = 0.3
-z_max = 0.35
+z_min = 0.1
+z_max = 0.2
 q_min = 0.
 q_max = 1.
 rs_min = 0
@@ -141,6 +141,10 @@ R5s_max = 100.
 resNFW_max = 100.
 misalign = False
 miscen = False
+addnoise = False
+nback = 30.
+T_min = 0.
+T_max = 1.
 '''
 
 
@@ -452,7 +456,7 @@ def main(lcat, sample='pru',
         
         print('Lens catalog ',lcat)
         print('Sample ',sample)
-        print('Selecting groups with:')
+        print('Selecting halos with:')
         
         
         if idlist:

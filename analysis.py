@@ -212,6 +212,10 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     fq = [NFW,Ein,woc,o1h]
     fqr = [NFW_r,Ein_r,woc_r,o1h_r]
     
+    #####################
+    # PLOT q comparison
+    #####################
+    
     param = 1
 
     f, ax = plt.subplots(2,1, figsize=(6,8),sharex=True)
@@ -271,6 +275,10 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     # f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
     f.savefig(folder+'../test_plots/qcomparison_'+nplot+'.png',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/qcomparison_rel.png',bbox_inches='tight')
+
+    #####################
+    # PLOT q comparison 2
+    #####################
     
     
     f, ax = plt.subplots(1,1, figsize=(6,4))
@@ -303,6 +311,11 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     # f.savefig(folder+'../final_plots/q2h.png',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/q2h.pdf',bbox_inches='tight')
     f.savefig(folder+'../test_plots/q2h_'+nplot+'.png',bbox_inches='tight')
+
+
+    #####################
+    # PLOT FOM q
+    #####################
 
 
     xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
@@ -360,7 +373,10 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
     f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
     
-    # FOM - mass
+    #####################
+    # PLOT FOM M200
+    #####################
+
     f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
     f.subplots_adjust(hspace=0)
     ax = [ax[1],ax[0]]
@@ -374,10 +390,11 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     for hs in range(len(hsamps)):
         ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(4):
-            diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
-            ax[0].errorbar(fp+1+0.1*hs,diff,
-                         yerr=np.array([fq[fp][1][hs][param]/qhr[hs]]).T,
-                         fmt=cstyle[hs],markersize=10,mfc='none')
+            if fp == 1:
+                diff = (10**fq[fp][0][hs][0] - 10**Ein_h[hs][0])/10**Ein_h[hs][0]
+            else:
+                diff = (10**fq[fp][0][hs][0] - 10**NFW_h[hs][0])/10**NFW_h[hs][0]
+            ax[0].plot(fp+1+0.1*hs,diff,cstyle[hs],markersize=10)
     
     ax[0].legend(frameon = False,loc=3,ncol=3)
     ax[0].set_ylabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
@@ -395,10 +412,11 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     for hs in range(len(hsamps)):
         for fp in range(4):
-            diff = (10**fq[fp][0][hs][0] - 10**NFW_hr[hs][0])/10**NFW_hr[hs][0]
-            ax[1].errorbar(fp+1+0.1*hs,diff,
-                          yerr=np.array([fqr[fp][1][hs][param]/qh[hs]]).T,
-                          fmt=cstyle[hs],markersize=10)
+            if fp == 1:
+                diff = (10**fqr[fp][0][hs][0] - 10**Ein_hr[hs][0])/10**Ein_hr[hs][0]
+            else:
+                diff = (10**fqr[fp][0][hs][0] - 10**NFW_hr[hs][0])/10**NFW_hr[hs][0]
+            ax[1].plot(fp+1+0.1*hs,diff,cstyle[hs],markersize=10)
 
     ax[1].plot([-1,-1],[-1,-1],'k^',label=r'all halos')
     ax[1].plot([-1,-1],[-1,-1],'k^',label=r'relaxed',mfc='none')
@@ -411,9 +429,63 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
     
     # f.savefig(folder+'../final_plots/model_M200.png',bbox_inches='tight')
     f.savefig(folder+'../test_plots/model_M200_'+nplot+'.png',bbox_inches='tight')
-    # f.savefig(folder+'../final_plots/model_q1h_rel.png',bbox_inches='tight')
-    # f.savefig(folder+'../test_plots/model_q1h_'+nplot+'.png',bbox_inches='tight')
     
+    #####################
+    # PLOT FOM c200
+    #####################
+
+    f, ax = plt.subplots(2,1, figsize=(14,6),sharex=True,sharey=True)
+    f.subplots_adjust(hspace=0)
+    ax = [ax[1],ax[0]]
+    
+    ax[0].plot([0,5],[0,0],'C7--')
+    
+    ax[0].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
+    ax[0].axhspan(-0.025,0.025,0,5,color='C7',alpha=0.5)
+
+    
+    for hs in range(len(hsamps)):
+        ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
+        for fp in range(3):
+            if fp == 1:
+                diff = (fq[fp][0][hs][2] - Ein_h[hs][1])/Ein_h[hs][1]
+            else:
+                diff = (fq[fp][0][hs][2] - NFW_h[hs][1])/NFW_h[hs][1]
+            ax[0].plot(fp+1+0.1*hs,diff,cstyle[hs],markersize=10)
+    
+    ax[0].legend(frameon = False,loc=3,ncol=3)
+    ax[0].set_ylabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    ax[0].set_xticks(np.arange(4)+1)
+    ax[0].set_xticklabels(xl)
+    # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
+    # f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
+    
+    # FOM
+    param = 1
+    ax[1].plot([0,5],[0,0],'C7--')
+    
+    ax[1].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
+    ax[1].axhspan(-0.025,0.025,0,5,color='C7',alpha=0.5)
+    
+    for hs in range(len(hsamps)):
+        for fp in range(3):
+            if fp == 1:
+                diff = (fq[fp][0][hs][2] - Ein_hr[hs][1])/Ein_hr[hs][1]
+            else:
+                diff = (fq[fp][0][hs][2] - NFW_hr[hs][1])/NFW_hr[hs][1]
+            ax[1].plot(fp+1+0.1*hs,diff,cstyle[hs],markersize=10)
+
+    ax[1].plot([-1,-1],[-1,-1],'k^',label=r'all halos')
+    ax[1].plot([-1,-1],[-1,-1],'k^',label=r'relaxed',mfc='none')
+    
+    ax[1].legend(frameon = False,loc=3,ncol=3)
+    ax[1].set_ylabel(r'$(\tilde{M}_{200}-\langle M_{200} \rangle)/\langle M_{200} \rangle$')
+    ax[1].axis([0,5,-0.23,0.23])
+    ax[1].set_xticks(np.arange(4)+1)
+    ax[1].set_xticklabels(xl)
+    
+    # f.savefig(folder+'../final_plots/model_M200.png',bbox_inches='tight')
+    f.savefig(folder+'../test_plots/model_c200_'+nplot+'.png',bbox_inches='tight')    
     
 
 def plot_M200q(hsamps,lhs,cstyle,RIN,ROUToq):
@@ -1384,7 +1456,7 @@ ax_all[0,1].legend(loc=3,frameon=False)
 
     
 f.savefig(folder+'../test_plots/profile_all_q_Ein.png',bbox_inches='tight')
-'''
+
 
 
 hsampsq  = ['HM_Lz_qcut',
@@ -1409,3 +1481,4 @@ ax_all[0,1].legend(loc=3,frameon=False)
 
     
 f.savefig(folder+'../test_plots/profile_all_q_Ein.png',bbox_inches='tight')
+'''

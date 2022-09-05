@@ -868,7 +868,8 @@ def main(lcat, sample='pru',
                     fits.Column(name='GAMMA_Tcos_reduced', format='E', array=GAMMA_Tcos[:,2,0]),
                     fits.Column(name='GAMMA_Xsin_control', format='E', array=GAMMA_Xsin[:,0,0]),
                     fits.Column(name='GAMMA_Xsin', format='E', array=GAMMA_Xsin[:,1,0]),
-                    fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0])]
+                    fits.Column(name='GAMMA_Xsin_reduced', format='E', array=GAMMA_Xsin[:,2,0]),
+                    fits.Column(name='Ninbin', format='E', array=Ninbin[0])]
                     
                         
             table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),

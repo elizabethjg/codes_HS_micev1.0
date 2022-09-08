@@ -1307,6 +1307,166 @@ def plt_profile_bias():
         f.savefig(folder+'../final_plots/profile_test_bias.pdf',bbox_inches='tight')
 
 
+def plt_profile_model():
+    
+    from models_profiles import *
+
+    samp = 'HM_Lz'
+
+    matplotlib.rcParams.update({'font.size': 12})    
+    
+    p_name = 'profile_'+samp+'.fits'
+    profile = fits.open(folder+p_name)
+
+    h   = profile[0].header
+    
+    zmean = h['z_mean']
+
+
+    print(p_name)
+    
+    p   = profile[1].data
+    cov = profile[2].data
+    
+    DS  = p.DSigma_T
+    GT  = p.GAMMA_Tcos    
+    GX  = p.GAMMA_Xsin
+    GTr = p.GAMMA_Tcos_reduced    
+    GXr = p.GAMMA_Xsin_reduced
+    
+    # '''
+    CovDS  = cov.COV_ST.reshape(len(GT),len(GT))
+    CovGT  = cov.COV_GT.reshape(len(GT),len(GT))    
+    CovGX  = cov.COV_GX.reshape(len(GT),len(GT))
+        
+    CovGTr = np.sqrt(cov.COV_GT_reduced.reshape(len(GT),len(GT)))
+    CovGXr = np.sqrt(cov.COV_GX_reduced.reshape(len(GT),len(GT)))
+
+
+    rplot = np.round(p.Rp,2)
+
+        
+    y   = [DS,GT,GX]
+    yr  = [np.zeros(len(GT)),GTr,GXr]
+    Cy  = [np.diag(CovDS),np.diag(CovGT),np.diag(CovGX)]
+    Cyr = [np.zeros(len(GT)),np.diag(CovGTr),np.diag(CovGXr)]
+    
+    RIN  = 350
+    ROUT = 5000 
+    
+    # MCMC results
+    
+    fittype = ['_2h_2q','_2h_2q_Ein','_2h_2q_woc','_onlyq']
+    fitfunc = [Delta_Sigma_NFW_2h,Delta_Sigma_Ein_2h,Delta_Sigma_NFW_2h,Delta_Sigma_NFW_2h]
+    fitterm = ['1h+2h']*3+['1h']
+    pname   = ['NFW','Einasto']+['NFW']*2
+    ROUT    = [5000]*3+[2000]
+    
+    yfit    = []
+    yfitr   = []
+    
+    for j in range(len(fittype)):
+    
+        ang = ''
+                
+        fitpar = fits.open(folder+'fitresults'+fittype[j]+'_'+str(int(RIN))+'_'+str(int(ROUT[j]))+ang+'_'+p_name)[0].header
+        efit     = (1. - fitpar['q']) / (1. + fitpar['q'])
+        
+        if j == 1:
+            alpha = fitpar['alpha']
+            DS  = fitfunc[j](rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms=fitterm[j],alpha=fitpar['alpha'])
+        else:
+            alpha = 1.
+            DS  = fitfunc[j](rplot,zmean,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms=fitterm[j])
+
+        if j == 3:
+            gt,gx   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms=fitterm[j],pname=pname[j],alpha=alpha)
+        else:
+            efit2h     = (1. - fitpar['q2h']) / (1. + fitpar['q2h'])
+            gt1h,gx1h   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='1h',pname=pname[j],alpha=alpha)
+            gt2h,gx2h   = GAMMA_components(rplot,zmean,ellip=efit2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h',pname=pname[j],alpha=alpha)
+            gt = gt1h + gt2h
+            gx = gx1h + gx2h      
+    
+        ang = '_reduced'
+        
+        fitpar = fits.open(folder+'fitresults'+fittype[j]+'_'+str(int(RIN))+'_'+str(int(ROUT[j]))+ang+'_'+p_name)[0].header
+    
+        efit     = (1. - fitpar['q']) / (1. + fitpar['q'])
+
+        if j == 3:
+            gtr,gxr   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms=fitterm[j],pname=pname[j],alpha=alpha)
+        else:
+            efit2h     = (1. - fitpar['q2h']) / (1. + fitpar['q2h'])
+            gt1h,gx1h   = GAMMA_components(rplot,zmean,ellip=efit,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='1h',pname=pname[j],alpha=alpha)
+            gt2h,gx2h   = GAMMA_components(rplot,zmean,ellip=efit2h,M200 = 10**fitpar['lM200'],c200=fitpar['c200'],cosmo_params=params,terms='2h',pname=pname[j],alpha=alpha)
+            gtr = gt1h + gt2h
+            gxr = gx1h + gx2h
+    
+    
+        yfit  += [[DS,gt,gx]]
+        yfitr += [[np.zeros(len(gt)),gtr,gxr]]
+    
+    y   = [DS,GT,GX]
+    yr  = [np.zeros(len(GT)),GTr,GXr]
+    Cy  = [np.diag(CovDS),np.diag(CovGT),np.diag(CovGX)]
+    Cyr = [np.zeros(len(GT)),np.diag(CovGTr),np.diag(CovGXr)]
+    
+    # f, ax = plt.subplots(6,3, gridspec_kw={'height_ratios': [3, 1]*3},figsize=(14,10),sharex = True)
+    f, ax = plt.subplots(1,3,figsize=(14,3),sharex = True)
+    f.subplots_adjust(hspace=0)
+    
+    xl = ['NFW - 1h+2h','Ein - 1h+2h','NFW - 1h+2h - fix $c_{200}$','NFW 1h']
+    
+    for i in range(3):
+        
+            ax[i].plot(p.Rp,y[i],'C7',lw=5.)        
+            ax[i].plot(p.Rp,yr[i],'C6--',lw=5.)        
+            
+            for j in range(4):
+                ax[i].plot(p.Rp,yfit[j][i],'C'+str(int(j)),label=xl[j],lw=2.)        
+                ax[i].plot(p.Rp,yfitr[j][i],'C'+str(int(j))+'--',lw=2.)        
+            
+            ax[i].fill_between(p.Rp,y[i]+Cy[i],y[i]-Cy[i],color='C7',alpha=0.4)
+            ax[i].fill_between(p.Rp,yr[i]+Cyr[i],yr[i]-Cyr[i],color='C6',alpha=0.4)
+
+
+            ax[i].set_xlabel('r [$h^{-1}$ Mpc]')
+        
+        
+    ax[0].legend(frameon=False,loc=3)
+       
+    ax[0].set_xscale('log')
+    ax[0].set_yscale('log')
+    ax[0].set_ylabel(r'$\Delta\Sigma [h M_\odot/pc^2]$',labelpad=0.001)
+    ax[0].set_ylim(0.5,200)
+    ax[0].set_xlim(0.1,10)
+    ax[0].xaxis.set_ticks([0.1,1,5,7])
+    ax[0].set_xticklabels([0.1,1,5,7])
+    ax[0].yaxis.set_ticks([1,10,100])
+    ax[0].set_yticklabels([1,10,100])
+       
+    ax[1].set_xscale('log')
+    ax[1].set_yscale('log')
+    ax[1].set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=0.001)
+    ax[1].set_ylim(0.5,100)
+    ax[1].set_xlim(0.1,10)
+    ax[1].xaxis.set_ticks([0.1,1,5,7])
+    ax[1].set_xticklabels([0.1,1,5,7])
+    ax[1].yaxis.set_ticks([1,10,100])
+    ax[1].set_yticklabels([1,10,100])
+       
+    ax[2].plot([0,10],[0,0],'k')
+    ax[2].set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=0.001)
+    ax[2].set_xscale('log')
+    ax[2].set_xlim(0.1,10)
+    ax[2].set_ylim(-16,17)
+    ax[2].xaxis.set_ticks([0.1,1,5,7])
+    ax[2].set_xticklabels([0.1,1,5,7])
+    
+    f.savefig(folder+'../final_plots/profile_test_model.pdf',bbox_inches='tight')
+
+
 def plot_withnoise():
 
 

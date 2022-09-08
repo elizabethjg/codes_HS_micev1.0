@@ -6,6 +6,7 @@ from basic_extract import extract_params
 import corner
 from matplotlib import cm
 from binned_plots import make_plot2
+from models_profiles import *
 
 folder = '../profiles3/'
 
@@ -942,7 +943,9 @@ def plt_profile_fitted_withnoise(samp,RIN,ROUT,axx3):
     CovGX  = np.sqrt(cov.COV_GX.reshape(len(GT),len(GT)))
 
 
-    p_name = 'profile_'+samp+'_des.fits'
+    # WITH NOISE - n = 6
+
+    p_name = 'profile_'+samp+'_n6.fits'
     profile = fits.open(folder+p_name)
 
     print(p_name)
@@ -962,48 +965,67 @@ def plt_profile_fitted_withnoise(samp,RIN,ROUT,axx3):
     CovGTn  = np.sqrt(cov.COV_GT.reshape(len(GTn),len(GTn)))             
     CovGXn  = np.sqrt(cov.COV_GX.reshape(len(GTn),len(GTn)))
 
+    # WITH NOISE - n = 30
+
+    p_name = 'profile_'+samp+'_n30.fits'
+    profile = fits.open(folder+p_name)
+
+    print(p_name)
+    
+    # '''
+    h   = profile[0].header
+    pn30   = profile[1].data
+    cov = profile[2].data
+        
+    ndots = pn30.shape[0]
+    
+    GTn30  = pn30.GAMMA_Tcos    
+    GXn30  = pn30.GAMMA_Xsin
+    
+    # '''
+    CovDSn30  = np.sqrt(cov.COV_ST.reshape(len(GTn30),len(GTn30)))
+    CovGTn30  = np.sqrt(cov.COV_GT.reshape(len(GTn30),len(GTn30)))             
+    CovGXn30  = np.sqrt(cov.COV_GX.reshape(len(GTn30),len(GTn30)))
+
                 
     ##############    
-
-    ax.plot(p.Rp,p.DSigma_T,'C7')
+    xl = ['without shape noise - 26.9 arcmin$^2$', 'with shape noise - 6.28 arcmin$^2$','with shape noise - 26.9 arcmin$^2$']
+    ax.plot(p.Rp,p.DSigma_T,'C7',label=xl[0])
     ax.fill_between(p.Rp,p.DSigma_T+np.diag(CovDS),p.DSigma_T-np.diag(CovDS),color='C7',alpha=0.4)
-    ax.errorbar(pn.Rp,pn.DSigma_T,yerr=np.diag(CovDSn),fmt='C7o',markersize=2)
+    ax.errorbar(pn.Rp,pn.DSigma_T,yerr=np.diag(CovDSn),fmt='C1o',markersize=2,label=xl[1])
+    ax.errorbar(pn30.Rp,pn30.DSigma_T,yerr=np.diag(CovDSn30),fmt='C3o',markersize=2,label=xl[2])
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_ylabel(r'$\Delta\Sigma [h M_\odot/pc^2]$',labelpad=2)
     ax.set_xlabel('r [$h^{-1}$ Mpc]')
-    ax.set_ylim(0.5,200)
+    ax.set_ylim(0.1,200)
     ax.set_xlim(0.1,10)
     ax.xaxis.set_ticks([0.1,1,5,7])
     ax.set_xticklabels([0.1,1,5,7])
     ax.yaxis.set_ticks([1,10,100])
     ax.set_yticklabels([1,10,100])
-    ax.axvline(RIN/1000.,color='k',ls=':')
-    ax.axvline(ROUT/1000.,color='k',ls=':')
     # ax.legend(loc=3,frameon=False,ncol=2)
     
     
-    ax1.plot(p.Rp,GT,'C7',label='standard')
+    ax1.plot(p.Rp,GT,'C7')
     ax1.fill_between(p.Rp,GT+np.diag(CovGT),GT-np.diag(CovGT),color='C7',alpha=0.4)
-    ax1.errorbar(pn.Rp,GTn,yerr=np.diag(CovGTn),fmt='C7o',markersize=2)
+    ax1.errorbar(pn.Rp,GTn,yerr=np.diag(CovGTn),fmt='C1o',markersize=2)
+    ax1.errorbar(pn30.Rp,GTn30,yerr=np.diag(CovGTn30),fmt='C3o',markersize=2)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlabel('r [$h^{-1}$ Mpc]')
     ax1.set_ylabel(r'$\Gamma_T [h M_\odot/pc^2]$',labelpad=1.2)
-    ax1.set_ylim(0.5,100)
+    ax1.set_ylim(0.1,100)
     ax1.set_xlim(0.1,10)
     ax1.xaxis.set_ticks([0.1,1,5,7])
     ax1.set_xticklabels([0.1,1,5,7])
     ax1.yaxis.set_ticks([1,10,100])
     ax1.set_yticklabels([1,10,100])
-    ax1.axvline(RIN/1000.,color='k',ls=':')
-    ax1.axvline(ROUT/1000.,color='k',ls=':')
         
     ax2.plot([0,10],[0,0],'k')
     ax2.plot(p.Rp,GX,'C7')
-    ax2.errorbar(pn.Rp,GXn,yerr=np.diag(CovGXn),fmt='C7o',markersize=2)
-    ax2.axvline(RIN/1000.,color='k',ls=':')
-    ax2.axvline(ROUT/1000.,color='k',ls=':')
+    ax2.errorbar(pn.Rp,GXn,yerr=np.diag(CovGXn),fmt='C1o',markersize=2)
+    ax2.errorbar(pn30.Rp,GXn30,yerr=np.diag(CovGXn30),fmt='C3o',markersize=2)
     ax2.fill_between(p.Rp,GX+np.diag(CovGX),GX-np.diag(CovGX),color='C7',alpha=0.4)
     ax2.set_xlabel('r [$h^{-1}$ Mpc]')
     ax2.set_ylabel(r'$\Gamma_\times [h M_\odot/pc^2]$',labelpad=1.2)
@@ -1308,8 +1330,6 @@ def plt_profile_bias():
 
 
 def plt_profile_model():
-    
-    from models_profiles import *
 
     samp = 'HM_Lz'
 
@@ -1482,9 +1502,18 @@ def plot_withnoise():
     
     qh,NFW_h,Ein_h,qhr,NFW_hr,Ein_hr,NFW,Ein,o1h,woc,zh = extract_params(hsamps,RIN,ROUToq)
     
+    lhs = ['HM-Lz','LM-Lz','HM-Mz','LM-Mz','HM-Hz','LM-Hz']
+    cstyle = ['C1','C1','C3','C3','C5','C5']
+    dstyle = ['^','v']*3
+
+    
     qfit_des = []
     qm_des   = []
     eq_des   = []
+
+    qfit_n30 = []
+    qm_n30   = []
+    eq_n30   = []
 
     qfit_sn = []
     qm_sn   = []
@@ -1492,22 +1521,27 @@ def plot_withnoise():
 
     for j in range(len(hsamps)):
         
-        qs_sn = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+hsamps[j]+'.fits')[1].data.q
+        qs_sn = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+hsamps[j]+'.fits')[1].data.q[1500:]
         qfit_sn += [qs_sn]
         qm_sn += [np.median(qs_sn)]
         eq_sn += [np.diff(np.percentile(qs_sn, [16,50,84]))]
 
-        qs_des = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+hsamps[j]+'_des.fits')[1].data.q
+        qs_des = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+hsamps[j]+'_n6.fits')[1].data.q[1500:]
         qfit_des += [qs_des]
         qm_des += [np.median(qs_des)]
         eq_des += [np.diff(np.percentile(qs_des, [16,50,84]))]
+
+        qs_n30 = fits.open(folder+'fitresults_2h_2q_'+RIN[j]+'_5000_profile_'+hsamps[j]+'_n30.fits')[1].data.q[1500:]
+        qfit_n30 += [qs_n30]
+        qm_n30 += [np.median(qs_n30)]
+        eq_n30 += [np.diff(np.percentile(qs_n30, [16,50,84]))]
         
-    qfit = [qfit_sn,qfit_des,qfit_des]
-    qm   = [qm_sn,qm_des,qm_des]
-    eq   = [eq_sn,eq_des,eq_des]
+    qfit = [qfit_sn,qfit_n30,qfit_des]
+    qm   = [qm_sn,qm_n30,qm_des]
+    eq   = [eq_sn,eq_n30,eq_des]
 
 
-    xl = ['without shape noise', '6.3 gal/arcmin2','27 gal/arcmin2']
+    xl = ['without shape noise - 26.9 arcmin$^2$','with shape noise - 26.9 arcmin$^2$', 'with shape noise - 6.28 arcmin$^2$']
 
     
     # FOM
@@ -1519,23 +1553,28 @@ def plot_withnoise():
     ax[0].plot([0,5],[0,0],'C7--')
     
     ax[0].axhspan(-0.05,0.05,0,5,color='C7',alpha=0.5)
-    ax[0].axhspan(-0.025,0.025,0,5,color='C7',alpha=0.5)
-
     
     for hs in range(len(hsamps)):
         ax[0].plot([-1,-1],[-1,-1],cstyle[hs],label=lhs[hs])
         for fp in range(3):
             ax[0].errorbar(fp+1+0.1*hs,(qm[fp][hs]-qh[hs])/qh[hs],
                          yerr=np.array([eq[fp][hs]/qh[hs]]).T,
-                         fmt=cstyle[hs],markersize=15)
+                         fmt=cstyle[hs]+dstyle[hs],markersize=15)
                          
-            ax[0].violinplot((qfit[fp][hs]-qh[hs])/qh[hs],positions=[fp+1+0.1*hs],showextrema=False, showmedians=True)
+            vp = ax[0].violinplot((qfit[fp][hs]-qh[hs])/qh[hs],
+                              positions=[fp+1+0.1*hs],
+                              showextrema=False, 
+                              showmedians=False)
+            vp['bodies'][0].set_facecolor(cstyle[hs])
+            
     
     ax[0].legend(frameon = False,loc=2,ncol=7)
     ax[0].set_ylabel(r'$(\tilde{q}_{1h}(\hat{\phi})-\langle q \rangle)/\langle q \rangle$')
     ax[0].axis([0.5,4,-0.6,0.6])
-    ax[0].set_xticks(np.arange(3)+1)
+    ax[0].set_xticks(np.arange(3)+1+0.1*2+0.05)
     ax[0].set_xticklabels(xl)
+    
+    f.savefig(folder+'../final_plots/comparison_withshapenoise.pdf',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/model_q1h.pdf',bbox_inches='tight')
     # f.savefig(folder+'../test_plots/model_q1hr_'+nplot+'.png',bbox_inches='tight')
 
@@ -1617,7 +1656,7 @@ ax_all[0,1].legend(loc=3,frameon=False)
     
 f.savefig(folder+'../test_plots/profile_all_q_Ein.png',bbox_inches='tight')
 
-
+'''
 
 hsampsq  = ['HM_Lz_qcut',
                'LM_Lz_qcut',
@@ -1627,18 +1666,18 @@ hsampsq  = ['HM_Lz_qcut',
                'LM_Hz_qcut']
 
 
-f, ax_all = plt.subplots(4,3, figsize=(14,16),sharex = True)
+f, ax_all = plt.subplots(6,3, figsize=(14,16),sharex = True)
 f.subplots_adjust(hspace=0)
 
 
 for j in range(len(ax_all)):
     plt_profile_fitted_withnoise(hsampsq[j],350,5000,ax_all[j])
-    ax_all[j,0].text(1,100,lhsq[j],fontsize=14)
+    ax_all[j,0].text(1,100,lhs[j],fontsize=14)
 
-ax_all[0,0].legend(loc=3,frameon=False)
-ax_all[0,1].legend(loc=3,frameon=False)
+ax_all[0,0].legend(loc=3,frameon=False,fontsize=10)
+
 
 
     
-f.savefig(folder+'../test_plots/profile_all_q_Ein.png',bbox_inches='tight')
-'''
+f.savefig(folder+'../final_plots/profile_all_q_withnoise.pdf',bbox_inches='tight')
+

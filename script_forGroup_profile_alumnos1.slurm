@@ -13,4 +13,4 @@ python -u forGroup_qprofile.py -sample 'LM_Mz_qcut_n30' -lM_min 13.5 -lM_max 14.
 ##srun python -u forGroup_qprofile.py -sample 'HM_Mz_qcut' -lM_min 14.0 -lM_max 14.5 -z_min 0.2 -z_max 0.3 -ncores 32 -q_min 0.5
 ##srun python -u forGroup_qprofile.py -sample 'HM_Hz_qcut' -lM_min 14.0 -lM_max 14.5 -z_min 0.3 -z_max 0.4 -ncores 32 -q_min 0.5
 ##srun python -u forGroup_qprofile.py -sample 'LM_Hz_qcut' -lM_min 13.5 -lM_max 14.0 -z_min 0.3 -z_max 0.4 -ncores 32 -q_min 0.5                                                                                                                          
-
+python -u forGroup_qprofile.py -sample 'CMB_check' -lM_min 14.5 -lM_max 15.0 -z_min 0.4 -z_max 0.45 -ncores 128 -nbins 60 -nback 15. -RIN 500 -ROUT 100000

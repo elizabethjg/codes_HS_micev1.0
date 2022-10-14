@@ -356,6 +356,7 @@ def partial_profile(RA0,DEC0,Z,angles,
         DSIGMAwsum_X = []
         N_inbin = []
               
+        KAPPATcos_wsum = np.zeros((ndots,3))
         GAMMATcos_wsum = np.zeros((ndots,3))
         GAMMAXsin_wsum = np.zeros((ndots,3))
                 
@@ -369,6 +370,7 @@ def partial_profile(RA0,DEC0,Z,angles,
                 DSIGMAwsum_T = np.append(DSIGMAwsum_T,et[mbin].sum())
                 DSIGMAwsum_X = np.append(DSIGMAwsum_X,ex[mbin].sum())
 
+                KAPPATcos_wsum[nbin,:] = np.sum((np.tile(k[mbin],(3,1))*np.cos(2.*at[mbin]).T),axis=1)
                 GAMMATcos_wsum[nbin,:] = np.sum((np.tile(et[mbin],(3,1))*np.cos(2.*at[mbin]).T),axis=1)
                 GAMMAXsin_wsum[nbin,:] = np.sum((np.tile(ex[mbin],(3,1))*np.sin(2.*at[mbin]).T),axis=1)
                 
@@ -380,7 +382,7 @@ def partial_profile(RA0,DEC0,Z,angles,
                 index = np.arange(mbin.sum())
         
         output = {'SIGMAwsum':SIGMAwsum,'DSIGMAwsum_T':DSIGMAwsum_T,
-                   'DSIGMAwsum_X':DSIGMAwsum_X,
+                   'DSIGMAwsum_X':DSIGMAwsum_X,'KAPPATcos_wsum': KAPPATcos_wsum,
                    'GAMMATcos_wsum': GAMMATcos_wsum, 'GAMMAXsin_wsum': GAMMAXsin_wsum,
                    'COS2_2theta_wsum':COS2_2theta,'SIN2_2theta_wsum':SIN2_2theta,
                    'N_inbin':N_inbin,'Ntot':Ntot}
@@ -642,6 +644,7 @@ def main(lcat, sample='pru',
             DSIGMAwsum_T = np.zeros((101,ndots)) 
             DSIGMAwsum_X = np.zeros((101,ndots))
                 
+            KAPPATcos_wsum = np.zeros((101,ndots,3))
             GAMMATcos_wsum = np.zeros((101,ndots,3))
             GAMMAXsin_wsum = np.zeros((101,ndots,3))
     
@@ -714,6 +717,7 @@ def main(lcat, sample='pru',
                             DSIGMAwsum_T += np.tile(profilesums['DSIGMAwsum_T'],(101,1))*km[:,:,0]
                             DSIGMAwsum_X += np.tile(profilesums['DSIGMAwsum_X'],(101,1))*km[:,:,0]
                             
+                            KAPPATcos_wsum += np.tile(profilesums['KAPPATcos_wsum'],(101,1,1))*km
                             GAMMATcos_wsum += np.tile(profilesums['GAMMATcos_wsum'],(101,1,1))*km
                             GAMMAXsin_wsum += np.tile(profilesums['GAMMAXsin_wsum'],(101,1,1))*km
     
@@ -825,6 +829,7 @@ def main(lcat, sample='pru',
             DSigma_T  = (DSIGMAwsum_T/Ninbin)
             DSigma_X  = (DSIGMAwsum_X/Ninbin)
             
+            KAPPA_Tcos = (KAPPATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
             GAMMA_Tcos = (GAMMATcos_wsum/COS2_2theta_wsum).transpose(1,2,0)
             GAMMA_Xsin = (GAMMAXsin_wsum/SIN2_2theta_wsum).transpose(1,2,0)
             
@@ -834,6 +839,10 @@ def main(lcat, sample='pru',
             COV_St  = cov_matrix(DSigma_T[1:,:])
             COV_Sx  = cov_matrix(DSigma_X[1:,:])
             
+            COV_Ktc = cov_matrix(KAPPA_Tcos[:,0,1:].T)
+            COV_Kt  = cov_matrix(KAPPA_Tcos[:,1,1:].T)
+            COV_Ktr = cov_matrix(KAPPA_Tcos[:,2,1:].T)
+
             COV_Gtc = cov_matrix(GAMMA_Tcos[:,0,1:].T)
             COV_Gt  = cov_matrix(GAMMA_Tcos[:,1,1:].T)
             COV_Gtr = cov_matrix(GAMMA_Tcos[:,2,1:].T)
@@ -841,25 +850,6 @@ def main(lcat, sample='pru',
             COV_Gxc = cov_matrix(GAMMA_Xsin[:,0,1:].T)
             COV_Gx  = cov_matrix(GAMMA_Xsin[:,1,1:].T)
             COV_Gxr = cov_matrix(GAMMA_Xsin[:,2,1:].T)
-            
-            # FITTING NFW PROFILE AND SAVE IT IN HEADER
-            
-            nfw    = Delta_Sigma_fit(R,DSigma_T[0],np.diag(COV_St),zmean,cosmo,True)
-    
-            M200_NFW   = nfw.M200
-            c200_NFW   = nfw.c200
-            e_c200_NFW = nfw.error_c200
-            e_M200_NFW = nfw.error_M200
-            le_M200    = (np.log(10.)/M200_NFW)*e_M200_NFW
-            
-            try:
-                h.append(('lM200_NFW',np.round(np.log10(M200_NFW),4)))
-                h.append(('elM200_NFW',np.round(le_M200,4)))
-                h.append(('c200_NFW',np.round(c200_NFW,4)))
-                h.append(('ec200_NFW',np.round(e_c200_NFW,4)))
-                h.append(('CHI2_NFW',np.round(nfw.chi2,4)))
-            except:
-                print('fit not well performed')
 
             # WRITING OUTPUT FITS FILE
             
@@ -867,6 +857,9 @@ def main(lcat, sample='pru',
                     fits.Column(name='Sigma', format='E', array=Sigma[0]),
                     fits.Column(name='DSigma_T', format='E', array=DSigma_T[0]),
                     fits.Column(name='DSigma_X', format='E', array=DSigma_X[0]),
+                    fits.Column(name='KAPPA_Tcos_control', format='E', array=KAPPA_Tcos[:,0,0]),
+                    fits.Column(name='KAPPA_Tcos', format='E', array=KAPPA_Tcos[:,1,0]),
+                    fits.Column(name='KAPPA_Tcos_reduced', format='E', array=KAPPA_Tcos[:,2,0]),
                     fits.Column(name='GAMMA_Tcos_control', format='E', array=GAMMA_Tcos[:,0,0]),
                     fits.Column(name='GAMMA_Tcos', format='E', array=GAMMA_Tcos[:,1,0]),
                     fits.Column(name='GAMMA_Tcos_reduced', format='E', array=GAMMA_Tcos[:,2,0]),
@@ -879,6 +872,9 @@ def main(lcat, sample='pru',
             table_cov = [fits.Column(name='COV_ST', format='E', array=COV_St.flatten()),
                         fits.Column(name='COV_S', format='E', array=COV_S.flatten()),
                         fits.Column(name='COV_SX', format='E', array=COV_Sx.flatten()),
+                        fits.Column(name='COV_KT_control', format='E', array=COV_Ktc.flatten()),
+                        fits.Column(name='COV_KT', format='E', array=COV_Kt.flatten()),
+                        fits.Column(name='COV_KT_reduced', format='E', array=COV_Ktr.flatten()),
                         fits.Column(name='COV_GT_control', format='E', array=COV_Gtc.flatten()),
                         fits.Column(name='COV_GT', format='E', array=COV_Gt.flatten()),
                         fits.Column(name='COV_GT_reduced', format='E', array=COV_Gtr.flatten()),

@@ -273,8 +273,8 @@ def plot_bias(hsamps,lhs,cstyle,nplot,RIN,ROUToq,D = 1):
 
     ax[0].legend(frameon=False,loc=4,ncol=3)
     ax[1].legend(loc=1,ncol=2)
-    # f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
-    f.savefig(folder+'../test_plots/qcomparison_'+nplot+'.png',bbox_inches='tight')
+    f.savefig(folder+'../final_plots/qcomparison.pdf',bbox_inches='tight')
+    # f.savefig(folder+'../test_plots/qcomparison_'+nplot+'.png',bbox_inches='tight')
     # f.savefig(folder+'../final_plots/qcomparison_rel.png',bbox_inches='tight')
 
     #####################
